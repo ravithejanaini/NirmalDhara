@@ -27,10 +27,12 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 Reading a photo needs AWS credentials with access to a Claude model in Amazon Bedrock:
 
 ```bash
-AWS_REGION=us-east-1 python -m nirmaldhara read samples/photo.jpg
+AWS_REGION=ap-south-1 python -m nirmaldhara read samples/photo.jpg
 ```
 
-`NIRMALDHARA_MODEL` overrides the model, which defaults to `anthropic.claude-opus-5-5`.
+`NIRMALDHARA_MODEL` overrides the model. The default, `in.anthropic.claude-opus-5`, is the
+in-country inference profile: requests are routed only between the Mumbai and Hyderabad
+regions.
 
 ## AI tools used
 

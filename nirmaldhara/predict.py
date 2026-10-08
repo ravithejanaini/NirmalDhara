@@ -20,9 +20,9 @@ def rise_rate(readings):
     return median(slopes) if slopes else None
 
 
-def rain_factor(next30_mm, last30_mm):
+def rain_factor(next60_mm, last60_mm):
     """How the coming rain compares with the recent rain, clipped to 0.25..3."""
-    return max(0.25, min(3.0, next30_mm / max(last30_mm, 1.0)))
+    return max(0.25, min(3.0, next60_mm / max(last60_mm, 1.0)))
 
 
 def depth_at(depth_now_cm, rate, minutes, max_depth_cm):

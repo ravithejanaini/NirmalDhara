@@ -23,7 +23,7 @@ def main():
 
     read = sub.add_parser("read", help="read water depth from a photo")
     read.add_argument("image")
-    read.add_argument("--region", help="AWS region; defaults to AWS_REGION")
+    read.add_argument("--region", help="AWS region; defaults to AWS_REGION, then ap-south-1")
 
     check = sub.add_parser("check", help="passability for a depth range")
     check.add_argument("--low", type=float, required=True)

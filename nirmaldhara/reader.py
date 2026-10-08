@@ -8,9 +8,12 @@ import json
 import mimetypes
 import os
 
-from anthropic import AnthropicBedrockMantle
+from anthropic import AnthropicBedrock
 
-MODEL = os.environ.get("NIRMALDHARA_MODEL", "anthropic.claude-opus-5-5")
+# The "in." inference profile keeps inference inside India: requests are routed only
+# between the Mumbai and Hyderabad regions (ARCHITECTURE.md section 13.1).
+MODEL = os.environ.get("NIRMALDHARA_MODEL", "in.anthropic.claude-opus-5")
+REGION = os.environ.get("AWS_REGION", "ap-south-1")
 
 INSTRUCTION = """You are reading floodwater depth from a street photo.
 
@@ -68,7 +71,7 @@ def read_depth(image_path, region=None):
     with open(image_path, "rb") as f:
         data = base64.standard_b64encode(f.read()).decode("utf-8")
 
-    client = AnthropicBedrockMantle(aws_region=region or os.environ["AWS_REGION"])
+    client = AnthropicBedrock(aws_region=region or REGION)
     response = client.messages.create(
         model=MODEL,
         max_tokens=16000,

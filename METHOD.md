@@ -315,7 +315,7 @@ carries the moving-water caution without changing the answer.
 **Rain adjustment.** Scale by how the coming rain compares with the recent rain:
 
 ```
-k     = clip(P_next30 / max(P_last30, 1 mm), 0.25, 3.0)
+k     = clip(P_next60 / max(P_last60, 1 mm), 0.25, 3.0)
 r_adj = r * k
 ```
 
@@ -944,10 +944,14 @@ The language model writes the sentence; the numbers come from the calculation.
 
 - The department must still clear the waste. The system gives a precise, timed instruction
   and shows whether it was carried out.
-- The inlet equations and the road-dust formula are standard references written here from
-  memory; they are to be checked against the source documents before use.
+- The inlet equations were checked against a published calculator that follows the US federal
+  drainage manual: a grate in a dip passes `1.66 * P * d^1.5` as a weir and
+  `0.67 * A * sqrt(2 g d)` as an orifice, in metric units, and the lower of the two governs.
+  Blocked share reduces `P` and `A` in proportion. The manual itself was not read.
+- The road-dust formula could not be checked: the source document could not be opened. The
+  dust scenario is therefore unverified as well as approximate.
 - Whether a given recorder can push snapshots depends on its model.
-- Email receiving on AWS is not offered in every region; the region is to be confirmed.
+- Email receiving on AWS is offered in the Mumbai region (checked).
 - Route A depends on an agreement with the city control room.
 - Cameras fail in power cuts, which are common in floods. Coverage will thin exactly when it
   matters, and the console shows this.
