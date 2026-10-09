@@ -152,7 +152,7 @@ flowchart LR
 |---|---|---|
 | Site state and smoothed depth | State engine | Everyone |
 | Readings | State engine | Workflows, views |
-| Flood event record | Flood event workflow, at close | Repeat offenders, fix sizing |
+| Flood event record | Flood event workflow, every step | Repeat offenders, fix sizing |
 | Camera record and consent | Camera API | Activation workflow, intake |
 | Emergency declaration | Activation workflow | Intake (to accept or discard frames), console |
 | Waste observations | Vision Lambda | Scenario workflow |
@@ -171,13 +171,13 @@ One bus, `nirmaldhara`. Every event carries `city`, `site_id` or `camera_id`, `o
 |---|---|---|
 | `RainIndexComputed` | Rain Lambda | State engine |
 | `FrameStored` | S3 (object created) | Queues, by key prefix |
-| `ReadingAccepted` | State engine | Flood workflow (via task token), publisher |
+| `ReadingAccepted` | State engine | Flood workflow (reactor), publisher |
 | `ReadingRejected` | Intake or state engine | Metrics; capture page feedback |
-| `SiteStateChanged` | State engine | Starts flood workflow on WATCH; publisher; console |
+| `SiteStateChanged` | State engine | Flood workflow (reactor); publisher; console |
 | `PhotoRequested` | Flood workflow | Notifier |
 | `AlertRequested` | Flood workflow | Notifier |
 | `AlertSent` / `AlertFailed` | Notifier | Flood workflow, alarms |
-| `AlertAcknowledged` | Ack API | Flood workflow (via task token) |
+| `AlertAcknowledged` | Ack API | Flood workflow |
 | `EmergencyDeclared` / `EmergencyEnded` | Activation API | Activation workflow |
 | `CameraOffline` | Health checker | Console |
 | `WasteObserved` | Vision Lambda | Scenario workflow trigger |
@@ -226,34 +226,40 @@ time **[verified]**. The conditional write is a second guard.
 
 ### 6.3 Flood event workflow (one per site per flood)
 
-Started by `SiteStateChanged` to WATCH. The execution name is
-`{site_id}-{watch_start}`; starting it twice with the same name and input is a no-op for
-Standard workflows **[verified]**.
+One flood event record exists per site per flood. One step function, run by two callers,
+keeps it up to date and decides what is due. The low-level design is in
+[DESIGN.md](DESIGN.md) section 8.
 
 ```
-RecordWatch
-  -> RequestPhotos            wait for a reading via task token
-       timeout 10 min in WATCH, 5 min in WARNING or CRITICAL
-  -> ReadState                read the site record (owned by the state engine)
-  -> Choice
-       no water and rain below threshold for 60 min  -> CloseNoFlood
-       state CLEAR after a flood                      -> CloseEvent
-       otherwise                                      -> Decide
-  -> Decide                   agent Lambda, 8 s limit; on timeout or error use templates
-  -> Notify                   one AlertRequested per audience, keyed so repeats are dropped
-  -> AwaitAck                 officials only; task token; 5 min in CRITICAL
-       timeout -> Escalate to the next contact, then continue
-  -> back to RequestPhotos
-CloseEvent                    write the Events row; publish EventClosed
+reactor   on SiteStateChanged or ReadingAccepted      the fast path
+tick      from a timer loop, every 60 to 120 s        what becomes due as time passes
+
+step:     read the site (owned by the state engine)
+          open the event if the site has left CLEAR and none is open
+          bring peaks, blocked time and counters up to date
+          decide: alerts due, escalations, photo request, or close
+          publish AlertRequested / PhotoRequested / EventClosed
+          save the event if nobody else has saved it since it was read
 ```
 
 - The workflow orchestrates asking, alerting and escalating. It does not compute state.
-- Readings that arrive while the workflow is busy are not lost: the state engine has already
-  recorded them, and `ReadState` picks up the latest.
-- Task tokens are stored per site with a time-to-live. `ReadingAccepted` and
-  `AlertAcknowledged` handlers look the token up and resume the workflow.
-- A 12-hour flood at one loop every 5 minutes is about 150 loops, far below the execution
-  history limit of 25,000 events **[verified]**.
+- A reading causes an alert through the reactor at once. It does not wait for the timer.
+- The timer is one Standard workflow execution per flood, named `{site_id}-{start}`; starting
+  it twice with the same name and input is a no-op **[verified]**. It holds no decisions. It
+  calls the step, sleeps for as long as the step says, and repeats until the step reports the
+  event closed.
+- `start` is the moment the state engine recorded the site leaving CLEAR, so both callers
+  agree on the event's key, the alert ids and the timer's name without talking to each other.
+- Alert ids are `{site_id}#{start}#{audience}#{seq}#{kind}`. Two callers reaching the same
+  decision produce the same id, and the notifier sends it once.
+- The step publishes before it saves. If it dies in between, the next step makes the same
+  decision with the same ids and the notifier drops the repeats. Saving first could lose an
+  alert.
+- An execution's history is limited to 25,000 events **[verified]**. The loop hands over to a
+  fresh execution after 2,000 iterations, about 33 hours.
+- An earlier version of this section used one long workflow paused on task tokens. It was
+  replaced because an alert could only leave when the workflow reached its notify state, and
+  because the token store was a second piece of state to keep correct.
 
 ### 6.4 Agent step
 
@@ -347,8 +353,8 @@ failure on one falls through to the next. `AlertFailed` on every channel raises 
 | `Readings` | `site_id` | `ts` | TTL 180 days |
 | `Events` | `site_id` | `start` | Kept; index on `city` + `start` for ranking |
 | `Subscribers` | `sub_id` | | Index on geohash for "nearby" |
-| `Alerts` | `site_id` | `ts#audience` | The key is the idempotency key |
-| `Tokens` | `kind#id` | | Task tokens and single-use nonces; TTL |
+| `Alerts` | `alert_id` | | The key is the idempotency key; TTL 30 days |
+| `Tokens` | `kind#id` | | Single-use nonces and photo hashes; TTL |
 | `Cameras` | `zone_id` | `camera_id` | Consent record, shared region, health |
 | `Activations` | `zone_id` | `start` | Declaration, officer, expiry |
 | `WasteObservations` | `camera_id` | `ts` | TTL 90 days |
@@ -399,7 +405,7 @@ On-demand capacity throughout. Point-in-time recovery on `Sites`, `Events`, `Cam
 | Out-of-order frames | Old frame after new | Conditional write on timestamp |
 | Poison message | Handler keeps failing | Dead-letter queue after 3 tries, with an alarm |
 | Burst of uploads | Model rate limit | Queue buffers; maximum concurrency set on the queue trigger **[verified]** |
-| Workflow started twice | Two workflows for one flood | Deterministic execution name |
+| Workflow started twice | Two workflows for one flood | Deterministic event key and execution name |
 | Console disconnects | Stale screen | Snapshot on reconnect; data age shown |
 | Camera loses network | No frames | Agent buffers 20 frames; stops at expiry on its own |
 | Area power cut | Many cameras silent | Reported as a likely power cut; forecast-only alerts continue |
