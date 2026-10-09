@@ -38,7 +38,7 @@ regions.
 
 | Folder or file | Holds |
 |---|---|
-| `nirmaldhara/`, `handlers/` | The logic and the AWS functions |
+| `src/nirmaldhara/`, `src/handlers/` | The logic and the AWS functions; `src/` is all that is packaged for Lambda |
 | `statemachine/`, `template.yaml` | The flood timer loop and the deployment template |
 | `tests/` | The automated tests |
 | `scripts/` | Seeding, sending and replaying scripts |
@@ -46,7 +46,7 @@ regions.
 | `web/` | The resident map and other pages |
 | `samples/` | Labelled flood and drain photos |
 | `docs/` | Smoke-test record, video script, diagrams |
-| `layers/vision/` | Packages for the photo functions |
+| `layers/vision/` | Requirements for the photo functions (numpy, pillow, anthropic), built as a layer |
 | `METHOD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `TASKS.md` | Method, high-level design, low-level design, task plan |
 
 ## AI tools used

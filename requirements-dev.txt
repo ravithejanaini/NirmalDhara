@@ -1,2 +1,3 @@
--r requirements.txt
+-e .
+-r layers/vision/requirements.txt
 pytest

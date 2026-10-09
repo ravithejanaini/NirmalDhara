@@ -14,7 +14,7 @@ Globals:
     Runtime: python3.13
     Timeout: 30
     MemorySize: 256
-    CodeUri: .
+    CodeUri: src/
     Environment:
       Variables:
         SITES_TABLE: !Ref SitesTable

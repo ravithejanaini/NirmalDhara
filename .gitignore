@@ -7,3 +7,4 @@ __pycache__/
 samconfig.toml
 *.zip
 web/config.local.js
+*.egg-info/
