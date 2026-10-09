@@ -1096,3 +1096,52 @@ the fakes assume. End-to-end timing. Everything in section 16.
 | `Events` table | Written at close | `Floods`, written every step, so a flood in progress is visible |
 | `Tokens` table | Task tokens and nonces | Nonces and photo hashes only; no task tokens exist |
 | `RainIndexComputed` event | On the bus | A queue message straight to the engine, which keeps one site's inputs in order |
+
+---
+
+## 20. Demonstration tools
+
+Four scripts in `scripts/` drive the deployed system. None is part of the product; all are
+dry-run by default and write nothing without `--go` or `--apply`.
+
+| Script | Does |
+|---|---|
+| `send.py` | Queues one rain or reading message for a site |
+| `smoke_test.py` | Walks one invented site through a whole flood and checks 21 things (`docs/smoke-test.md`) |
+| `replay.py` | Plays `data/scenarios/evening.json` into four real registry sites |
+| `reset.py` | Returns those four sites to clear, ready for another replay |
+
+### 20.1 What a replay is
+
+Forty-three messages over 90 scenario minutes: one site rises to critical on trusted photos and
+recedes; one is held at warning by a single resident's photos; one is a watch that ends after
+an hour of light rain; one stays clear. `--speed 45` plays it in two minutes. The scenario is
+tested against the real state and workflow code (`tests/test_scenario.py`), so the story it
+tells on AWS is the story the logic produces.
+
+### 20.2 Reset
+
+In order: stop the site's flood timer; close any open flood record with the outcome `reset`;
+remove the engine's own attributes (`doc`, `state`, `version`) from the site's item, which
+makes it clear and leaves its name, position and rain threshold alone; optionally
+(`--forget-floods`) delete its flood and alert records; then refresh the public map. A closed
+flood from an earlier run stays as history. **Anything that reads flood history, such as the
+repeat-offenders page, must ignore the outcome `reset`:** it marks a record closed by hand, not
+a flood that ended.
+
+### 20.3 What a fast replay does not show, and the care it takes
+
+- **Two clocks.** The engine reads each message's own time, so a replay sends simulated times
+  that run ahead of the wall clock: without that, "an hour of light rain" could never pass in
+  two minutes. The flood workflow runs on the real clock. So a replay cannot show the 20-minute
+  repeat alert or the 5-minute escalation (the smoke test's record shows both), and the flood
+  records it leaves carry real, short durations: a replay at 45x records about a minute of
+  blocked road, not an hour. `--speed 1` gives realistic durations in real time.
+- **Fresh-looking readings.** Because simulated times run ahead of the wall clock, a reading
+  sent during a fast replay shows "seen less than a minute ago" and never fades as stale.
+- **It is on the real map.** The public site shows these floods at these real places while a
+  replay runs and until `reset.py` is run, and the alerts topic receives the alerts. The script
+  refuses to run while the topic has a confirmed subscriber unless `--alerts-ok` is given, and
+  prints that warning when it starts. The demonstration video should say it is a replay.
+- **Refusals.** It will not start if a named site is not in the registry or is not clear, so two
+  runs can never overlap into one confused picture.
