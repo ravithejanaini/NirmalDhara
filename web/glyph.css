@@ -81,9 +81,11 @@
   animation: glyph-breathe 3.2s ease-in-out infinite;
 }
 
+/* Two and a half times the watch ring's weight, so the two are told apart by weight alone
+   when colour is removed, not only by whether the disc is filled. */
 .glyph[data-ring="critical"] .glyph-ring {
   stroke: var(--signal);
-  stroke-width: 1.5;
+  stroke-width: 2.5;
 }
 
 @keyframes glyph-breathe {

@@ -627,7 +627,7 @@ No framework and no build step: plain HTML, CSS and JavaScript modules in `web/`
   | Surface | a sine path, amplitude 1.5 px, drifting 6 s per cycle |
   | Colour | Shallow under 12 cm, Water 12 to 30, Deep above 30 |
   | Unconfirmed | dashed outline |
-  | Critical | 1.5 px Signal ring |
+  | Critical | 2.5 px Signal ring (the watch ring is 1 px) |
   | Watch, no water | empty circle with a slow pulse on the outline |
   | Stale (over 30 min) | 50% opacity |
   | Change | fill animates 800 ms ease-out |
