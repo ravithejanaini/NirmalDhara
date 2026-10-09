@@ -43,7 +43,7 @@ CLEAR -> WATCH -> WARNING -> CRITICAL -> RECEDING -> CLEAR
 | WATCH | Rain index >= site threshold | A reading confirms water (-> WARNING), or rain index stays below threshold for 60 min with no water confirmed (-> CLEAR) |
 | WARNING | Smoothed depth >= band B2 | Depth reaches the car no-go band (-> CRITICAL) or slope turns negative for 3 readings (-> RECEDING) |
 | CRITICAL | Smoothed depth >= car no-go band | Slope negative for 3 readings (-> RECEDING) |
-| RECEDING | Depth falling | Depth back to B0/B1 for 2 readings (-> CLEAR) |
+| RECEDING | Depth falling | Depth back to B0/B1 for 2 readings (-> CLEAR), or depth rising again (-> WARNING or CRITICAL by depth) |
 
 "Depth" in this table means the upper end of the smoothed depth range (section 6, C5). The car
 no-go band is B3 (section 6, C4).

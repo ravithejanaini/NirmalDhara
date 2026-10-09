@@ -19,7 +19,7 @@ real images.
 ## Run
 
 ```bash
-python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
 python -m pytest
 python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 ```

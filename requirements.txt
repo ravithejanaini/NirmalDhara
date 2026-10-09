@@ -1,4 +1,1 @@
 anthropic[bedrock]
-numpy
-pillow
-pytest

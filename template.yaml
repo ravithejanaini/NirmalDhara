@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  NirmalDhara, first slice: rain check, state engine and the event bus.
+  See ARCHITECTURE.md sections 5, 6.1 and 6.2.
+
+Parameters:
+  City:
+    Type: String
+    Default: hyderabad
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Timeout: 30
+    MemorySize: 256
+    CodeUri: .
+    Environment:
+      Variables:
+        SITES_TABLE: !Ref SitesTable
+        EVENT_BUS: !Ref Bus
+        CITY: !Ref City
+
+Resources:
+  Bus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: nirmaldhara
+
+  # Past events can be replayed to demonstrate recorded floods and to test changes.
+  BusArchive:
+    Type: AWS::Events::Archive
+    Properties:
+      SourceArn: !GetAtt Bus.Arn
+      RetentionDays: 30
+
+  SitesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: city, AttributeType: S }
+        - { AttributeName: site_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: city, KeyType: HASH }
+        - { AttributeName: site_id, KeyType: RANGE }
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  EngineDeadLetters:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      MessageRetentionPeriod: 1209600
+
+  # Message group = site id, so one site's messages are handled in order, one at a time.
+  EngineQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      VisibilityTimeout: 180
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt EngineDeadLetters.Arn
+        maxReceiveCount: 3
+
+  EngineFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.engine.handler
+      Policies:
+        - DynamoDBCrudPolicy: { TableName: !Ref SitesTable }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref Bus }
+      Events:
+        Queue:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt EngineQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes: [ReportBatchItemFailures]
+
+  RainFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.rain.handler
+      Environment:
+        Variables:
+          ENGINE_QUEUE_URL: !Ref EngineQueue
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
+        - SQSSendMessagePolicy: { QueueName: !GetAtt EngineQueue.QueueName }
+      Events:
+        Every15Minutes:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: rate(15 minutes)
+
+  DeadLettersAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: A message for the state engine failed three times.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - { Name: QueueName, Value: !GetAtt EngineDeadLetters.QueueName }
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+
+Outputs:
+  SitesTable:
+    Value: !Ref SitesTable
+  EngineQueueUrl:
+    Value: !Ref EngineQueue
+  EventBus:
+    Value: !Ref Bus
