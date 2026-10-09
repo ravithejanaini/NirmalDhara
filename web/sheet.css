@@ -158,3 +158,98 @@
     transition: none;
   }
 }
+
+/* --- The cross-section (section.js) ------------------------------------------------------ */
+
+.section {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.section-figure path,
+.section-figure circle {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Outlines only. A paper fill would show as a flat patch against the sheet's grain. The shapes
+   marked as bodies carry no outline of their own: the open paths drawn after them do. */
+.section-figure path.section-body {
+  stroke: none;
+}
+
+.section-level {
+  transition: transform var(--rise) var(--ease-out);
+}
+
+.section-solid path { fill: var(--water); opacity: 0.62; }
+.section-band path { fill: var(--water); opacity: 0.3; }
+.section[data-tone="shallow"] .section-solid path,
+.section[data-tone="shallow"] .section-band path { fill: var(--shallow); }
+.section[data-tone="shallow"] .section-solid path { opacity: 0.8; }
+.section[data-tone="shallow"] .section-band path { opacity: 0.45; }
+.section[data-tone="deep"] .section-solid path,
+.section[data-tone="deep"] .section-band path { fill: var(--deep); }
+
+.section-surface path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.section-level path {
+  animation: section-drift calc(var(--drift) * 1.5) linear infinite;
+}
+
+.section-solid path {
+  animation-direction: reverse;
+}
+
+@keyframes section-drift {
+  to { transform: translateX(28px); }
+}
+
+.section-ground {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.section-limit path {
+  stroke: var(--signal-ink);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 17 units is about 14.5 px at phone width: the type floor holds inside the drawing too. */
+.section-limit text {
+  fill: var(--signal-ink);
+  font-family: var(--font-text);
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  /* A paper halo, so a number stays readable when deep water is drawn behind it. */
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.section-caption {
+  margin-top: var(--space-1);
+  font-size: var(--size-small);
+  color: var(--slate);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-level path {
+    animation: none;
+  }
+}

@@ -35,6 +35,7 @@ import { createMap } from "./map.js";
 import { startLive } from "./data.js";
 import { SiteLayer } from "./sites.js";
 import { SiteSheet } from "./sheet.js";
+import { mountSection, forgetSection } from "./section.js";
 
 const status = document.getElementById("data-status");
 let map;
@@ -67,6 +68,15 @@ if (map) {
     },
   });
   layer.keepAges(live.now);
+  // Each time the sheet draws itself, the cross-section is drawn into the slot it leaves.
+  document.getElementById("sheet").addEventListener("sheet-drawn", (event) => {
+    const slot = event.currentTarget.querySelector("[data-slot=section]");
+    mountSection(slot, event.detail.site);
+    if (event.detail.model.wet) {
+      slot.insertAdjacentHTML("beforeend",
+        '<p class="section-caption">To scale. Red marks: where bikes, cars and people must stop.</p>');
+    }
+  });
   sheet = new SiteSheet(document.getElementById("sheet"), live.now);
   Object.assign(window.nirmaldhara, { layer, live, sheet });
 }
