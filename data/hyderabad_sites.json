@@ -1,0 +1,96 @@
+{
+  "city": "hyderabad",
+  "note": "Every site needs a source link. A site without one is left out. Positions are from OpenStreetMap's search and are approximate: see SOURCES.md before relying on them for the photo distance check.",
+  "sites": [
+    {
+      "id": "hyd-001",
+      "name": "Lingampally railway underpasses",
+      "lat": 17.48304,
+      "lon": 78.32054,
+      "rain_threshold_mm": 20,
+      "source": "https://thesouthfirst.com/telangana/hyderabad-persistent-railway-underpass-flooding-plagues-serilingampally-ngt-summons-ghmc",
+      "source_note": "South First, 23 Sep 2023: the two underpasses at Lingampally Railway Station flood in short downpours; GHMC barricades the road when they do.",
+      "position": "Lingampally Railway Station (OpenStreetMap). Close to the underpasses."
+    },
+    {
+      "id": "hyd-002",
+      "name": "Raheja Mindspace entrance underpass",
+      "lat": 17.43653,
+      "lon": 78.38421,
+      "rain_threshold_mm": 20,
+      "source": "https://www.thenewsminute.com/article/rainfall-choking-hyderabads-it-corridor-police-suggest-alternative-routes-104141",
+      "source_note": "The News Minute, 24 Jun 2019, from a Cyberabad Traffic Police advisory: underpass near the Raheja Mindspace campus entrance, between Cyber Gateway and Mindspace.",
+      "position": "A building inside Mindspace (OpenStreetMap). Approximate: the underpass is on the campus road."
+    },
+    {
+      "id": "hyd-003",
+      "name": "Near Shilparamam, Madhapur",
+      "lat": 17.45147,
+      "lon": 78.37746,
+      "rain_threshold_mm": 20,
+      "source": "https://www.thenewsminute.com/article/rainfall-choking-hyderabads-it-corridor-police-suggest-alternative-routes-104141",
+      "source_note": "The News Minute, 24 Jun 2019, from a Cyberabad Traffic Police advisory: near Shilparamam, on the road between Hitex Charminar and the Cyber Towers junction.",
+      "position": "Shilparamam park centre (OpenStreetMap). Approximate: the flooding is on the road beside it."
+    },
+    {
+      "id": "hyd-004",
+      "name": "Nectar Gardens, Madhapur",
+      "lat": 17.43678,
+      "lon": 78.38978,
+      "rain_threshold_mm": 20,
+      "source": "https://www.thenewsminute.com/article/rainfall-choking-hyderabads-it-corridor-police-suggest-alternative-routes-104141",
+      "source_note": "The News Minute, 24 Jun 2019, from a Cyberabad Traffic Police advisory: Nectar Gardens, on the road linking Madhapur to Road No. 45.",
+      "position": "Nectar Gardens locality (OpenStreetMap). Approximate."
+    },
+    {
+      "id": "hyd-005",
+      "name": "Cyber Towers junction",
+      "lat": 17.45161,
+      "lon": 78.38110,
+      "rain_threshold_mm": 20,
+      "source": "https://www.thenewsminute.com/article/rainfall-choking-hyderabads-it-corridor-police-suggest-alternative-routes-104141",
+      "source_note": "The News Minute, 24 Jun 2019, from a Cyberabad Traffic Police advisory: the road between the Cyber Towers junction and the Kavuri Hills junction, in both directions.",
+      "position": "Cyber Towers Junction (OpenStreetMap)."
+    },
+    {
+      "id": "hyd-006",
+      "name": "Lakdikapul railway bridge",
+      "lat": 17.40286,
+      "lon": 78.46614,
+      "rain_threshold_mm": 20,
+      "source": "https://deccanchronicle.com/southern-states/telangana/ghmc-to-solve-waterlogging-on-roads-1831553",
+      "source_note": "Deccan Chronicle, 19 Oct 2024: officials inspected Lakdikapul, where the drain under the railway bridge is to be renovated to stop waterlogging.",
+      "position": "Lakdikapul Road (OpenStreetMap). Approximate, within a few hundred metres of the bridge."
+    },
+    {
+      "id": "hyd-007",
+      "name": "Khairatabad junction",
+      "lat": 17.41297,
+      "lon": 78.46106,
+      "rain_threshold_mm": 20,
+      "source": "https://www.siasat.com/list-of-waterlogging-prone-areas-during-rains-in-hyderabad-3257411/",
+      "source_note": "Siasat, page last modified 11 Aug 2025: Khairatabad junction listed among waterlogging-prone places.",
+      "position": "Khairatabad flyover (OpenStreetMap)."
+    },
+    {
+      "id": "hyd-008",
+      "name": "Maitrivanam, Ameerpet",
+      "lat": 17.43530,
+      "lon": 78.44563,
+      "rain_threshold_mm": 20,
+      "source": "https://www.siasat.com/list-of-waterlogging-prone-areas-during-rains-in-hyderabad-3257411/",
+      "source_note": "Siasat, page last modified 11 Aug 2025: Maitrivanam and Budhanagar in Ameerpet listed among waterlogging-prone places.",
+      "position": "Maitrivanam Junction (OpenStreetMap)."
+    },
+    {
+      "id": "hyd-009",
+      "name": "Al Jubail Colony, Falaknuma",
+      "lat": 17.32722,
+      "lon": 78.47146,
+      "rain_threshold_mm": 20,
+      "source": "https://www.siasat.com/list-of-waterlogging-prone-areas-during-rains-in-hyderabad-3257411/",
+      "source_note": "Siasat, page last modified 11 Aug 2025: Al Jubail Colony in Falaknuma, on the edge of a nala.",
+      "position": "Colony centre (OpenStreetMap). Approximate: a neighbourhood, not a road point."
+    }
+  ]
+}
