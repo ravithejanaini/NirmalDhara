@@ -14,6 +14,8 @@
     "RainFunction": "nirmaldhara-RainFunction-4nQhmah14cRS",
     "ReactorFunction": "nirmaldhara-ReactorFunction-MaR12vRtJEhL",
     "SitesTable": "nirmaldhara-SitesTable-HNA3N9WD1P7W",
-    "TickFunction": "nirmaldhara-TickFunction-JfBr86IJvoBb"
+    "TickFunction": "nirmaldhara-TickFunction-JfBr86IJvoBb",
+    "PublicBucket": "nirmaldhara-publicbucket-fpohbn9pkemy",
+    "PublisherFunction": "nirmaldhara-PublisherFunction-04rZ15tNyXIO"
   }
 }

@@ -230,6 +230,43 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
 
+  # The public map file, and later the web app, are served from here by CloudFront (PUB-04).
+  PublicBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
+
+  PublisherFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.publisher.handler
+      DeadLetterQueue: { Type: SQS, TargetArn: !GetAtt WorkflowDeadLetters.Arn }
+      Environment:
+        Variables:
+          PUBLIC_BUCKET: !Ref PublicBucket
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
+        - S3CrudPolicy: { BucketName: !Ref PublicBucket }
+      Events:
+        SiteChanged:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref Bus
+            Pattern:
+              source: [nirmaldhara]
+              detail-type: [SiteStateChanged, ReadingAccepted]
+        EveryFifteenMinutes:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: rate(15 minutes)
+
   DeadLettersAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -253,5 +290,7 @@ Outputs:
     Value: !Ref Bus
   AlertsTopic:
     Value: !Ref AlertsTopic
+  PublicBucket:
+    Value: !Ref PublicBucket
   FloodStateMachine:
     Value: !Ref FloodStateMachine
