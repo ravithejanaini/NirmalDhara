@@ -1,0 +1,19 @@
+{
+  "stack": "nirmaldhara",
+  "region": "ap-south-1",
+  "note": "Resource names only. Scripts read full addresses from the stack at run time.",
+  "resources": {
+    "AlertsTable": "nirmaldhara-AlertsTable-2X794ZQIX08L",
+    "AlertsTopic": "nirmaldhara-AlertsTopic-fshE8kS3jEGB",
+    "Bus": "nirmaldhara",
+    "EngineFunction": "nirmaldhara-EngineFunction-5c7X87QXt4kz",
+    "EngineQueue": "nirmaldhara-EngineQueue-1oQo0NStHkMX.fifo",
+    "FloodStateMachine": "FloodStateMachine-dMQd9y82MeSb",
+    "FloodsTable": "nirmaldhara-FloodsTable-GZ0ARNTY8MJW",
+    "NotifierFunction": "nirmaldhara-NotifierFunction-mcI23v3P43DA",
+    "RainFunction": "nirmaldhara-RainFunction-4nQhmah14cRS",
+    "ReactorFunction": "nirmaldhara-ReactorFunction-MaR12vRtJEhL",
+    "SitesTable": "nirmaldhara-SitesTable-HNA3N9WD1P7W",
+    "TickFunction": "nirmaldhara-TickFunction-JfBr86IJvoBb"
+  }
+}

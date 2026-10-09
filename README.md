@@ -34,6 +34,20 @@ AWS_REGION=ap-south-1 python -m nirmaldhara read samples/photo.jpg
 in-country inference profile: requests are routed only between the Mumbai and Hyderabad
 regions.
 
+## Deploy
+
+Needs the AWS SAM CLI and credentials allowed to create the stack.
+
+```bash
+sam validate --lint
+sam build
+sam deploy --stack-name nirmaldhara --region ap-south-1 --resolve-s3 --capabilities CAPABILITY_IAM --no-confirm-changeset
+```
+
+Deployed on 9 October 2026 to ap-south-1 (Mumbai): five functions, three tables, three queues,
+one topic, one event bus with two rules, one state machine, three alarms and a 15-minute
+schedule. The resource names are in `data/stack-outputs.json`.
+
 ## Layout
 
 | Folder or file | Holds |
