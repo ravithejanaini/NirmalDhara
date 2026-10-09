@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="glyph.css">
 <link rel="stylesheet" href="map.css">
+<link rel="stylesheet" href="sheet.css">
 </head>
 <body class="map-page">
 <div id="map" role="application" aria-label="Map of Hyderabad"></div>
@@ -24,6 +25,8 @@
   <p id="data-status" class="data-status" role="status" aria-live="polite" hidden></p>
 </header>
 
+<section id="sheet" class="paper sheet site-sheet" role="dialog" aria-labelledby="sheet-title" hidden></section>
+
 <p id="map-error" class="map-error" hidden>The map could not be loaded. Check the connection and reload.</p>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -31,6 +34,7 @@
 import { createMap } from "./map.js";
 import { startLive } from "./data.js";
 import { SiteLayer } from "./sites.js";
+import { SiteSheet } from "./sheet.js";
 
 const status = document.getElementById("data-status");
 let map;
@@ -45,9 +49,17 @@ try {
 
 if (map) {
   const layer = new SiteLayer(map);
+  let sheet = null;
   const live = startLive({
     url: "data/hyderabad.json",
-    onData: (load) => layer.apply(load),
+    onData: (load) => {
+      layer.apply(load);
+      // The open sheet follows its site: redrawn when the site changes, closed if it is removed.
+      if (sheet && sheet.site) {
+        if (load.diff.changed.includes(sheet.site.id)) sheet.update(load.data.sites.get(sheet.site.id));
+        if (load.diff.removed.includes(sheet.site.id)) sheet.close();
+      }
+    },
     onStatus: (notice) => {
       status.hidden = !notice;
       status.textContent = notice ? notice.text : "";
@@ -55,7 +67,8 @@ if (map) {
     },
   });
   layer.keepAges(live.now);
-  Object.assign(window.nirmaldhara, { layer, live });
+  sheet = new SiteSheet(document.getElementById("sheet"), live.now);
+  Object.assign(window.nirmaldhara, { layer, live, sheet });
 }
 </script>
 </body>

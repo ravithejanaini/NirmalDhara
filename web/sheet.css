@@ -1,0 +1,160 @@
+/* The site sheet: a piece of paper that slides up over the night map. */
+
+.site-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-sheet);
+  max-height: min(82dvh, 44rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-2) var(--gutter) calc(var(--space-4) + env(safe-area-inset-bottom));
+  box-shadow: 0 -1px 0 rgb(14 26 43 / 0.5), 0 -18px 40px rgb(5 10 18 / 0.45);
+  transform: translateY(105%);
+  transition: transform 320ms var(--ease-out);
+}
+
+.site-sheet.is-open {
+  transform: translateY(0);
+}
+
+.site-sheet[hidden] {
+  display: none;
+}
+
+.sheet-handle {
+  width: 2.5rem;
+  height: 4px;
+  margin: 0 auto var(--space-3);
+  border-radius: 2px;
+  background: var(--rule-on-paper);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.sheet-head h2 {
+  outline: none;                       /* focused by script when the sheet opens, not by tabbing */
+}
+
+.sheet-close {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--touch);
+  height: var(--touch);
+  margin: -0.5rem -0.75rem 0 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--slate);
+  cursor: pointer;
+}
+
+.sheet-close svg,
+.sheet-mark {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sheet-close:hover {
+  color: var(--ink);
+}
+
+/* The one number. */
+.sheet-depth {
+  margin-top: var(--space-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-urgent {
+  margin-top: var(--space-2);
+  font-weight: 600;
+}
+
+.sheet-sentence {
+  margin-top: var(--space-2);
+  max-width: var(--measure);
+}
+
+.sheet-section:empty {
+  display: none;
+}
+
+.sheet-section {
+  margin-top: var(--space-3);
+}
+
+.sheet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--touch);
+}
+
+.sheet-row + .sheet-row {
+  border-top: var(--hairline) solid var(--rule-on-paper);
+}
+
+.sheet-answer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  text-align: right;
+}
+
+.sheet-mark {
+  flex: none;
+}
+
+.sheet-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  font-size: var(--size-small);
+  color: var(--slate);
+  margin-bottom: var(--space-2);
+}
+
+.site-sheet .muted.small + .muted.small {
+  margin-top: var(--space-1);
+}
+
+.sheet-moving {
+  margin-top: var(--space-3);
+  font-size: var(--size-small);
+  font-weight: 500;
+}
+
+/* On a wide screen the sheet becomes a card resting at the lower left. */
+@media (min-width: 46rem) {
+  .site-sheet {
+    left: var(--space-4);
+    right: auto;
+    bottom: var(--space-4);
+    width: 25rem;
+    border-radius: var(--radius-sheet);
+    padding-bottom: var(--space-4);
+    transform: translateY(calc(100% + var(--space-5)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-sheet {
+    transition: none;
+  }
+}

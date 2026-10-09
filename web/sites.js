@@ -37,8 +37,10 @@ export class SiteLayer {
     button.append(glyph);
     // The sheet (WEB-06) listens for this. It is announced on the document, not on the map.
     button.addEventListener("click", () => {
+      // `source` is where focus goes back to when the sheet closes. A tap does not always
+      // focus a button, so the marker is named here and not read from document.activeElement.
       document.dispatchEvent(new CustomEvent("site-selected", {
-        detail: { site: this.markers.get(site.id).site },
+        detail: { site: this.markers.get(site.id).site, source: button },
       }));
     });
     const marker = new maplibregl.Marker({ element: button, anchor: "center" })
