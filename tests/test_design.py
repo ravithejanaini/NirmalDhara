@@ -73,14 +73,23 @@ def test_flat_bottom_holds_water_from_the_first_centimetre():
 # --- publish -----------------------------------------------------------------
 
 def test_map_file_is_sorted_compact_and_small():
-    site = Site("x", state=WARNING, low=14.4, high=18.6, trusted=True)
+    readings = tuple(Reading(1760000000 - 60 * k, 14, 19, c, "guardian", "g1")
+                     for k, c in enumerate((0.9, 0.75, 0.8)))
+    site = Site("x", state=WARNING, low=14.4, high=18.6, trusted=True, readings=readings)
     entries = [site_entry(f"hyd-{i:03d}", f"Underpass {i}", 17.3 + i / 1e4, 78.4, site, 1760000000)
                for i in range(499, -1, -1)]
     text = to_json(city_document("hyderabad", 1760000000, entries))
     document = json.loads(text)
     assert [e[0] for e in document["sites"][:2]] == ["hyd-000", "hyd-001"]
     assert document["sites"][0][4:9] == [WARNING, "B2", 14, 19, 1]
+    assert document["fields"][-1] == "c" and document["sites"][0][10] == 0.75
     assert len(text.encode()) < 50_000        # 500 sites, before compression
+
+
+def test_confidence_column_is_the_weakest_of_the_smoothed_readings():
+    weak = tuple(Reading(t, 10, 15, c, "resident", "p") for t, c in ((1, 0.9), (2, 0.5), (3, 0.8)))
+    assert site_entry("a", "A", 17.3, 78.4, Site("a", readings=weak), 3)[10] == 0.5
+    assert site_entry("a", "A", 17.3, 78.4, Site("a"), 3)[10] == 0.0   # no reading yet
 
 
 # --- properties that must hold for any input ---------------------------------

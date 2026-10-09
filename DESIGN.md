@@ -903,19 +903,26 @@ handlers.notifier.handler(event, context)      bus -> {"sent": bool}
 
 ```json
 {"city": "hyderabad", "generated_at": 1760000000,
- "fields": ["i", "n", "y", "x", "s", "b", "l", "h", "t", "u"],
- "sites": [["hyd-000", "Underpass 0", 17.3, 78.4, "WARNING", "B2", 14, 19, 1, 1760000000]]}
+ "fields": ["i", "n", "y", "x", "s", "b", "l", "h", "t", "u", "c"],
+ "sites": [["hyd-000", "Underpass 0", 17.3, 78.4, "WARNING", "B2", 14, 19, 1, 1760000000, 0.8]]}
 ```
 
 Rows are arrays in the order given by `fields` (id, name, latitude, longitude, state, band,
-low, high, trusted, updated). Naming the columns once is what keeps the file small.
-Passability is not in the file: the browser computes it from `h` with the rules of `bands.py`.
+low, high, trusted, updated, confidence). Naming the columns once is what keeps the file
+small. Passability is not in the file: the browser computes it from `h` and `c` with the rules
+of `bands.py`. `c` is the weakest confidence among the readings the depth is smoothed from
+(`workflow.confidence`), 0 when the site has no reading, and without it the browser could not
+apply the rule that "passable" needs a confidence of at least 0.6.
 
 | Sites | Bytes | Compressed |
 |---|---|---|
-| 100 | 9,273 | 1,110 |
-| 500 | 46,385 | 5,301 |
-| 2,000 | 186,553 | 21,021 |
+| 100 | 8,316 | 2,261 |
+| 500 | 41,576 | 10,094 |
+| 2,000 | 168,089 | 38,311 |
+
+Measured with random five-decimal positions, mixed states and names like "Underpass 123". The
+compressed sizes are about twice the first measurement, which used evenly spaced positions that
+compress unrealistically well. The 50 KB target holds uncompressed up to about 600 sites.
 
 ---
 
