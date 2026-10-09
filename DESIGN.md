@@ -1106,6 +1106,7 @@ after adding a test.
 | `test_engine.py` | 11 | Engine against an in-memory table and bus: order, outbox recovery, repeated messages, lost races |
 | `test_evaluation.py` | 32 | The evaluation and photo scripts on drawn scenes with a stand-in reader; a dangerous miss is counted |
 | `test_flood.py` | 13 | Reactor, tick and notifier together against in-memory services: every row of 8.5, failed send |
+| `test_gate_demo.py` | 6 | The change gate demonstration counts what is sent, and no footage, frame or strip is tracked by git |
 | `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
 | `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
@@ -1128,7 +1129,7 @@ after adding a test.
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **427** | Collected by `pytest --collect-only` |
+| **Total** | **433** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1181,6 +1182,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `reset.py` | Returns those four sites to clear, ready for another replay |
 | `make_icons.py` | Draws `web/icon-192.png` and `web/icon-512.png` (the depth glyph, a third full) from the design tokens, with no imaging library |
 | `simulate_cameras.py` | **Simulated.** 400 pinhole cameras at random heights, distances and tilts read a 150 cm gauge by the method of METHOD.md C2 (two marks) and by three marks, and 300 handheld phone photos (an iPhone's published camera figures) read a car wheel whose base is under water; writes `docs/camera-simulation.md`. `--play` picks one at random and plays a flood from it into the local map. No real camera, and nothing reaches AWS |
+| `gate_demo.py` | Runs the camera change gate over a folder of frames cut from a clip and prints "of N frames, M were sent"; results on three licensed news clips are in `docs/gate-demo.md`, credits in `samples/footage/CREDITS.md`. The footage itself is not in the repository |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |

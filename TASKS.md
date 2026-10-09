@@ -725,6 +725,9 @@ No framework and no build step: plain HTML, CSS and JavaScript modules in `web/`
 - **Risk:** The catchment area is an assumption. Label it as one.
 
 ### ENV-04 · Change gate demonstration · AI: Sonnet · 45 min · Could
+- **Status, 10 Oct: done on licensed news footage, not on a clip of yours.** Three Creative Commons clips
+  of Hyderabad flooding; 82% to 91% of frames were not sent. Results and limits in `docs/gate-demo.md`.
+  The footage is edited, not a fixed camera, and is kept out of the repository.
 - **Files:** `scripts/gate_demo.py`, a short clip you record of any street.
 - **Steps:** Run `ChangeGate` over the clip's frames; report frames seen, frames sent, and the
   share saved; show the sent frames on a strip.

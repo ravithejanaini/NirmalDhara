@@ -8,3 +8,6 @@ samconfig.toml
 *.zip
 web/config.local.js
 *.egg-info/
+samples/footage/*.mp4
+samples/footage/frames/
+docs/gate-demo/

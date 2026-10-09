@@ -34,6 +34,7 @@ DESCRIPTIONS = {
     "test_engine.py": "Engine against an in-memory table and bus: order, outbox recovery, repeated messages, lost races",
     "test_evaluation.py": "The evaluation and photo scripts on drawn scenes with a stand-in reader; a dangerous miss is counted",
     "test_flood.py": "Reactor, tick and notifier together against in-memory services: every row of 8.5, failed send",
+    "test_gate_demo.py": "The change gate demonstration counts what is sent, and no footage, frame or strip is tracked by git",
     "test_glyph.py": "The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node",
     "test_guide.py": "Summary line, welcome and the key's examples, run with Node",
     "test_history.py": "What counts as a flood, ranking, and the history writer",
