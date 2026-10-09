@@ -42,8 +42,7 @@ def current_document(now=None):
             row[index["u"]] += shift
         for key, value in STATE["overrides"].get(row[index["i"]], {}).items():
             row[index[key]] = value
-        if row[index["h"]] > 0:
-            row[index["b"]] = band_for(row[index["h"]])
+        row[index["b"]] = band_for(row[index["h"]])
     return doc
 
 
@@ -55,11 +54,12 @@ def apply_set(query):
     site = query["site"][0]
     row = {}
     for key, field, cast in (("low", "l", float), ("high", "h", float), ("state", "s", str),
-                             ("trusted", "t", int), ("confidence", "c", float)):
+                             ("trusted", "t", int), ("confidence", "c", float), ("name", "n", str)):
         if key in query:
             row[field] = cast(query[key][0])
     if "high" in query:
-        row["u"] = int(time.time())             # a new reading, so it is current
+        # A new reading is current. A dry site has reported nothing, which the file writes as 0.
+        row["u"] = int(time.time()) if row["h"] > 0 else 0
     STATE["overrides"].setdefault(site, {}).update(row)
 
 

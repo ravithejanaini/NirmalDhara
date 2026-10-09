@@ -42,6 +42,7 @@ DESCRIPTIONS = {
     "test_publisher.py": "Map file: every site, skipped when unchanged, losing a race, 500 sites",
     "test_rain.py": "Request building, parsing, grid grouping",
     "test_reader.py": "Request shape, refusal, throttling, server error, no connection, configuration error",
+    "test_rehearsal.py": "The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads",
     "test_replay.py": "Replay schedule and what reset clears and leaves",
     "test_rules_match.py": "The browser's passability rules equal bands.py on 400 cases",
     "test_scenario.py": "The evening scenario against the real state and workflow code",

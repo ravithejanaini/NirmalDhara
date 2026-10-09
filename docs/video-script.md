@@ -1,6 +1,8 @@
 # Video script and shot list
 
-Target length **2:45**, hard limit 3:00. The narration below is about 350 words: at an ordinary
+Target length **2:45**, hard limit 3:00. The event page asks for "Three minutes, recorded… to show
+what it does, who it is for, and where AWS fits"; shot 1 says who it is for, shot 5 where AWS fits.
+The narration below is about 370 words: at an ordinary
 speaking pace of 150 words a minute that is 2:20 of speech, which leaves 25 seconds of breathing
 room across seven shots. `tests/test_video_script.py` fails if the narration grows past 400 words.
 
@@ -26,14 +28,17 @@ Lines beginning with `>` are what you say. Everything else is what is on screen.
 | Check | The map shows nine places, all empty discs; the bar reads "No water reported in Hyderabad right now…" |
 | AWS console tabs, signed in, region Mumbai | SQS → the engine queue · Step Functions → the flood state machine · DynamoDB → the Sites table, Explore items |
 | For shot 6 | Decide A or B below, and prepare it before you start |
+| Practise first | `python scripts/serve_web.py`, then `python scripts/rehearse.py`: the same replay on your own machine, touching neither AWS nor the public map |
 
 **The record for shot 6.** A fast replay records about a minute of blocked road, so the repeat floods
 page would show "0 min". Pick one:
 
-- **A, recommended: one real-time replay beforehand.** Run `python scripts/replay.py --go --speed 1`
-  about 100 minutes before you record, and do not reset afterwards. The page then shows a flood the
-  system itself recorded, with real durations. It is still a replay, and the narration says so.
-- **B: the sample page.** Run `python scripts/serve_web.py` and open
+- **A: one real-time replay beforehand.** Run `python scripts/replay.py --go --speed 1` about 100
+  minutes before you record, and do not reset afterwards. The page then shows a flood the system
+  itself recorded: **one row**, Lakdikapul railway bridge, 1 flood, 18 minutes blocked for cars, peak
+  33 cm (worked out by running the scenario through the real workflow on a simulated clock). True,
+  but one row does not show a ranking. The public map shows the replay's floods for those 90 minutes.
+- **B, recommended for the picture: the sample page.** Run `python scripts/serve_web.py` and open
   `http://127.0.0.1:8080/offenders.html`. It shows invented data under a red "Sample data" banner.
   If you use it, replace the last sentence of shot 6 with: "What you see here is sample data, to
   show the page; real records build up with each monsoon."
@@ -44,9 +49,9 @@ page would show "0 min". Pick one:
 
 Screen: the map at night, nine empty discs, the bar at the bottom. Slow pan or still.
 
-> Every monsoon, the same underpasses in Hyderabad flood, and people drive into water they cannot
-> judge. NirmalDhara watches nine of those places, answers one question, can I get through, and
-> keeps a record of which ones keep failing.
+> Every monsoon the same underpasses in Hyderabad flood, and people drive into water they cannot
+> judge. NirmalDhara is for those drivers, and for the engineers who fix the drains. It watches
+> nine such places, answers one question, can I get through, and records which ones keep failing.
 
 ### 2 · 0:18–0:38 · Rain starts a watch
 

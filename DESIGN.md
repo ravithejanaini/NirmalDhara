@@ -1114,6 +1114,7 @@ after adding a test.
 | `test_publisher.py` | 15 | Map file: every site, skipped when unchanged, losing a race, 500 sites |
 | `test_rain.py` | 5 | Request building, parsing, grid grouping |
 | `test_reader.py` | 6 | Request shape, refusal, throttling, server error, no connection, configuration error |
+| `test_rehearsal.py` | 7 | The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads |
 | `test_replay.py` | 12 | Replay schedule and what reset clears and leaves |
 | `test_rules_match.py` | 3 | The browser's passability rules equal bands.py on 400 cases |
 | `test_scenario.py` | 5 | The evening scenario against the real state and workflow code |
@@ -1125,7 +1126,7 @@ after adding a test.
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **398** | Collected by `pytest --collect-only` |
+| **Total** | **405** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1181,6 +1182,8 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |
 | `photo.py` | Reads one photo through the intake gates and the reader, and sends the reading to a site's queue; a declined photo sends nothing. A simulated reading needs `--simulated-ok` and is always an unconfirmed resident reading |
 | `simulated_reader.py`, `make_synthetic_photos.py` | A stand-in reader that measures the water line against a 62 cm wheel on 22 drawn scenes (`samples/synthetic/`), and the generator for those scenes. Not a model and not photographs; every answer says SIMULATED |
+| `rehearse.py` | Plays the scenario into the development server's stand-in map, so the video's timing can be practised with nothing reaching AWS or the public map |
+| `preflight.py` | Rehearses the submission: checks the repository, the tests, the live site, the video link and the account, and changes nothing |
 | `update_design_tests.py` | Rewrites the test inventory in section 18 |
 
 ### 20.1 What a replay is
