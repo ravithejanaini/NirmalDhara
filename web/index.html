@@ -18,8 +18,8 @@
 <link rel="stylesheet" href="guide.css">
 </head>
 <body class="map-page">
-<div id="map" role="application" aria-label="Map of Hyderabad"></div>
-
+<!-- Controls come first in the page, so a keyboard user reaches them before the eight sites. They are
+     placed by the style sheet, and the map is behind them whatever the order here. -->
 <header class="masthead">
   <h1 class="display wordmark">NirmalDhara</h1>
   <p class="label place">Hyderabad</p>
@@ -28,6 +28,8 @@
 </header>
 
 <div id="guide"></div>
+
+<div id="map" role="application" aria-label="Map of Hyderabad"></div>
 
 <section id="sheet" class="paper sheet site-sheet" role="dialog" aria-labelledby="sheet-title" hidden></section>
 

@@ -23,12 +23,41 @@
   display: none;
 }
 
+/* The grab area is 44 px tall; only the small bar in its middle is drawn. */
+.sheet-grab {
+  display: grid;
+  place-items: center;
+  height: var(--touch);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--gutter)) 0;
+  touch-action: none;
+  cursor: grab;
+}
+
 .sheet-handle {
   width: 2.5rem;
   height: 4px;
-  margin: 0 auto var(--space-3);
   border-radius: 2px;
-  background: var(--rule-on-paper);
+  background: var(--slate);
+  opacity: 0.45;
+}
+
+/* Close, at the bottom of the sheet where a thumb is. The cross at the top stays for the keyboard
+   and for wide screens. */
+.sheet-done {
+  display: flex;
+  width: 100%;
+  margin-top: var(--space-3);
+  /* Pinned to the bottom of the visible sheet, so it is in reach however long the sheet is. */
+  position: sticky;
+  bottom: var(--space-2);
+  background: var(--paper);
+  box-shadow: 0 0 0 var(--space-2) var(--paper);
+}
+
+@media (min-width: 46rem) {
+  .sheet-done {
+    display: none;
+  }
 }
 
 .sheet-head {
@@ -228,11 +257,12 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* 17 units is about 14.5 px at phone width: the type floor holds inside the drawing too. */
+/* Drawn in the drawing's own units. At a 360 px phone the drawing is 328 px wide for 420 units,
+   so 18.5 units is 14.4 px: the type floor holds inside the drawing too (tests/test_accessibility.py). */
 .section-limit text {
   fill: var(--signal-ink);
   font-family: var(--font-text);
-  font-size: 17px;
+  font-size: 18.5px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   /* A paper halo, so a number stays readable when deep water is drawn behind it. */

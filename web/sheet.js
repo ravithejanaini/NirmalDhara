@@ -96,7 +96,7 @@ export function sheetHtml(model) {
         </span>
       </li>`).join("");
   return `
-    <div class="sheet-handle" aria-hidden="true"></div>
+    <div class="sheet-grab" aria-hidden="true"><div class="sheet-handle"></div></div>
     <header class="sheet-head">
       <h2 class="display title" id="sheet-title" tabindex="-1">${escape(model.name)}</h2>
       <button class="sheet-close" type="button" aria-label="Close">
@@ -112,7 +112,8 @@ export function sheetHtml(model) {
     <hr class="rule">
     ${model.seen ? `<p class="sheet-meta"><span>${escape(model.seen)}</span><span class="${model.trust === "Confirmed" ? "" : "is-critical"}">${escape(model.trust)}</span></p>` : ""}
     ${model.notes.map((note) => `<p class="muted small">${escape(note)}</p>`).join("")}
-    <p class="sheet-moving">${escape(model.moving)}</p>`;
+    <p class="sheet-moving">${escape(model.moving)}</p>
+    <button class="button sheet-done" type="button">Close</button>`;
 }
 
 export class SiteSheet {
@@ -122,12 +123,43 @@ export class SiteSheet {
     this.site = null;
     this.returnTo = null;
     element.addEventListener("click", (event) => {
-      if (event.target.closest(".sheet-close")) this.close();
+      if (event.target.closest(".sheet-close, .sheet-done")) this.close();
     });
+    this.watchGrab();
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape" && this.site) this.close();
     });
     document.addEventListener("site-selected", (event) => this.open(event.detail.site, event.detail.source));
+  }
+
+  /** The handle at the top of the sheet: drag it down to close, or tap it. One hand reaches it
+   *  when the sheet's top corner is out of reach. */
+  watchGrab() {
+    const el = this.element;
+    let start = null;
+    el.addEventListener("pointerdown", (event) => {
+      const grab = event.target.closest(".sheet-grab");
+      if (!grab) return;
+      start = { y: event.clientY, dy: 0 };
+      grab.setPointerCapture(event.pointerId);
+      el.style.transition = "none";
+    });
+    el.addEventListener("pointermove", (event) => {
+      if (!start) return;
+      start.dy = Math.max(0, event.clientY - start.y);
+      el.style.transform = `translateY(${start.dy}px)`;
+    });
+    const end = (event) => {
+      if (!start) return;
+      const { dy } = start;
+      start = null;
+      el.style.transition = "";
+      el.style.transform = "";
+      // A tap (almost no movement) or a pull down of 80 px or more closes it.
+      if (event.type !== "pointercancel" && (dy < 6 || dy >= 80)) this.close();
+    };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
   }
 
   open(site, returnTo) {
