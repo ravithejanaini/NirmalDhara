@@ -1,0 +1,23 @@
+file,band_low,band_high,true_depth_cm,object_used,readable,moving,source,licence,condition
+normal-00cm.png,B0,B0,0,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-04cm.png,B1,B1,4,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-08cm.png,B1,B1,8,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-12cm.png,B2,B2,12,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-16cm.png,B2,B2,16,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-20cm.png,B3,B3,20,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-25cm.png,B3,B3,25,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-30cm.png,B4,B4,30,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-38cm.png,B4,B4,38,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+normal-46cm.png,B4,B4,46,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,normal
+waves-10cm.png,B1,B1,10,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,waves
+waves-22cm.png,B3,B3,22,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,waves
+waves-34cm.png,B4,B4,34,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,waves
+glare-18cm.png,B2,B2,18,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,glare
+glare-24cm.png,B3,B3,24,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,glare
+glare-36cm.png,B4,B4,36,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,glare
+occluded-14cm.png,B2,B2,14,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,occluded
+occluded-26cm.png,B3,B3,26,car wheel,yes,no,drawn by scripts/make_synthetic_photos.py,not a photograph,occluded
+no_wheel-20cm.png,B3,B3,20,none,no,no,drawn by scripts/make_synthetic_photos.py,not a photograph,no_wheel
+no_wheel-40cm.png,B4,B4,40,none,no,no,drawn by scripts/make_synthetic_photos.py,not a photograph,no_wheel
+dark-22cm.png,B3,B3,22,car wheel,no,no,drawn by scripts/make_synthetic_photos.py,not a photograph,dark
+blurred-28cm.png,B3,B3,28,car wheel,no,no,drawn by scripts/make_synthetic_photos.py,not a photograph,blurred

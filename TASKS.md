@@ -455,6 +455,9 @@ only way forward changes what the project claims.
   repository and list only its address.
 
 ### MOD-04 · Evaluation script and table · AI: Sonnet · 1 h · Must
+- **Status, 9 Oct:** the script and its tests are built and have been run **simulated**, on 22 drawn
+  scenes with a stand-in reader (`docs/evaluation-simulated.md`). That proves the tool, not the
+  model. The real run, which writes `EVALUATION.md`, still needs MOD-01 and the photos from MOD-03.
 - **Goal:** A number, with its limits stated.
 - **Files:** `scripts/evaluate.py`, `EVALUATION.md`, `data/eval-results.json`.
 - **Steps:**
@@ -526,6 +529,9 @@ only way forward changes what the project claims.
 - **Done when:** On your phone, a link leads to a photo arriving in the bucket.
 
 ### PIPE-06 · Photo to reading by script · AI: Sonnet · 30 min · Fallback
+- **Status, 9 Oct:** `scripts/photo.py` is built and tested, and works with the simulated reader on the
+  drawn scenes. With a real model route it needs no change. Sending a simulated reading to the real
+  queue needs `--simulated-ok`.
 - **Condition:** Done unless the upload-pipeline rule in 13.4 releases PIPE-01 to PIPE-05.
 - **Goal:** Photos still become readings in the demo, by script.
 - **Files:** `scripts/photo.py`: runs the reader locally on a file and sends the reading to

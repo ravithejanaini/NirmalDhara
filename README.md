@@ -78,13 +78,15 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 | | Photo checks: distance, age, duplicate, dark, blurred; crop; face and plate blur boxes | Functions with tests; no deployed handler |
 | | Signed capture and acknowledgement links | Tests only |
 | | Camera change gate; rise-rate prediction; storage-volume curve for pump sizing | Tests only |
+| | Evaluation table and photo-to-reading script | **Simulated only.** Run on 22 drawn scenes with a stand-in reader ([docs/evaluation-simulated.md](docs/evaluation-simulated.md)). Shows the tools work and that a dangerous miss would be counted; it is not evidence of how a model reads real floods |
 | | CloudFront in front of the site | In `template.yaml`, switched off: AWS has not verified the account |
 | **Designed only** | Photo upload from phones; camera network with emergency activation; waste and drain-inlet tracking; scenario engine; fix sheet; alert channels to people (SMS, chat); acknowledgement endpoint; official console | [ARCHITECTURE.md](ARCHITECTURE.md), [METHOD.md](METHOD.md) |
 
 ## Limits
 
 - **Depth reading has never been measured.** The photo reader has not run against a real photo, so
-  there is no accuracy figure. The thresholds come from published vehicle and wheel sizes
+  there is no accuracy figure. The only table in the repository is a simulated one, on drawn scenes,
+  and is labelled as such. The thresholds come from published vehicle and wheel sizes
   (METHOD.md section 17), not from a test.
 - **Nine places, from published reports.** Each has a source and date in
   [data/SOURCES.md](data/SOURCES.md). Their map positions are approximate (a few hundred metres),

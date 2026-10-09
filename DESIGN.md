@@ -1102,6 +1102,7 @@ after adding a test.
 | `test_design.py` | 13 | Geohash, volume curve, map file, and the properties listed below |
 | `test_design_doc.py` | 6 | This document: every source file is in section 1 and the test inventory is current |
 | `test_engine.py` | 11 | Engine against an in-memory table and bus: order, outbox recovery, repeated messages, lost races |
+| `test_evaluation.py` | 32 | The evaluation and photo scripts on drawn scenes with a stand-in reader; a dangerous miss is counted |
 | `test_flood.py` | 13 | Reactor, tick and notifier together against in-memory services: every row of 8.5, failed send |
 | `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
@@ -1122,7 +1123,7 @@ after adding a test.
 | `test_site.py` | 22 | The interim site host: what it serves, and the paths and methods it refuses |
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **351** | Collected by `pytest --collect-only` |
+| **Total** | **383** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1175,6 +1176,9 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `reset.py` | Returns those four sites to clear, ready for another replay |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
+| `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |
+| `photo.py` | Reads one photo through the intake gates and the reader, and sends the reading to a site's queue; a declined photo sends nothing. A simulated reading needs `--simulated-ok` and is always an unconfirmed resident reading |
+| `simulated_reader.py`, `make_synthetic_photos.py` | A stand-in reader that measures the water line against a 62 cm wheel on 22 drawn scenes (`samples/synthetic/`), and the generator for those scenes. Not a model and not photographs; every answer says SIMULATED |
 | `update_design_tests.py` | Rewrites the test inventory in section 18 |
 
 ### 20.1 What a replay is
