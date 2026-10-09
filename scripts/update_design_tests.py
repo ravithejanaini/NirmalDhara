@@ -56,6 +56,7 @@ DESCRIPTIONS = {
     "test_site.py": "The interim site host: what it serves, and the paths and methods it refuses",
     "test_state.py": "Transitions, trust, jump hold, fusion, a repeated reading",
     "test_video_script.py": "The video script: length, the spoken disclosures, cut points the replay really produces, real commands",
+    "test_waterline.py": "The statistical waterline detector: found within 3 cm in daylight scenes, dry reported dry, shadows not mistaken for water, tracking holds through a blind reading",
     "test_workflow.py": "Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids",
 }
 

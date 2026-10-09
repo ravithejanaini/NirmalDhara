@@ -41,6 +41,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | Intake checks, crop, blur | `nirmaldhara/intake.py` | built as functions; no handler |
 | Signed links (8) | `nirmaldhara/tokens.py` | built |
 | Camera change gate (6.6) | `nirmaldhara/change.py` | built |
+| Waterline on a fixed camera's strip, without a model (METHOD C2, estimator 1) | `nirmaldhara/waterline.py` | built; measured on rendered scenes only (`docs/waterline-simulation.md`); no caller yet |
 | Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
 | Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; no caller yet |
 | Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
@@ -1128,8 +1129,9 @@ after adding a test.
 | `test_site.py` | 22 | The interim site host: what it serves, and the paths and methods it refuses |
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
+| `test_waterline.py` | 25 | The statistical waterline detector: found within 3 cm in daylight scenes, dry reported dry, shadows not mistaken for water, tracking holds through a blind reading |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **433** | Collected by `pytest --collect-only` |
+| **Total** | **458** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1183,6 +1185,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `make_icons.py` | Draws `web/icon-192.png` and `web/icon-512.png` (the depth glyph, a third full) from the design tokens, with no imaging library |
 | `simulate_cameras.py` | **Simulated.** 400 pinhole cameras at random heights, distances and tilts read a 150 cm gauge by the method of METHOD.md C2 (two marks) and by three marks, and 300 handheld phone photos (an iPhone's published camera figures) read a car wheel whose base is under water; writes `docs/camera-simulation.md`. `--play` picks one at random and plays a flood from it into the local map. No real camera, and nothing reaches AWS |
 | `gate_demo.py` | Runs the camera change gate over a folder of frames cut from a clip and prints "of N frames, M were sent"; results on three licensed news clips are in `docs/gate-demo.md`, credits in `samples/footage/CREDITS.md`. The footage itself is not in the repository |
+| `simulate_waterline.py` | **Simulated.** Renders strips of a gauge, pillar or wall with a known waterline under eleven conditions (murky, mirror-calm, night, rain, shadow, tide mark, vehicles, shake) and measures `nirmaldhara/waterline.py` on them; writes `docs/waterline-simulation.md` |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |
