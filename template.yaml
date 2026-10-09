@@ -82,6 +82,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: handlers.rain.handler
+      Timeout: 120  # the forecast service has taken up to 16 seconds per request
       Environment:
         Variables:
           ENGINE_QUEUE_URL: !Ref EngineQueue

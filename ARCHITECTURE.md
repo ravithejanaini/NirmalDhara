@@ -757,7 +757,7 @@ So the bound is 34 seconds, not the earlier 30, and the target is restated as: t
   model at run time is used only in a language whose templates have been checked.
 - Status is never shown by colour alone: each state has a colour, an icon and a word.
 - Every alert can be read aloud by the phone.
-- The map file is kept under 50 KB and the app shows the last map when offline.
+- The map file is kept under 50 KB (measured: 46 KB for 500 sites, 5 KB compressed) and the app shows the last map when offline.
 - Contrast and text size follow the common web accessibility standard, level AA.
 
 **Agent updates and tampering (A-26).**

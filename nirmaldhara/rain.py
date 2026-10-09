@@ -13,6 +13,9 @@ from .state import rain_index
 URL = "https://api.open-meteo.com/v1/forecast"
 PAST_HOURS = 3
 FORECAST_HOURS = 3   # the hour in progress and the two after it
+CHUNK = 100          # points per request, to keep the address a safe length
+CELL_DEG = 0.05      # forecast grid cell, about 5 km; the provider's grid is 1 to 11 km
+TIMEOUT_S = 30       # the service has taken 8 to 16 seconds per request when measured
 
 
 def build_url(sites):
@@ -44,12 +47,34 @@ def parse(sites, payload):
     return out
 
 
-def fetch(sites, timeout=10):
-    with urlopen(build_url(sites), timeout=timeout) as response:
-        return parse(sites, json.load(response))
+def grid_cells(sites):
+    """Group sites by forecast grid cell: {(cell_lat, cell_lon): [site_id, ...]}.
+
+    The forecast is far coarser than a street, so nearby sites get the same
+    answer. Asking once per cell turns hundreds of sites into a few dozen points.
+    """
+    cells = {}
+    for site_id, lat, lon in sites:
+        key = (round(round(lat / CELL_DEG) * CELL_DEG, 4),
+               round(round(lon / CELL_DEG) * CELL_DEG, 4))
+        cells.setdefault(key, []).append(site_id)
+    return cells
 
 
-def indexes(sites, timeout=10):
+def fetch(sites, timeout=TIMEOUT_S):
+    """Rain amounts for every site: one forecast point per grid cell."""
+    cells = grid_cells(sites)
+    points = [(f"{lat},{lon}", lat, lon) for lat, lon in cells]
+    by_point = {}
+    for start in range(0, len(points), CHUNK):
+        chunk = points[start:start + CHUNK]
+        with urlopen(build_url(chunk), timeout=timeout) as response:
+            by_point.update(parse(chunk, json.load(response)))
+    return {site_id: by_point[f"{lat},{lon}"]
+            for (lat, lon), site_ids in cells.items() for site_id in site_ids}
+
+
+def indexes(sites, timeout=TIMEOUT_S):
     """Rain index in mm for every site."""
     return {site_id: rain_index(*amounts)
             for site_id, amounts in fetch(sites, timeout).items()}
