@@ -100,6 +100,14 @@ def main():
     verb = "written" if args.apply else "would be written"
     print(f"{len(result['added'])} added, {len(result['changed'])} changed, "
           f"{len(result['unchanged'])} unchanged ({verb})")
+    if args.apply and (result["added"] or result["changed"]):
+        # Seeding changes no site's state, so nothing tells the publisher. Without this the
+        # public map would stay as it was for up to 15 minutes.
+        publisher = outputs["resources"].get("PublisherFunction")
+        if publisher:
+            boto3.client("lambda", region_name=outputs["region"]).invoke(
+                FunctionName=publisher, InvocationType="Event")
+            print("Asked the publisher to refresh the public map.")
     if not args.apply and (result["added"] or result["changed"]):
         print("Run again with --apply to write them.")
     return 0
