@@ -9,6 +9,7 @@ page's behaviour can be watched without deploying anything:
     /__dev/set?site=sample-04&low=30&high=40&state=CRITICAL&trusted=1   change one site
     /__dev/fail?on=1                                                    make the file fail (503); on=0 mends it
     /__dev/age?minutes=25                                               make the file look 25 minutes old
+    /__dev/history?mode=sample|empty|fail                               what /data/hyderabad-floods.json returns
     /__dev/reset                                                        undo all of the above
 
 Listens on 127.0.0.1 only. It is never deployed: scripts/deploy_web.py uploads web/ and this
@@ -24,7 +25,8 @@ from urllib.parse import parse_qs, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 SAMPLE = ROOT / "data" / "sample-map.json"
-STATE = {"overrides": {}, "fail": False, "age_s": 0}
+SAMPLE_FLOODS = ROOT / "data" / "sample-floods.json"
+STATE = {"overrides": {}, "fail": False, "age_s": 0, "history": "sample"}
 
 
 def current_document(now=None):
@@ -84,6 +86,16 @@ class Handler(SimpleHTTPRequestHandler):
             if STATE["fail"]:
                 return self.send_json(503, {"error": "development: file failing"})
             return self.send_json(200, current_document())
+        if url.path == "/data/hyderabad-floods.json":
+            mode = STATE["history"]
+            if mode == "fail":
+                return self.send_json(503, {"error": "development: history failing"})
+            doc = json.loads(SAMPLE_FLOODS.read_text(encoding="utf-8"))
+            if mode == "empty":
+                doc.update(sites=[{**site, "floods": [], "confirmed": 0, "unconfirmed": 0, "cars_min": 0,
+                                   "two_wheelers_min": 0, "peak_high": 0} for site in doc["sites"]], sample=False)
+            doc["generated_at"] = int(time.time())
+            return self.send_json(200, doc)
         if url.path == "/data/rule-cases.json":
             body = (ROOT / "data" / "rule-cases.json").read_bytes()
             self.send_response(200)
@@ -97,8 +109,10 @@ class Handler(SimpleHTTPRequestHandler):
             STATE["fail"] = query.get("on", ["1"])[0] == "1"
         elif url.path == "/__dev/age":
             STATE["age_s"] = int(float(query.get("minutes", ["0"])[0]) * 60)
+        elif url.path == "/__dev/history":
+            STATE["history"] = query.get("mode", ["sample"])[0]
         elif url.path == "/__dev/reset":
-            STATE.update(overrides={}, fail=False, age_s=0)
+            STATE.update(overrides={}, fail=False, age_s=0, history="sample")
         else:
             return super().do_GET()
         self.send_json(200, {"ok": True, "state": STATE})

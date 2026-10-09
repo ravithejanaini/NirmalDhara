@@ -15,19 +15,14 @@ only if the file is still at that version. The run that loses starts again with 
 an older snapshot can never replace a newer one.
 """
 
-import gzip
-import hashlib
-import json
 import os
 import time
 
 import boto3
-from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key
 
-from nirmaldhara import publish
+from nirmaldhara import publish, snapshot, store
 from nirmaldhara.state import Site
-from nirmaldhara import store
 
 DYNAMO = boto3.resource("dynamodb")
 SITES = DYNAMO.Table(os.environ["SITES_TABLE"])
@@ -38,8 +33,6 @@ KEY = f"data/{CITY}.json"
 CACHE = "public, max-age=15"
 ATTEMPTS = 4
 REFRESH_S = 300             # an unchanged file is still rewritten after this, to refresh generated_at
-LOST_RACE = ("PreconditionFailed", "ConditionalRequestConflict")
-MISSING = ("404", "NoSuchKey", "NotFound")
 
 
 def city_items(table, city):
@@ -76,49 +69,13 @@ def entries(items, now):
     return rows
 
 
-def current():
-    """(version, fingerprint of its rows, time written) of the file, or None if absent."""
-    try:
-        head = S3.head_object(Bucket=BUCKET, Key=KEY)
-    except ClientError as error:
-        if error.response["Error"]["Code"] in MISSING:
-            return None
-        raise
-    return head["ETag"], head.get("Metadata", {}).get("rows"), head["LastModified"].timestamp()
-
-
-def fingerprint(rows):
-    """Identifies the rows and nothing else, so generated_at does not count as a change."""
-    return hashlib.sha256(json.dumps(rows, separators=(",", ":")).encode("utf-8")).hexdigest()[:16]
-
-
-def write(body, etag, rows_fingerprint):
-    """Write only if the file is still at `etag` (or still absent, when etag is None)."""
-    guard = {"IfMatch": etag} if etag else {"IfNoneMatch": "*"}
-    S3.put_object(Bucket=BUCKET, Key=KEY, Body=body, ContentType="application/json; charset=utf-8",
-                  ContentEncoding="gzip", CacheControl=CACHE, Metadata={"rows": rows_fingerprint},
-                  **guard)
-
-
 def run(now):
-    for _ in range(ATTEMPTS):
-        existing = current()                        # before the sites are read, never after
-        etag = existing[0] if existing else None
+    def build():
         rows = entries(city_items(SITES, CITY), now)
-        rows_fingerprint = fingerprint(rows)
-        if existing and existing[1] == rows_fingerprint and now - existing[2] < REFRESH_S:
-            return {"sites": len(rows), "bytes": 0, "written": False}
-        document = publish.city_document(CITY, now, rows)
-        # mtime=0 so the same content always compresses to the same bytes.
-        body = gzip.compress(publish.to_json(document).encode("utf-8"), mtime=0)
-        try:
-            write(body, etag, rows_fingerprint)
-        except ClientError as error:
-            if error.response["Error"]["Code"] in LOST_RACE:
-                continue                            # another run wrote first: read again
-            raise
-        return {"sites": len(rows), "bytes": len(body), "written": True}
-    raise RuntimeError("the map file kept changing under this run")
+        return rows, publish.city_document(CITY, now, rows)
+
+    result = snapshot.put(S3, BUCKET, KEY, build, now, cache=CACHE, refresh_s=REFRESH_S, attempts=ATTEMPTS)
+    return {"sites": result["rows"], "bytes": result["bytes"], "written": result["written"]}
 
 
 def handler(event, context):

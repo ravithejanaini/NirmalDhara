@@ -925,6 +925,20 @@ nothing has been reported. It is never the time the file was written, so an idle
 does not change from run to run. Pages must treat 0 as "no report" and show an age only for a
 site with water.
 
+**The flood history file** (`data/<city>-floods.json`, `handlers/history.py`,
+`nirmaldhara/history.py`). One entry per registry site: its floods (start, end, peak range, minutes
+blocked for cars and for two-wheelers, confirmed or not), the confirmed and unconfirmed counts,
+totals over the confirmed floods, the highest confirmed peak, and how many watches ended with no
+water. Built only from what the workflow records when a flood closes. Counted as floods: closed
+records with outcome `flood`. Not counted: `no_flood` (a watch that saw no water), `reset` (closed
+by hand), and floods still open. Written when a flood closes and hourly, through the same
+version-checked helper as the map file (`nirmaldhara/snapshot.py`). The repeat offenders page
+ranks by minutes blocked for cars, then by floods, then by name, and ranks only sites with a
+confirmed flood; the Python (`history.ranking`) and the page (`offendersModel`) are tested to give
+the same order on random cities. METHOD.md section 14 also names trigger rain, drain time, pump
+response and a low-coverage flag: none is recorded yet, so none is shown, and the page says so.
+One query per registry site is fine at nine sites; at 500 it would need an index on closed events.
+
 **How the site is served.** The design is CloudFront in front of the private bucket through an
 origin access control (in `template.yaml`, switched off by the `EnableCloudFront` parameter).
 On 9 October 2026 AWS refused to create the distribution: "Your account must be verified
@@ -1043,6 +1057,7 @@ In order of importance.
 | 2b | A site that starts receding sends its "water is falling" update only when the 20-minute repeat comes round, because alerts are re-sent at once only when the level rises | Good news arrives late; the stand-down on clearing (finding 17) still arrives at once | Send the update once on entering RECEDING, with a minimum gap so a depth hovering at a threshold cannot send a stream of messages |
 | 3 | An alert that fails all retries is recorded as sent | Late by up to 20 minutes, needs a person | Notifier publishes `AlertFailed`; the workflow clears that audience's record so the next step sends again |
 | 4 | A timer loop that fails for about two days ends at the history limit | Alarm only | Count failures in the loop state and hand over to a fresh execution |
+| 2c | A fast replay records near-zero minutes blocked (section 20.3), so the repeat offenders page built from replay floods shows tiny durations | The demonstration of the environmental view is thin | Use `--speed 1` for one replay before recording, or show the page with its labelled sample data (`scripts/make_sample_history.py`, never deployed), and say which in the video |
 | 5 | The condition expressions were first run against in-memory stand-ins only | Closed for the paths the smoke test walks (`docs/smoke-test.md`): site and event writes, the alert claim, a repeated reading, the timer's name. Not closed for forced races, which need two writers at the same instant | A test that drives two writers at one record on a deployed table |
 | 6 | A stale milder alert can arrive just after a stronger one | Confusing, not unsafe | Notifier drops an alert whose `site_version` is older than the last one sent to that audience |
 | 7 | The state machine may start any execution in the account | Wider than needed | Narrow to its own name |

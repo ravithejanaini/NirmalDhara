@@ -362,6 +362,33 @@ Resources:
       FunctionUrlConfig:
         AuthType: NONE
 
+  # Each site's past floods, for the repeat offenders page. Rebuilt when a flood closes, and
+  # hourly (which also picks up records that scripts/reset.py removes).
+  HistoryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.history.handler
+      DeadLetterQueue: { Type: SQS, TargetArn: !GetAtt WorkflowDeadLetters.Arn }
+      Environment:
+        Variables:
+          PUBLIC_BUCKET: !Ref PublicBucket
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
+        - DynamoDBReadPolicy: { TableName: !Ref FloodsTable }
+        - S3CrudPolicy: { BucketName: !Ref PublicBucket }
+      Events:
+        FloodClosed:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref Bus
+            Pattern:
+              source: [nirmaldhara]
+              detail-type: [EventClosed]
+        EveryHour:
+          Type: ScheduleV2
+          Properties:
+            ScheduleExpression: rate(1 hour)
+
   PublisherFunction:
     Type: AWS::Serverless::Function
     Properties:

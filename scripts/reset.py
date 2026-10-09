@@ -123,8 +123,10 @@ def main():
     if not args.go:
         print("Nothing was changed. Run again with --go to do it.")
         return 0
-    aws.client("lambda").invoke(FunctionName=resources["PublisherFunction"], InvocationType="Event")
-    print("Asked the publisher to refresh the public map.")
+    for name, what in (("PublisherFunction", "public map"), ("HistoryFunction", "flood history")):
+        if name in resources:
+            aws.client("lambda").invoke(FunctionName=resources[name], InvocationType="Event")
+            print(f"Asked the {name.replace('Function', '').lower()} to refresh the {what}.")
     return 0
 
 
