@@ -7,7 +7,6 @@ import json
 from types import SimpleNamespace
 
 import anthropic
-import httpx
 import pytest
 from PIL import Image
 
@@ -66,15 +65,18 @@ def failing_client(error):
     return lambda **_: SimpleNamespace(messages=SimpleNamespace(create=create))
 
 
-def http_error(kind, status):
-    request = httpx.Request("POST", "https://bedrock.invalid")
-    return kind("failed", response=httpx.Response(status, request=request), body=None)
+def api_error(kind):
+    """An instance of one of the SDK's error classes, without building an HTTP response.
+
+    The reader only looks at the kind of error, so the test does not need a response object,
+    and so does not depend on which HTTP library the installed SDK version uses."""
+    return kind.__new__(kind)
 
 
 @pytest.mark.parametrize("error", [
-    http_error(anthropic.RateLimitError, 429),
-    http_error(anthropic.InternalServerError, 503),
-    anthropic.APIConnectionError(request=httpx.Request("POST", "https://bedrock.invalid")),
+    api_error(anthropic.RateLimitError),
+    api_error(anthropic.InternalServerError),
+    api_error(anthropic.APIConnectionError),
 ])
 def test_a_busy_or_unreachable_service_becomes_cannot_tell(tmp_path, monkeypatch, error):
     monkeypatch.setattr(reader, "AnthropicBedrock", failing_client(error))
@@ -83,7 +85,7 @@ def test_a_busy_or_unreachable_service_becomes_cannot_tell(tmp_path, monkeypatch
 
 
 def test_a_wrong_setting_is_not_hidden(tmp_path, monkeypatch):
-    error = http_error(anthropic.BadRequestError, 400)
+    error = api_error(anthropic.BadRequestError)
     monkeypatch.setattr(reader, "AnthropicBedrock", failing_client(error))
     with pytest.raises(anthropic.BadRequestError):
         reader.read_depth(photo(tmp_path))

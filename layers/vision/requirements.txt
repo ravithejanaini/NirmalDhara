@@ -1,3 +1,5 @@
-anthropic[bedrock]
+# Written and tested against the 0.x SDK (0.113.0). The 1.x line changes its HTTP library and has not
+# been tried, so it is excluded until it has been run against the real service.
+anthropic[bedrock]>=0.113,<1
 numpy
 pillow
