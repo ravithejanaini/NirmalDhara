@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Depth glyph gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="glyph.css">
+<style>
+  main { max-width: 62rem; margin: 0 auto; padding: var(--space-5) var(--gutter); }
+  section { margin-top: var(--space-5); }
+  .lede { max-width: var(--measure); color: var(--mist); margin-top: var(--space-3); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: var(--space-4) var(--space-3); margin-top: var(--space-4); }
+  .cell .big { width: 132px; height: 132px; }
+  .cell .big .glyph { width: 132px; height: 132px; }
+  .cell h3 { font-size: var(--size-body); font-weight: 500; margin-top: var(--space-2); }
+  .strip { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); align-items: center; }
+  .grey main { filter: grayscale(1); }
+  .toolbar { display: flex; gap: var(--space-3); align-items: center; margin-top: var(--space-4); flex-wrap: wrap; }
+  .live { display: flex; gap: var(--space-4); align-items: center; margin-top: var(--space-3); }
+  .live .glyph { width: 132px; height: 132px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="label">NirmalDhara</p>
+  <h1 class="display hero">The depth glyph</h1>
+  <p class="lede">Each site is a small cross-section of the road. It fills as the water rises: solid to the low end of the range, lighter up to the high end, with an ink line on the cautious end. Every state below must be told apart with colour removed.</p>
+  <div class="toolbar">
+    <button class="button" id="grey" aria-pressed="false">Show in greyscale</button>
+    <span class="muted small">Drawn at three times size for inspection, then at map size.</span>
+  </div>
+
+  <section>
+    <h2 class="display title">Every state</h2>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section>
+    <h2 class="display title">At map size</h2>
+    <p class="muted small">28 px disc in a 44 px touch target, as it sits on the map.</p>
+    <div class="strip" id="strip"></div>
+  </section>
+
+  <section>
+    <h2 class="display title">Rising and falling</h2>
+    <p class="muted small">The level moves over 800 ms and never jumps.</p>
+    <div class="live"><div id="live"></div><p id="live-text" class="display title" aria-live="off"></p></div>
+  </section>
+</main>
+
+<script type="module">
+import { createGlyph, updateGlyph } from "./glyph.js";
+
+const now = Date.now() / 1000;
+const MIN = 60;
+const site = (name, state, low, high, trusted, ageMin = 4) =>
+  ({ name, state, low, high, trusted, updated: now - ageMin * MIN });
+
+const STATES = [
+  [site("Clear", "CLEAR", 0, 0, false), "Clear", "Empty disc"],
+  [site("Watch", "WATCH", 0, 0, false), "Watch", "Empty disc, fine breathing ring"],
+  [site("Ankle deep", "WARNING", 4, 9, true), "Ankle deep, 4–9 cm", "Pale water, low"],
+  [site("One photo", "WARNING", 12, 17, false), "One unconfirmed photo", "Perforated edge"],
+  [site("Shin deep", "WARNING", 14, 19, true), "Shin deep, 14–19 cm", "Clean edge"],
+  [site("Wide range", "WARNING", 10, 28, true), "Uncertain, 10–28 cm", "Tall light band"],
+  [site("Critical", "CRITICAL", 28, 38, true), "Critical, 28–38 cm", "Dark water, firm ring"],
+  [site("Above the knee", "CRITICAL", 55, 70, true), "Critical, 55–70 cm", "Full disc, firm ring"],
+  [site("Receding", "RECEDING", 8, 13, true), "Receding, 8–13 cm", "Downward mark"],
+  [site("Stale", "WARNING", 13, 18, true, 45), "Seen 45 min ago", "Faded"],
+];
+
+const grid = document.getElementById("grid");
+const strip = document.getElementById("strip");
+for (const [data, title, tell] of STATES) {
+  const cell = document.createElement("div");
+  cell.className = "cell";
+  const big = document.createElement("div");
+  big.className = "big";
+  big.append(createGlyph(data, now));
+  cell.append(big);
+  cell.insertAdjacentHTML("beforeend", `<h3>${title}</h3><p class="muted small">${tell}</p>`);
+  grid.append(cell);
+  strip.append(createGlyph(data, now));
+}
+
+document.getElementById("grey").addEventListener("click", (event) => {
+  const on = document.body.classList.toggle("grey");
+  event.currentTarget.setAttribute("aria-pressed", on);
+  event.currentTarget.textContent = on ? "Show in colour" : "Show in greyscale";
+});
+
+// A site climbing through the bands and falling back, to show the motion.
+const STEPS = [[0, 0, "WATCH"], [5, 10, "WARNING"], [14, 19, "WARNING"], [24, 29, "CRITICAL"],
+               [29, 34, "CRITICAL"], [19, 24, "CRITICAL"], [7, 12, "RECEDING"], [0, 5, "RECEDING"], [0, 0, "CLEAR"]];
+const live = createGlyph(site("Live", "WATCH", 0, 0, true), now);
+document.getElementById("live").append(live);
+let step = 0;
+function advance() {
+  const [low, high, state] = STEPS[step++ % STEPS.length];
+  updateGlyph(live, { name: "Live", state, low, high, trusted: true, updated: Date.now() / 1000 });
+  document.getElementById("live-text").textContent = high ? `${low}–${high} cm · ${state.toLowerCase()}` : state.toLowerCase();
+}
+advance();
+setInterval(advance, 1800);
+window.galleryReady = true;
+</script>
+</body>
+</html>

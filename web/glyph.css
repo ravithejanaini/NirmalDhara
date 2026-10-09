@@ -1,0 +1,118 @@
+/* The depth glyph. Structure is built in glyph.js; everything visual is here. */
+
+.glyph {
+  display: block;
+  overflow: visible;
+  transition: opacity var(--quick) var(--ease-out);
+}
+
+.glyph-disc {
+  fill: var(--glyph-ground);
+}
+
+/* --- Water ------------------------------------------------------------------------------ */
+
+.glyph-level {
+  transition: transform var(--rise) var(--ease-out);
+}
+
+.glyph-solid .glyph-wave { fill: var(--water); }
+.glyph-band .glyph-wave { fill: var(--water); opacity: 0.42; }
+
+.glyph[data-tone="shallow"] .glyph-solid .glyph-wave,
+.glyph[data-tone="shallow"] .glyph-band .glyph-wave { fill: var(--shallow); }
+.glyph[data-tone="shallow"] .glyph-band .glyph-wave { opacity: 0.6; }
+
+.glyph[data-tone="deep"] .glyph-solid .glyph-wave,
+.glyph[data-tone="deep"] .glyph-band .glyph-wave { fill: var(--deep); }
+
+/* The ink line on the high end of the range: the cautious answer is the one drawn sharpest. */
+.glyph-surface .glyph-wave {
+  fill: none;
+  stroke: var(--glyph-outline);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.glyph[data-tone="none"] .glyph-level {
+  visibility: hidden;
+}
+
+/* Only water drifts, and only where there is water. One period sideways, then again. */
+.glyph:not([data-tone="none"]) .glyph-wave {
+  animation: glyph-drift var(--drift) linear infinite;
+}
+
+.glyph:not([data-tone="none"]) .glyph-solid .glyph-wave {
+  animation-direction: reverse;      /* the two layers slide past each other */
+  animation-duration: calc(var(--drift) * 1.4);
+}
+
+@keyframes glyph-drift {
+  to { transform: translateX(14px); }
+}
+
+/* --- Edge: trust ------------------------------------------------------------------------ */
+
+.glyph-edge {
+  fill: none;
+  stroke: var(--night);
+  stroke-width: 0;
+}
+
+/* Unconfirmed: the ground colour bites into the disc, like the edge of a stamp. */
+.glyph[data-unconfirmed] .glyph-edge {
+  stroke-width: 3.5;
+  stroke-dasharray: 2.6 3.68;        /* 14 bites round a 28 px disc */
+}
+
+/* --- Ring: urgency ---------------------------------------------------------------------- */
+
+.glyph-ring {
+  fill: none;
+  stroke: none;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+.glyph[data-ring="watch"] .glyph-ring {
+  stroke: var(--shallow);
+  stroke-width: 1;
+  animation: glyph-breathe 3.2s ease-in-out infinite;
+}
+
+.glyph[data-ring="critical"] .glyph-ring {
+  stroke: var(--signal);
+  stroke-width: 1.5;
+}
+
+@keyframes glyph-breathe {
+  0%, 100% { opacity: 0.9; transform: scale(0.92); }
+  50% { opacity: 0.35; transform: scale(1.06); }
+}
+
+/* --- Receding and stale ----------------------------------------------------------------- */
+
+.glyph-falling {
+  fill: none;
+  stroke: var(--glyph-outline);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+.glyph[data-falling] .glyph-falling {
+  visibility: visible;
+}
+
+.glyph[data-stale] {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyph .glyph-wave,
+  .glyph .glyph-ring {
+    animation: none !important;
+  }
+}
