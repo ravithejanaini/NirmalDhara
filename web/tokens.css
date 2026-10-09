@@ -1,0 +1,91 @@
+/* NirmalDhara design tokens: "ink and water".
+ *
+ * The city at night in the monsoon, drawn like a print. The ground is dark and quiet. Water
+ * is the only thing with colour, and it gets darker as it gets deeper, as water does.
+ * One warm colour, Signal, means "do not enter" and nothing else.
+ *
+ * Every text and background pairing in use is listed in contrast-pairs.json and checked by
+ * tests/test_contrast.py and by styleguide.html. Add a pair there before using a new one.
+ */
+
+:root {
+  /* --- Palette ------------------------------------------------------------------------ */
+  --night: #0E1A2B;        /* page and map ground */
+  --paper: #F3EDE1;        /* sheets, cards, the glyph's disc; text on night */
+  --ink: #16202E;          /* text and outlines on paper */
+  --line: #2B3F5C;         /* roads, contours, hairlines on night. Never text */
+
+  --shallow: #7FB7BE;      /* under 12 cm; a watch */
+  --water: #2F7F93;        /* 12 to 30 cm */
+  --deep: #134B66;         /* above 30 cm */
+
+  --signal: #E4572E;       /* critical only: rings, and text on night */
+  --moss: #8A9A5B;         /* clear, receding, "passable with care": marks, and text on night */
+
+  /* Text colours derived for the ground they sit on. The base hues above fail 4.5:1 there. */
+  --mist: #A9B6C6;         /* secondary text on night */
+  --slate: #525E6E;        /* secondary text on paper */
+  --signal-ink: #B23A14;   /* Signal as text on paper */
+  --moss-ink: #55622F;     /* Moss as text on paper */
+  --water-ink: #1F6577;    /* Water as text on paper */
+
+  /* Water is always drawn on paper, never straight onto night: Deep on night is 1.85:1 and
+     would make the deepest water the hardest to see. */
+  --glyph-ground: var(--paper);
+  --glyph-outline: var(--ink);
+
+  --rule-on-night: var(--line);
+  --rule-on-paper: rgb(22 32 46 / 0.14);
+  --scrim: rgb(14 26 43 / 0.55);
+
+  /* --- Type --------------------------------------------------------------------------- */
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-text: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --size-hero: 2.5rem;     /* 40px: the one number on a sheet */
+  --size-title: 1.5rem;    /* 24px: a site's name */
+  --size-body: 1.0625rem;  /* 17px */
+  --size-small: 0.875rem;  /* 14px: the floor. Nothing smaller, anywhere */
+
+  --leading-tight: 1.1;
+  --leading-body: 1.5;
+  --tracking-label: 0.08em;
+
+  /* --- Space, 4 8 16 24 40 ------------------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+
+  --gutter: var(--space-3);
+  --measure: 34rem;        /* widest a column of text gets */
+  --touch: 2.75rem;        /* 44px: the smallest thing a finger is asked to hit */
+
+  /* --- Shape -------------------------------------------------------------------------- */
+  --radius-sheet: 1.25rem;
+  --radius-small: 0.25rem;
+  --hairline: 1px;
+
+  /* --- Motion ------------------------------------------------------------------------- */
+  --rise: 800ms;           /* water changing level. It never jumps */
+  --drift: 6s;             /* one cycle of the wave line */
+  --quick: 180ms;          /* interface feedback */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* --- Layers ------------------------------------------------------------------------- */
+  --z-map: 0;
+  --z-chrome: 10;
+  --z-scrim: 20;
+  --z-sheet: 30;
+
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rise: 0ms;
+    --drift: 0s;
+    --quick: 0ms;
+  }
+}

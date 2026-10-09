@@ -1,0 +1,206 @@
+/* Base styles shared by every page. Colours and sizes come from tokens.css only.
+ *
+ * Fonts: each page links Fraunces and Inter from Google Fonts in its <head>. If they do not
+ * load, the fallbacks in --font-display and --font-text are close in width and weight.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--night);
+  color: var(--paper);
+  font-family: var(--font-text);
+  font-size: var(--size-body);
+  line-height: var(--leading-body);
+  font-feature-settings: "tnum" 1, "cv11" 1;   /* figures that do not jump as depth changes */
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, p, ul, ol, figure {
+  margin: 0;
+}
+
+ul, ol {
+  padding: 0;
+  list-style: none;
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+/* --- Type ------------------------------------------------------------------------------ */
+
+.display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.hero {
+  font-size: var(--size-hero);
+}
+
+.title {
+  font-size: var(--size-title);
+}
+
+.small {
+  font-size: var(--size-small);
+}
+
+/* A quiet capital label above a value: "SEEN", "DEPTH". */
+.label {
+  font-size: var(--size-small);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+  color: var(--mist);
+}
+
+.muted {
+  color: var(--mist);
+}
+
+.stack > * + * {
+  margin-top: var(--space-3);
+}
+
+.stack-tight > * + * {
+  margin-top: var(--space-2);
+}
+
+.measure {
+  max-width: var(--measure);
+}
+
+/* --- Paper: sheets and cards ------------------------------------------------------------ */
+
+.paper {
+  position: relative;
+  isolation: isolate;
+  background: var(--paper);
+  color: var(--ink);
+  color-scheme: light;
+}
+
+/* The grain: fine noise at 3%, drawn by the browser so there is no image to fetch. */
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0.03;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.paper .label,
+.paper .muted {
+  color: var(--slate);
+}
+
+.sheet {
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  padding: var(--space-4) var(--gutter) var(--space-5);
+}
+
+/* --- Hairlines, not boxes --------------------------------------------------------------- */
+
+.rule {
+  border: 0;
+  height: var(--hairline);
+  margin: var(--space-3) 0;
+  background: var(--rule-on-night);
+}
+
+.paper .rule {
+  background: var(--rule-on-paper);
+}
+
+/* --- Meaning in colour, always with a word beside it ------------------------------------ */
+
+.is-critical { color: var(--signal); }
+.is-clear { color: var(--moss); }
+.paper .is-critical { color: var(--signal-ink); }
+.paper .is-clear { color: var(--moss-ink); }
+.paper .is-water { color: var(--water-ink); }
+
+/* --- Controls --------------------------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch);
+  padding: 0 var(--space-4);
+  border: var(--hairline) solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--quick) var(--ease-out), color var(--quick) var(--ease-out);
+}
+
+.button:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.paper .button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--shallow);
+  outline-offset: 3px;
+}
+
+.paper :focus-visible {
+  outline-color: var(--water-ink);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

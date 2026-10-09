@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NirmalDhara style guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<style>
+  main { max-width: 60rem; margin: 0 auto; padding: var(--space-5) var(--gutter); }
+  section { margin-top: var(--space-5); }
+  section > h2 { margin-bottom: var(--space-3); }
+  .lede { max-width: var(--measure); color: var(--mist); }
+
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); gap: var(--space-3); }
+  .swatch .chip { height: 4.5rem; border-radius: var(--radius-small); border: var(--hairline) solid var(--line); }
+  .swatch .name { margin-top: var(--space-2); font-weight: 500; }
+  .swatch code, td code { font: inherit; font-size: var(--size-small); color: var(--mist); }
+
+  table { width: 100%; border-collapse: collapse; font-size: var(--size-small); }
+  th { text-align: left; font-weight: 500; letter-spacing: var(--tracking-label); text-transform: uppercase; color: var(--mist); }
+  th, td { padding: var(--space-2) var(--space-2) var(--space-2) 0; border-bottom: var(--hairline) solid var(--line); vertical-align: middle; }
+  td.sample span { display: inline-block; padding: 0 var(--space-2); border-radius: var(--radius-small); font-weight: 500; white-space: nowrap; }
+  td.ratio, td.needs { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pass { color: var(--moss); } .fail { color: var(--signal); }
+  .scroll { overflow-x: auto; }
+
+  .type-row { display: grid; grid-template-columns: 6.5rem 1fr; gap: var(--space-3); align-items: baseline; padding: var(--space-2) 0; border-bottom: var(--hairline) solid var(--line); }
+  .space-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-1) 0; }
+  .space-row i { display: block; height: var(--space-3); background: var(--shallow); border-radius: 1px; }
+
+  .demo-sheet { max-width: 24rem; border-radius: var(--radius-sheet); }
+  .rows li { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) 0; }
+  .rows li + li { border-top: var(--hairline) solid var(--rule-on-paper); }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: var(--space-4); align-items: start; }
+</style>
+</head>
+<body>
+<main>
+  <p class="label">NirmalDhara</p>
+  <h1 class="display hero">Ink and water</h1>
+  <p class="lede" style="margin-top: var(--space-3)">The city at night in the monsoon, drawn like a print. The ground is dark and quiet. Water is the only thing with colour, and it darkens as it deepens. One warm colour means <span class="is-critical">do not enter</span> and nothing else.</p>
+
+  <section>
+    <h2 class="display title">Colour</h2>
+    <div class="swatches" id="swatches"></div>
+  </section>
+
+  <section>
+    <h2 class="display title">Contrast</h2>
+    <p class="lede" style="margin-bottom: var(--space-3)">Every pairing in use, computed in this browser from the tokens. Text must reach 4.5 to 1; marks that carry meaning, 3 to 1.</p>
+    <p id="summary" class="display title" aria-live="polite">…</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Sample</th><th>Pair</th><th>Ratio</th><th>Needs</th><th>Used for</th></tr></thead>
+      <tbody id="pairs"></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2 class="display title">Type</h2>
+    <div class="type-row"><span class="label">Hero 40</span><span class="display hero">14–19 cm</span></div>
+    <div class="type-row"><span class="label">Title 24</span><span class="display title">Malakpet railway underbridge</span></div>
+    <div class="type-row"><span class="label">Body 17</span><span>Not safe for bikes, scooters, autos and cars.</span></div>
+    <div class="type-row"><span class="label">Small 14</span><span class="small">Seen 6 minutes ago, from a guardian's photo. Nothing is set smaller than this.</span></div>
+    <div class="type-row"><span class="label">Figures</span><span>0123456789 · 11–16 cm · 111–666 cm <span class="muted small">tabular, so a changing depth does not shift the line</span></span></div>
+  </section>
+
+  <section>
+    <h2 class="display title">Space and shape</h2>
+    <div id="spaces"></div>
+    <p class="muted small" style="margin-top: var(--space-3)">Sheet corners 20 px. Small corners 4 px. Touch targets at least 44 px.</p>
+  </section>
+
+  <section>
+    <h2 class="display title">Paper, hairline and grain</h2>
+    <div class="two">
+      <div class="paper sheet demo-sheet">
+        <p class="label">Shin deep</p>
+        <p class="display hero">14–19 cm</p>
+        <p style="margin-top: var(--space-2)">Not safe for bikes, scooters, autos and cars.</p>
+        <hr class="rule">
+        <ul class="rows">
+          <li><span>Cars</span><span class="is-critical">✕ Not safe</span></li>
+          <li><span>SUVs</span><span class="is-clear">✓ Passable with care</span></li>
+          <li><span>Depth band</span><span class="is-water">Shin deep</span></li>
+        </ul>
+        <hr class="rule">
+        <p class="muted small">Seen 6 minutes ago · confirmed</p>
+        <p style="margin-top: var(--space-3)"><button class="button">Send a photo</button></p>
+      </div>
+      <div class="stack">
+        <p>Sections on a sheet are separated by a 1 px line and by space, never by boxes. The sheet carries a fine grain at 3%, drawn by the browser, so it reads as paper and not as a flat panel.</p>
+        <hr class="rule">
+        <p class="muted">The same hairline on the night ground uses the Line colour.</p>
+        <p><button class="button">A button on night</button></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="display title">Motion</h2>
+    <p class="lede">Water changes level over 800 ms and never jumps. The wave line drifts once every 6 s. Interface feedback takes 180 ms. All three become instant when the reader has asked for reduced motion.</p>
+  </section>
+</main>
+
+<script type="module">
+const css = getComputedStyle(document.documentElement);
+const token = (name) => css.getPropertyValue(`--${name}`).trim();
+
+function luminance(hex) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function ratio(a, b) {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+const COLOURS = [
+  ["night", "Night", "Page and map ground"], ["paper", "Paper", "Sheets, the glyph's disc"],
+  ["ink", "Ink", "Text on paper"], ["line", "Line", "Roads, hairlines"],
+  ["shallow", "Shallow", "Under 12 cm"], ["water", "Water", "12 to 30 cm"],
+  ["deep", "Deep", "Above 30 cm"], ["signal", "Signal", "Critical only"],
+  ["moss", "Moss", "Clear, receding"], ["mist", "Mist", "Secondary text on night"],
+  ["slate", "Slate", "Secondary text on paper"], ["signal-ink", "Signal ink", "Signal as text on paper"],
+  ["moss-ink", "Moss ink", "Moss as text on paper"], ["water-ink", "Water ink", "Water as text on paper"],
+];
+document.getElementById("swatches").innerHTML = COLOURS.map(([id, name, use]) => `
+  <div class="swatch">
+    <div class="chip" style="background: var(--${id})"></div>
+    <p class="name">${name}</p>
+    <p><code>${token(id)}</code></p>
+    <p class="muted small">${use}</p>
+  </div>`).join("");
+
+document.getElementById("spaces").innerHTML = [1, 2, 3, 4, 5].map((n) => `
+  <div class="space-row"><span class="label" style="width: 6.5rem">space-${n}</span>
+  <i style="width: var(--space-${n})"></i><span class="muted small">${[4, 8, 16, 24, 40][n - 1]} px</span></div>`).join("");
+
+const { pairs } = await (await fetch("contrast-pairs.json")).json();
+let failed = 0;
+document.getElementById("pairs").innerHTML = pairs.map((p) => {
+  const value = ratio(token(p.fg), token(p.bg));
+  const ok = p.min === null || value >= p.min;
+  if (!ok) failed++;
+  const verdict = p.min === null ? `<span class="muted">no minimum</span>`
+    : `<span class="${ok ? "pass" : "fail"}">${ok ? "✓" : "✕"} ${p.min} to 1</span>`;
+  return `<tr>
+    <td class="sample"><span style="color: var(--${p.fg}); background: var(--${p.bg})">${p.min === 4.5 ? "14–19 cm" : "●━━"}</span></td>
+    <td><code>${p.fg}</code> on <code>${p.bg}</code></td>
+    <td class="ratio">${value.toFixed(2)}</td><td class="needs">${verdict}</td><td>${p.use}</td></tr>`;
+}).join("");
+const checked = pairs.filter((p) => p.min !== null).length;
+const summary = document.getElementById("summary");
+summary.textContent = failed ? `${failed} of ${checked} pairings fail` : `${checked} of ${checked} pairings pass`;
+summary.className = `display title ${failed ? "fail" : "pass"}`;
+window.contrastCheck = { checked, failed };
+</script>
+</body>
+</html>

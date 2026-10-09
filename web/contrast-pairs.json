@@ -1,0 +1,25 @@
+{
+  "note": "Every foreground and background pairing in use. min is the contrast ratio it must reach: 4.5 for text, 3 for marks that carry meaning, null for a fill that is never the only signal. Checked by tests/test_contrast.py and shown in styleguide.html.",
+  "pairs": [
+    {"fg": "paper", "bg": "night", "min": 4.5, "use": "Text on the page and map"},
+    {"fg": "mist", "bg": "night", "min": 4.5, "use": "Secondary text and labels on the page"},
+    {"fg": "signal", "bg": "night", "min": 4.5, "use": "Critical text and the stale-data notice on the page"},
+    {"fg": "moss", "bg": "night", "min": 4.5, "use": "Clear and receding text on the page"},
+    {"fg": "shallow", "bg": "night", "min": 4.5, "use": "Focus ring and watch text on the page"},
+    {"fg": "paper", "bg": "night", "min": 3, "use": "The glyph's disc against the map"},
+
+    {"fg": "ink", "bg": "paper", "min": 4.5, "use": "Text on a sheet"},
+    {"fg": "slate", "bg": "paper", "min": 4.5, "use": "Secondary text and labels on a sheet"},
+    {"fg": "signal-ink", "bg": "paper", "min": 4.5, "use": "\"Not safe\" and critical text on a sheet"},
+    {"fg": "moss-ink", "bg": "paper", "min": 4.5, "use": "\"Passable with care\" text on a sheet"},
+    {"fg": "water-ink", "bg": "paper", "min": 4.5, "use": "Depth words and the focus ring on a sheet"},
+
+    {"fg": "ink", "bg": "paper", "min": 3, "use": "The glyph's outline and wave line on its disc"},
+    {"fg": "water", "bg": "paper", "min": 3, "use": "Water fill, 12 to 30 cm, on the glyph's disc"},
+    {"fg": "deep", "bg": "paper", "min": 3, "use": "Water fill above 30 cm on the glyph's disc"},
+    {"fg": "signal", "bg": "paper", "min": 3, "use": "The critical ring where it crosses the disc"},
+    {"fg": "signal", "bg": "night", "min": 3, "use": "The critical ring against the map"},
+    {"fg": "shallow", "bg": "paper", "min": null, "use": "Water fill under 12 cm. Faint on purpose; the ink wave line above it marks the level"},
+    {"fg": "line", "bg": "night", "min": null, "use": "Roads, contours and hairlines on the map. Decoration, never text"}
+  ]
+}
