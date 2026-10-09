@@ -6,15 +6,15 @@ sources. This document is the level below both. It says, for every part that exi
 what the records are, how they are stored, which algorithm is used and why, what happens when
 two things run at once, what happens when something fails, and which test proves it.
 
-**Status words.** *Built* means the code exists and has tests. *Planned* means designed here
-and not written. *Not run* means the code has only been tested against stand-ins, never
-against the real service. Nothing in this document has been deployed to AWS yet; section 16
-lists what that leaves unproven.
+**Status words.** *Running* means the code is deployed to AWS and has been exercised there
+(`docs/smoke-test.md`, the replay). *Built* means the code exists with tests but has not run on
+real input or been deployed. *Planned* means designed here and not written. Paths are relative
+to `src/` unless they start with another folder. Section 17.2 lists what is still unproven.
 
 Contents: 1 modules · 2 records · 3 storage · 4 data structures · 5 algorithms · 6 site state
 machine · 7 state engine · 8 flood workflow · 9 notifier · 10 events · 11 failures ·
 12 idempotency · 13 timing · 14 permissions and settings · 15 interfaces · 16 planned parts ·
-17 review findings · 18 tests · 19 differences from the high-level design
+17 review findings · 18 test inventory · 19 differences from the high-level design · 20 demonstration tools, the pages and hosting
 
 ---
 
@@ -22,34 +22,44 @@ machine · 7 state engine · 8 flood workflow · 9 notifier · 10 events · 11 f
 
 ### 1.1 From component to module
 
-| Component in ARCHITECTURE.md | Module | Status |
+Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if one is not.
+
+| Component | Module | Status |
 |---|---|---|
-| Rain check (6.1) | `nirmaldhara/rain.py`, `handlers/rain.py` | built; forecast call run live |
-| State engine (6.2) | `nirmaldhara/state.py`, `nirmaldhara/store.py`, `handlers/engine.py` | built |
-| Depth bands and passability | `nirmaldhara/bands.py` | built |
-| Flood event workflow (6.3) | `nirmaldhara/workflow.py`, `handlers/flood.py`, `statemachine/flood.asl.json` | built |
-| Notifier (6.9) | `handlers/notifier.py` | built for one topic; per-channel adapters planned |
-| Alert rules and wording (6.4) | `nirmaldhara/alerts.py` | built |
-| Depth from a photo | `nirmaldhara/reader.py` | built; not run against the real model |
-| Intake checks, crop, blur | `nirmaldhara/intake.py` | built as functions; handler planned |
+| Rain check (6.1) | `nirmaldhara/rain.py`, `handlers/rain.py` | running; live forecast, nine sites |
+| State engine (6.2) | `nirmaldhara/state.py`, `nirmaldhara/store.py`, `handlers/engine.py` | running |
+| Depth bands and passability | `nirmaldhara/bands.py` | running (alerts, sheet); the browser copy is `web/rules.js` |
+| Flood workflow (6.3) | `nirmaldhara/workflow.py`, `handlers/flood.py`, `statemachine/flood.asl.json` | running |
+| Notifier (6.9) | `handlers/notifier.py` | running; to one topic, no person subscribed |
+| Alert rules and wording (6.4) | `nirmaldhara/alerts.py` | running |
+| Map file (6.8) | `nirmaldhara/publish.py`, `handlers/publisher.py` | running |
+| Flood history file | `nirmaldhara/history.py`, `handlers/history.py` | running |
+| Version-checked file writes | `nirmaldhara/snapshot.py` | running; used by both file writers |
+| Site host (stand-in for CloudFront) | `handlers/site.py` | running |
+| Prediction (METHOD 7) | `nirmaldhara/predict.py` | built; feeds the "cars lose passage" line, not yet seen in a delivered alert |
+| Depth from a photo | `nirmaldhara/reader.py` | built; **never run against the real model** |
+| Intake checks, crop, blur | `nirmaldhara/intake.py` | built as functions; no handler |
 | Signed links (8) | `nirmaldhara/tokens.py` | built |
-| Prediction (METHOD 7) | `nirmaldhara/predict.py` | built |
 | Camera change gate (6.6) | `nirmaldhara/change.py` | built |
-| Nearby lookup | `nirmaldhara/geo.py` | built |
-| Public map file (6.8) | `nirmaldhara/publish.py` | built as functions; handler planned |
-| Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built |
-| Deployment | `template.yaml` | written, parses; not deployed |
-| Agent wording, scenario engine, fix sheet, camera agent, activation, APIs | | planned, section 16 |
+| Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
+| Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; no caller yet |
+| Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
+| Agent wording, scenario engine, fix sheet, camera agent, activation, acknowledgement, channels, upload | | planned, section 16 |
+
+Outside `src/`: `template.yaml` (deployed, 51 resources), `web/` (the pages and their scripts:
+`rules.js`, `glyph.js`, `data.js`, `sites.js`, `sheet.js`, `section.js`, `guide.js`, `map.js`,
+`offenders.js`) and the scripts in section 20.
 
 ### 1.2 Layers
 
 ```mermaid
 flowchart TB
   subgraph H["handlers/  (talk to AWS, hold no rules)"]
-    HR[rain] ; HE[engine] ; HF[flood: reactor, tick] ; HN[notifier]
+    HR[rain] ; HE[engine] ; HF[flood: reactor, tick] ; HN[notifier] ; HP[publisher] ; HH[history] ; HS[site host]
   end
   subgraph S["store.py  (the only module that knows table layouts)"]
-    ST[load / save / load_open_event / save_event / guarded]
+    ST[load / save / mark_published / load_open_event / save_event / guarded]
+    SN[snapshot: version-checked file writes]
   end
   subgraph P["pure logic  (no network, no clock, no randomness)"]
     B[bands] --> STA[state]
@@ -62,6 +72,7 @@ flowchart TB
   HR --> RN[rain.fetch]
   HE --> ST ; HF --> ST ; HN --> ST
   HE --> STA ; HF --> WF ; HN --> AL
+  HP --> ST ; HP --> SN ; HH --> SN
   ST --> STA ; ST --> WF
 ```
 
@@ -75,7 +86,7 @@ Three rules hold the layers apart:
    a `FloodEvent` and get one.
 3. **Only two functions call an outside service from the package:** `reader.read_depth` (the
    model) and `rain.fetch` (the forecast). Everything else runs with no account and no network,
-   which is why 117 tests finish in a few seconds.
+   which is why the whole suite (section 18) finishes in seconds.
 
 ---
 
@@ -885,6 +896,10 @@ change.ChangeGate().should_send(image, now) -> bool
 geo.encode(lat, lon) -> cell ; geo.cells_covering(lat, lon, radius) -> {cell}
 volume.VolumeCurve(profile, width).volume(depth) / .depth(volume)
 publish.site_entry(...) ; publish.city_document(...) ; publish.to_json(document)
+history.site_entry(site_id, name, events) -> one site's floods and totals
+history.document(city, generated_at, entries) -> the file ; history.ranking(entries) -> site ids
+snapshot.put(s3, bucket, key, build, now, cache=, refresh_s=) -> {"rows", "bytes", "written"}
+store.mark_published(table, city, site)                  removes published events from the record
 reader.read_depth(image_path) -> reading dict
 ```
 
@@ -897,6 +912,9 @@ handlers.flood.reactor(event, context)         bus -> {"opened": bool}
 handlers.flood.tick(event, context)            {city, site_id, start, loops}
                                                -> {city, site_id, start, done, wait_s, loops}
 handlers.notifier.handler(event, context)      bus -> {"sent": bool}
+handlers.publisher.handler(event, context)     queue or schedule -> {"sites", "bytes", "written"}
+handlers.history.handler(event, context)       bus or schedule -> {"sites", "bytes", "written"}
+handlers.site.handler(event, context)          function URL: GET or HEAD of one object
 ```
 
 ### 15.3 Public map file
@@ -939,20 +957,7 @@ the same order on random cities. METHOD.md section 14 also names trigger rain, d
 response and a low-coverage flag: none is recorded yet, so none is shown, and the page says so.
 One query per registry site is fine at nine sites; at 500 it would need an index on closed events.
 
-**How the site is served.** The design is CloudFront in front of the private bucket through an
-origin access control (in `template.yaml`, switched off by the `EnableCloudFront` parameter).
-On 9 October 2026 AWS refused to create the distribution: "Your account must be verified
-before you can add new CloudFront resources. To verify your account, please contact AWS
-Support." That is the same account-verification block as Bedrock. Until Support clears it, a
-Lambda function URL (`handlers/site.py`) serves the bucket over HTTPS, read-only, GET and HEAD
-of one object, with the security headers CloudFront would add and a 304 for an unchanged
-object. It refuses any path that is not exactly one object key (`..`, `.`, empty segments,
-backslashes, NUL, repeated slashes). The pages use only relative addresses, so switching to
-CloudFront changes the address and nothing else. What the stand-in lacks: a CDN. Every request,
-including each phone's 20-second poll of the map file, is one Lambda invocation (about 30 ms),
-which is fine for a demonstration and is the reason to move to CloudFront before any real
-audience. To switch: `sam deploy ... --parameter-overrides EnableCloudFront=true`, once Support
-has verified the account.
+**How the site is served** is in section 20.5.
 
 **How the file is kept current** (`handlers/publisher.py`). Site changes go through a queue to
 the publisher, at most two runs at once, ten events to a run; a 15-minute schedule is the
@@ -976,7 +981,7 @@ compress unrealistically well. The 50 KB target holds uncompressed up to about 6
 
 ## 16. Planned parts
 
-Designed to the level needed to build them; none is written.
+Designed to the level needed to build them. None is deployed; 16.3 has since been built and is kept as a pointer.
 
 **16.1 Intake handler.** Trigger: object created in the raw bucket. Steps: read the upload's
 token claims from object metadata; `intake.check`; `crop_to_region`; face and plate boxes from
@@ -990,9 +995,7 @@ deduplication id. `cannot_tell` sends nothing and counts a metric. Queue trigger
 maximum concurrency, so a burst of photos waits in the queue instead of hitting the model's
 rate limit.
 
-**16.3 Publisher.** Trigger: `SiteStateChanged`. Queries the city's sites, builds the document
-with `publish.city_document`, writes one object. Idempotent by nature: the last write wins and
-every write is a full snapshot.
+**16.3 Publisher.** Built: section 15.3 and `handlers/publisher.py`.
 
 **16.4 Acknowledge endpoint.** `GET /ack?t=token`: `tokens.verify` with purpose `ack`; record
 the nonce (conditional put, single use); load the open event; `workflow.acknowledge`;
@@ -1043,6 +1046,12 @@ lines.
 | 17 | **A flood ended without telling anyone.** Residents told "DO NOT ENTER" were never told the warning was over. Found by reading the alerts the smoke test delivered | People keep avoiding, or stop trusting, a warning that is never withdrawn | On close, a `cleared` alert goes to every audience that was warned. It says what was seen and that the warnings have ended; it never says the road is open or safe |
 | 18 | The photo re-ask during a flood said "Heavy rain is expected" | Wrong and confusing five minutes into a critical flood | A photo request quotes the last reading once water has been seen |
 | 19 | Alerts read "bikes and scooters and autos" | Clumsy in the one sentence that matters | "bikes, scooters and autos"; a test forbids two "and"s in one sentence |
+| 20 | The tests failed to collect on a clean install | A stranger following the README got an error: a test imported `httpx`, which the newest Anthropic SDK no longer installs | The test builds the SDK's error classes without an HTTP library; the requirement is held to the 0.x SDK the code was written against |
+| 21 | The cross-section's numbers rendered at 13.3 px on a 360 px phone | Under the 14 px floor | Set in drawing units so they are 14.4 px at that width; a test computes it |
+| 22 | The sheet's only close button was at the top of the screen, and the new Close button fell below the fold | Out of one-handed reach | A handle that closes by tap or pull; a Close button pinned to the bottom of the visible sheet |
+| 23 | Controls came after all the sites in the keyboard order | A keyboard user tabbed past every site to reach "Repeat floods" and the key | The header and controls come first in the page; the style sheet positions them |
+| 24 | The map's credit was dimmed by the bottom bar's fade | A licence requirement not met | The credit sits above the bar |
+| 25 | A repeat-floods row said "peak 17 cm" and "last flood peak 45 cm" | The 45 cm flood was unconfirmed and not counted | The line describes the confirmed floods only |
 | 13 | Earlier pass: rain check asked for every site separately, read one page, sent one message per call, 30 s limit | No watches at real city size | Grid cells (500 sites → 56 points, 3.3 s, measured live), pagination, batches of 10, 120 s |
 
 ### 17.2 Open
@@ -1055,6 +1064,12 @@ In order of importance.
 | 2 | Every reading now costs two writes to `Sites` | Twice the write cost of the engine; no effect on correctness | Publish from the table's change stream, which needs no second write. Not done because it cannot be tested without a deployment |
 | 2a | **The account allows 10 Lambda executions at once, in total**, and the interim site host shares that pool with the engine, the workflow and the notifier | One visitor loading the page makes about a dozen requests together and can briefly take the whole pool. Queued and event-driven work is retried, so nothing is lost, but an alert can be delayed while pages load; under real traffic the delay would be constant | Serve the site from CloudFront, which makes no Lambda call per request (needs the account verified), and ask for a higher concurrency limit. Found in the review of block C, 9 October |
 | 2b | A site that starts receding sends its "water is falling" update only when the 20-minute repeat comes round, because alerts are re-sent at once only when the level rises | Good news arrives late; the stand-down on clearing (finding 17) still arrives at once | Send the update once on entering RECEDING, with a minimum gap so a depth hovering at a threshold cannot send a stream of messages |
+| 11 | **No person is wired in.** The alerts topic has no subscriber, the registry holds no contacts, and there is no acknowledgement endpoint (16.4) | Escalation to the next contact always happens; the smoke test proved the five-minute timing, not a delivery to anyone | Subscribe a real address; build 16.4 and 16.5 |
+| 12 | **The photo reader has never run.** Model access on Bedrock is blocked until AWS verifies the account | There is no accuracy figure for depth from a photo, and the demonstration's depths come from scripts | Resolve the verification, or call the Anthropic API directly (task MOD-02), then measure on labelled photos (MOD-04) |
+| 13 | **CloudFront was refused for the same reason** (section 20.5) | No CDN; see 2a | Verify the account, then deploy with `EnableCloudFront=true` |
+| 14 | Site positions are approximate, a few hundred metres (`data/SOURCES.md`) | `intake.check` rejects a photo more than 150 m from the site, so real photos would be wrongly rejected | Correct each position to the road point before photo upload goes live |
+| 15 | The site function's URL is public and every request is a billed invocation | Normal use costs nothing; abuse would cost money until noticed | CloudFront with a rate limit; a budget alert in the meantime |
+| 16 | The history writer runs one query per registry site | Fine at nine; 500 queries per closed flood at 500 sites | An index on closed events |
 | 3 | An alert that fails all retries is recorded as sent | Late by up to 20 minutes, needs a person | Notifier publishes `AlertFailed`; the workflow clears that audience's record so the next step sends again |
 | 4 | A timer loop that fails for about two days ends at the history limit | Alarm only | Count failures in the loop state and hand over to a fresh execution |
 | 2c | A fast replay records near-zero minutes blocked (section 20.3), so the repeat offenders page built from replay floods shows tiny durations | The demonstration of the environmental view is thin | Use `--speed 1` for one replay before recording, or show the page with its labelled sample data (`scripts/make_sample_history.py`, never deployed), and say which in the video |
@@ -1069,20 +1084,46 @@ In order of importance.
 
 ## 18. Tests
 
+The inventory below is written by `scripts/update_design_tests.py` from what `pytest
+--collect-only` finds, and `tests/test_design_doc.py` fails if it is out of date. Run that script
+after adding a test.
+
+<!-- tests:start -->
 | File | Tests | Covers |
 |---|---|---|
+| `test_accessibility.py` | 18 | Page order, type floor, touch targets, the pinned Close button, reduced motion, names on controls |
+| `test_alerts.py` | 21 | Who is alerted, the repeat rule, wording, the stand-down, no sentence with two "and"s |
+| `test_architecture.py` | 10 | The picture shows only what the template deploys and leaves out no function |
+| `test_change.py` | 5 | Camera frame gate |
+| `test_contrast.py` | 20 | Every colour pairing in use meets its contrast minimum |
 | `test_core.py` | 8 | Bands, passability, prediction |
-| `test_state.py` | 17 | Transitions, trust, jump hold, fusion, `since`, a repeated reading |
-| `test_engine.py` | 11 | Engine against an in-memory table and bus: order, registry fields kept, bad message alone, threshold refresh, lost race, stale write, an unpublished event recovered by redelivery and by the next message, a redelivered reading counted once, key list bounded, a failure holding back the site's later messages |
-| `test_workflow.py` | 11 | Plan rules, photo re-asks, escalation, acknowledgement, blocked time, closing, alert ids |
-| `test_flood.py` | 13 | Reactor, tick and notifier together against in-memory tables, bus, topic and state machine: every row of 8.5 marked with a test, wording, failed send |
+| `test_data_js.py` | 8 | The page's file reading, diffing, stale notice and polling, run with Node |
+| `test_deploy_web.py` | 10 | Which files are uploaded and with what headers; the map file can never be overwritten |
+| `test_design.py` | 13 | Geohash, volume curve, map file, and the properties listed below |
+| `test_design_doc.py` | 6 | This document: every source file is in section 1 and the test inventory is current |
+| `test_engine.py` | 11 | Engine against an in-memory table and bus: order, outbox recovery, repeated messages, lost races |
+| `test_flood.py` | 13 | Reactor, tick and notifier together against in-memory services: every row of 8.5, failed send |
+| `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
+| `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
+| `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
+| `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
+| `test_map_style.py` | 2 | The map style uses only token colours and none of the flood palette |
+| `test_offenders.py` | 37 | The repeat-floods page ranks as the Python does, on random cities, run with Node |
+| `test_publisher.py` | 15 | Map file: every site, skipped when unchanged, losing a race, 500 sites |
 | `test_rain.py` | 5 | Request building, parsing, grid grouping |
 | `test_reader.py` | 6 | Request shape, refusal, throttling, server error, no connection, configuration error |
-| `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
-| `test_alerts.py` | 18 | Who is alerted, repeat rule, wording |
-| `test_change.py` | 5 | Frame gate |
-| `test_design.py` | 12 | Geohash, volume curve, map file, properties below |
-| **Total** | **117** | All passing |
+| `test_replay.py` | 12 | Replay schedule and what reset clears and leaves |
+| `test_rules_match.py` | 3 | The browser's passability rules equal bands.py on 400 cases |
+| `test_scenario.py` | 5 | The evening scenario against the real state and workflow code |
+| `test_section.py` | 6 | The cross-section drawing: scale, limits, colour, run with Node |
+| `test_seed.py` | 13 | Seeding refuses unsourced sites, touches only registry fields, changes nothing twice |
+| `test_serve_web.py` | 4 | The development stand-in for the map file |
+| `test_sheet.py` | 16 | The site sheet's words against the Python rules, run with Node |
+| `test_site.py` | 22 | The interim site host: what it serves, and the paths and methods it refuses |
+| `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
+| `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
+| **Total** | **351** | Collected by `pytest --collect-only` |
+<!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
 
@@ -1094,10 +1135,10 @@ Properties checked over generated inputs, not single examples:
 | Alert ids never repeat within a flood; the event's version rises by one per step | 100 random floods of up to 60 steps |
 | Every point inside a radius is in a returned cell | 2,000 random points |
 
-**What no test covers.** A real model call. A real deployment: the template parses and the
-state machine's states all connect, but neither has been accepted by AWS. The real behaviour of
-the services the fakes stand in for, in particular that the condition expressions mean what
-the fakes assume. End-to-end timing. Everything in section 16.
+**What no test covers.** A real model call. A real phone or screen reader: the pages were checked
+in a browser at phone size, and reduced motion by reading the style sheets. A forced race between
+two writers on a deployed table. Delivery of an alert to a person. Everything in section 16. What
+was run on the deployed stack is recorded in `docs/smoke-test.md` and section 20.
 
 ---
 
@@ -1111,20 +1152,30 @@ the fakes assume. End-to-end timing. Everything in section 16.
 | `Events` table | Written at close | `Floods`, written every step, so a flood in progress is visible |
 | `Tokens` table | Task tokens and nonces | Nonces and photo hashes only; no task tokens exist |
 | `RainIndexComputed` event | On the bus | A queue message straight to the engine, which keeps one site's inputs in order |
+| Map publisher triggered by `SiteStateChanged` | One run per event | Events go through a queue, ten to a run, two runs at most, plus a 15-minute schedule; a run that finds nothing changed writes nothing |
+| Public site behind CloudFront | Distribution and origin access control | CloudFront is written and off; a read-only function URL serves the bucket (20.5) |
+| A flood history | Part of the repeat offenders view (METHOD 14) | A second public file with its own writer; trigger rain, drain time, pump response and a coverage flag are not recorded, so not shown |
+| Alerts when a flood ends | Not specified | A `cleared` alert goes to every audience that was warned |
 
 ---
 
-## 20. Demonstration tools
+## 20. Demonstration tools, the pages and hosting
 
-Four scripts in `scripts/` drive the deployed system. None is part of the product; all are
-dry-run by default and write nothing without `--go` or `--apply`.
+Scripts in `scripts/` drive and prepare the deployed system. None is part of the product; the
+ones that write anything are dry-run by default and need `--go` or `--apply`.
 
 | Script | Does |
 |---|---|
+| `stack.py` | Looks up the deployed stack's resources at run time, so no name is typed or stored |
+| `seed.py` | Writes the nine registry sites; refuses a site without a source link; changes nothing twice |
+| `deploy_web.py` | Uploads `web/` to the bucket; can never overwrite the publisher's map file |
 | `send.py` | Queues one rain or reading message for a site |
 | `smoke_test.py` | Walks one invented site through a whole flood and checks 21 things (`docs/smoke-test.md`) |
 | `replay.py` | Plays `data/scenarios/evening.json` into four real registry sites |
 | `reset.py` | Returns those four sites to clear, ready for another replay |
+| `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
+| `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
+| `update_design_tests.py` | Rewrites the test inventory in section 18 |
 
 ### 20.1 What a replay is
 
@@ -1160,3 +1211,46 @@ a flood that ended.
   prints that warning when it starts. The demonstration video should say it is a replay.
 - **Refusals.** It will not start if a named site is not in the registry or is not clear, so two
   runs can never overlap into one confused picture.
+
+### 20.4 The pages
+
+All in `web/`, plain HTML, CSS and JavaScript modules with no build step. Colours, type, spacing
+and motion are tokens in `tokens.css`; `contrast-pairs.json` lists every text and background pair in
+use and `tests/test_contrast.py` checks each against its minimum.
+
+| Page | Scripts | What it does |
+|---|---|---|
+| `index.html`, the map | `map.js`, `data.js`, `sites.js`, `glyph.js`, `sheet.js`, `section.js`, `guide.js`, `rules.js` | Polls `data/hyderabad.json` every 20 s and updates only the sites that changed. Each site is a button holding a glyph. Tapping one opens the sheet. |
+| `offenders.html`, repeat floods | `offenders.js` | Reads `data/hyderabad-floods.json`; ranks as `history.ranking` does |
+| `styleguide.html`, `glyph-gallery.html`, `rules-check.html` | | Development pages: the tokens with their contrast ratios, every glyph state, and the browser-versus-Python rules check |
+
+Decisions that are easy to miss:
+
+- **One set of rules, written twice, tested equal.** The passability rules are in `bands.py` and in
+  `rules.js`; `tests/test_rules_match.py` runs 400 generated cases through both, and checks the
+  numbers in each. The sheet's sentence is the same words an alert would send.
+- **The server's clock judges age.** `data.js` uses the response's `Date` header, so a phone with a
+  wrong clock does not make fresh data look old, or old data look fresh.
+- **A failed fetch keeps the last data** and says so; a file that has stopped being refreshed (older
+  than 20 minutes) shows its age.
+- **Colour is never the only sign.** Every state has a word and a shape; the glyph is checked in
+  greyscale.
+- **Rounding is cautious.** The map file carries whole centimetres; a test shows rounding can only
+  move an answer towards "not safe".
+
+### 20.5 How the site is served
+
+The design is CloudFront in front of the private bucket through an
+origin access control (in `template.yaml`, switched off by the `EnableCloudFront` parameter).
+On 9 October 2026 AWS refused to create the distribution: "Your account must be verified
+before you can add new CloudFront resources. To verify your account, please contact AWS
+Support." That is the same account-verification block as Bedrock. Until Support clears it, a
+Lambda function URL (`handlers/site.py`) serves the bucket over HTTPS, read-only, GET and HEAD
+of one object, with the security headers CloudFront would add and a 304 for an unchanged
+object. It refuses any path that is not exactly one object key (`..`, `.`, empty segments,
+backslashes, NUL, repeated slashes). The pages use only relative addresses, so switching to
+CloudFront changes the address and nothing else. What the stand-in lacks: a CDN. Every request,
+including each phone's 20-second poll of the map file, is one Lambda invocation (about 30 ms),
+which is fine for a demonstration and is the reason to move to CloudFront before any real
+audience. To switch: `sam deploy ... --parameter-overrides EnableCloudFront=true`, once Support
+has verified the account.

@@ -56,7 +56,7 @@ python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
 
-The tests need no AWS account and no network. At the time of writing, 345 pass. Then try the
+The tests need no AWS account and no network, and all of them should pass. Then try the
 rules directly:
 
 ```bash
