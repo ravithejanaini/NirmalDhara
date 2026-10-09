@@ -34,6 +34,21 @@ AWS_REGION=ap-south-1 python -m nirmaldhara read samples/photo.jpg
 in-country inference profile: requests are routed only between the Mumbai and Hyderabad
 regions.
 
+## Layout
+
+| Folder or file | Holds |
+|---|---|
+| `nirmaldhara/`, `handlers/` | The logic and the AWS functions |
+| `statemachine/`, `template.yaml` | The flood timer loop and the deployment template |
+| `tests/` | The automated tests |
+| `scripts/` | Seeding, sending and replaying scripts |
+| `data/` | Site list, scenarios, sample map file |
+| `web/` | The resident map and other pages |
+| `samples/` | Labelled flood and drain photos |
+| `docs/` | Smoke-test record, video script, diagrams |
+| `layers/vision/` | Packages for the photo functions |
+| `METHOD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `TASKS.md` | Method, high-level design, low-level design, task plan |
+
 ## AI tools used
 
 Claude Code (Claude Opus 5.5) was used for research, design and code.
