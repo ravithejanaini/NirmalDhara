@@ -32,6 +32,13 @@ export function createMap(container) {
   map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
   return new Promise((resolve, reject) => {
     map.once("load", () => resolve(map));
-    map.once("error", (event) => reject(event.error));
+    // A tile that cannot be fetched (no signal) is not a failed map: the sites still draw on
+    // the blank ground. Only a failure to load the style itself stops the map.
+    const onError = (event) => {
+      if (event.tile || event.sourceId) return;
+      map.off("error", onError);
+      reject(event.error);
+    };
+    map.on("error", onError);
   });
 }

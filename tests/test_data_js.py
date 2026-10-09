@@ -127,7 +127,7 @@ def test_the_servers_clock_not_the_phones_decides_how_old_the_data_is():
     out = node("""
 const notices = [];
 const server = Date.parse("2026-10-09T12:00:00Z");
-const fetchFn = async () => ({ ok: true, headers: { get: () => new Date(server).toUTCString() },
+const fetchFn = async () => ({ ok: true, headers: { get: (name) => (name === "date" ? new Date(server).toUTCString() : null) },
   json: async () => ({ city: "x", generated_at: server / 1000 - 60, fields: ["i","n","y","x","s","b","l","h","t","u","c"], sites: [] }) });
 const live = startLive({ url: "x", interval: 10_000_000, fetchFn, nowFn: () => server + 3_600_000,
   onData: () => {}, onStatus: (s) => notices.push(s) });

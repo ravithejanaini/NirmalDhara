@@ -38,6 +38,7 @@ DESCRIPTIONS = {
     "test_history.py": "What counts as a flood, ranking, and the history writer",
     "test_intake.py": "Photo checks, crop, blur, signed links",
     "test_map_style.py": "The map style uses only token colours and none of the flood palette",
+    "test_offline.py": "The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen",
     "test_offenders.py": "The repeat-floods page ranks as the Python does, on random cities, run with Node",
     "test_publisher.py": "Map file: every site, skipped when unchanged, losing a race, 500 sites",
     "test_rain.py": "Request building, parsing, grid grouping",

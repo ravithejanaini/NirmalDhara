@@ -681,6 +681,9 @@ No framework and no build step: plain HTML, CSS and JavaScript modules in `web/`
 - **Done when:** The page can be used with the keyboard alone and at 360 px.
 
 ### WEB-10 · Installable and offline last-known · AI: Sonnet · 45 min · Could
+- **Status, 9 Oct: built, not yet on the public site.** `sw.js`, `manifest.json`, two icons from
+  `scripts/make_icons.py`. Checked in a browser on localhost with the server stopped: the map opens from
+  the kept copy and says it could not refresh. Not checked on a phone, and no tiles are kept.
 - **Files:** `web/manifest.json`, `web/sw.js`.
 - **Steps:** Cache the shell and the last map file; when offline show the last data with its
   age in Signal.

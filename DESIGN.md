@@ -48,7 +48,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 
 Outside `src/`: `template.yaml` (deployed, 51 resources), `web/` (the pages and their scripts:
 `rules.js`, `glyph.js`, `data.js`, `sites.js`, `sheet.js`, `section.js`, `guide.js`, `map.js`,
-`offenders.js`) and the scripts in section 20.
+`offenders.js`, and the offline worker `sw.js` with `manifest.json` and two icons) and the scripts in section 20.
 
 ### 1.2 Layers
 
@@ -1111,6 +1111,7 @@ after adding a test.
 | `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
 | `test_map_style.py` | 2 | The map style uses only token colours and none of the flood palette |
 | `test_offenders.py` | 37 | The repeat-floods page ranks as the Python does, on random cities, run with Node |
+| `test_offline.py` | 11 | The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen |
 | `test_publisher.py` | 15 | Map file: every site, skipped when unchanged, losing a race, 500 sites |
 | `test_rain.py` | 5 | Request building, parsing, grid grouping |
 | `test_reader.py` | 6 | Request shape, refusal, throttling, server error, no connection, configuration error |
@@ -1126,7 +1127,7 @@ after adding a test.
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **405** | Collected by `pytest --collect-only` |
+| **Total** | **416** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1177,6 +1178,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `smoke_test.py` | Walks one invented site through a whole flood and checks 21 things (`docs/smoke-test.md`) |
 | `replay.py` | Plays `data/scenarios/evening.json` into four real registry sites |
 | `reset.py` | Returns those four sites to clear, ready for another replay |
+| `make_icons.py` | Draws `web/icon-192.png` and `web/icon-512.png` (the depth glyph, a third full) from the design tokens, with no imaging library |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |
@@ -1232,6 +1234,7 @@ use and `tests/test_contrast.py` checks each against its minimum.
 |---|---|---|
 | `index.html`, the map | `map.js`, `data.js`, `sites.js`, `glyph.js`, `sheet.js`, `section.js`, `guide.js`, `rules.js` | Polls `data/hyderabad.json` every 20 s and updates only the sites that changed. Each site is a button holding a glyph. Tapping one opens the sheet. |
 | `offenders.html`, repeat floods | `offenders.js` | Reads `data/hyderabad-floods.json`; ranks as `history.ranking` does |
+| `sw.js`, `manifest.json`, installable and offline | registered by `index.html` | Network first, so a deploy is seen at once. When the network or the host fails, the kept page and last map file are used, and the map file is marked `x-offline-copy` so `data.js` shows "Could not refresh. Last updated …". Map tiles and fonts from other hosts are not kept: offline, the sites show on a blank ground |
 | `styleguide.html`, `glyph-gallery.html`, `rules-check.html` | | Development pages: the tokens with their contrast ratios, every glyph state, and the browser-versus-Python rules check |
 
 Decisions that are easy to miss:

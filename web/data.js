@@ -77,6 +77,9 @@ export function startLive({
       const next = parseDocument(await response.json());
       const header = response.headers && response.headers.get && response.headers.get("date");
       if (header && !Number.isNaN(Date.parse(header))) offset = Date.parse(header) - nowFn();
+      // The service worker marks a copy it kept because the network failed (web/sw.js). The
+      // data is shown, with its age, as a refresh that did not happen.
+      if (response.headers && response.headers.get && response.headers.get("x-offline-copy")) failed = true;
       const diff = diffSites(current, next);
       const first = current === null;
       current = next;
