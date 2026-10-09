@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="glyph.css">
 <link rel="stylesheet" href="map.css">
 <link rel="stylesheet" href="sheet.css">
+<link rel="stylesheet" href="guide.css">
 </head>
 <body class="map-page">
 <div id="map" role="application" aria-label="Map of Hyderabad"></div>
@@ -26,6 +27,8 @@
   <p id="data-status" class="data-status" role="status" aria-live="polite" hidden></p>
 </header>
 
+<div id="guide"></div>
+
 <section id="sheet" class="paper sheet site-sheet" role="dialog" aria-labelledby="sheet-title" hidden></section>
 
 <p id="map-error" class="map-error" hidden>The map could not be loaded. Check the connection and reload.</p>
@@ -36,6 +39,7 @@ import { createMap } from "./map.js";
 import { startLive } from "./data.js";
 import { SiteLayer } from "./sites.js";
 import { SiteSheet } from "./sheet.js";
+import { Guide } from "./guide.js";
 import { mountSection, forgetSection } from "./section.js";
 
 const status = document.getElementById("data-status");
@@ -51,11 +55,12 @@ try {
 
 if (map) {
   const layer = new SiteLayer(map);
-  let sheet = null;
+  let sheet = null, guide = null;
   const live = startLive({
     url: "data/hyderabad.json",
     onData: (load) => {
       layer.apply(load);
+      if (guide) guide.update(load.data.sites.values());
       // The open sheet follows its site: redrawn when the site changes, closed if it is removed.
       if (sheet && sheet.site) {
         if (load.diff.changed.includes(sheet.site.id)) sheet.update(load.data.sites.get(sheet.site.id));
@@ -79,6 +84,8 @@ if (map) {
     }
   });
   sheet = new SiteSheet(document.getElementById("sheet"), live.now);
+  guide = new Guide(document.getElementById("guide"), live.now);
+  if (live.current()) guide.update(live.current().sites.values());
   Object.assign(window.nirmaldhara, { layer, live, sheet });
 }
 </script>
