@@ -154,3 +154,22 @@ def test_alert_ids_never_repeat_within_an_event():
             assert event.version == before.version + 1
             if plan.close:
                 break
+
+
+def test_a_flood_that_ends_tells_everyone_it_warned_and_a_dry_watch_tells_nobody():
+    site, event = watching()
+    for r in (reading(5, 22), reading(8, 26), reading(11, 30)):
+        site = apply_reading(site, r)
+    event, _, _ = step(event, site, 11 * MIN)                     # critical: four audiences alerted
+    cleared = Site("hyd-001", state=CLEAR, low=2, high=6, readings=(reading(40, 6),))
+    closed, plan, sent = step(event, cleared, 41 * MIN)
+    assert plan.close == wf.FLOOD
+    assert {(m[1], m[2]) for m in sent} == {
+        (alerts.RESIDENTS, "cleared"), (alerts.TRAFFIC, "cleared"),
+        (alerts.PUMP, "cleared"), (alerts.FLEET, "cleared")}
+    assert all(m[0].endswith("#cleared") for m in sent) and closed.closed_at == 41 * MIN
+
+    site, event = watching()
+    event, _, _ = step(event, site, 0)                            # a watch: only a photo request
+    _, plan, sent = step(event, Site("hyd-001", state=CLEAR), 80 * MIN)
+    assert plan.close == wf.NO_FLOOD and sent == []

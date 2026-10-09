@@ -82,7 +82,10 @@ def fold(event, site, now):
 def plan(event, site, now):
     """What is due now. Does not change anything."""
     if site.state == CLEAR:
-        return Plan({}, (), False, FLOOD if event.water_seen else NO_FLOOD, 0)
+        # A flood that ends tells everyone it warned. Without this, "do not enter" is never
+        # withdrawn. A watch that saw no water warned nobody, so it ends silently.
+        stand_down = {audience: "cleared" for audience in event.alerts} if event.water_seen else {}
+        return Plan(stand_down, (), False, FLOOD if event.water_seen else NO_FLOOD, 0)
 
     last_sent = {a: (r["level"], r["sent_at"]) for a, r in event.alerts.items()}
     due = alerts.due(site.state, site.high, site.trusted, last_sent, now)

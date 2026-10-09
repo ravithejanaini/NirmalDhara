@@ -40,7 +40,7 @@ def test_warning_text_names_who_must_not_enter():
     text = template("warning", "AMB Mall underpass", 10, 16, 0.8, "5:42 pm",
                     cars_lose_passage_min=(15, 25))
     assert "shin deep (10-16 cm, seen 5:42 pm)" in text
-    assert "Not safe for bikes and scooters and autos." in text
+    assert "Not safe for bikes, scooters and autos." in text
     assert "Passable with care for cars, SUVs and people on foot." in text
     assert "Cars are likely to lose passage in 15 to 25 minutes." in text
     assert "Do not enter moving water at any depth." in text
@@ -49,7 +49,7 @@ def test_warning_text_names_who_must_not_enter():
 def test_time_to_lose_passage_is_dropped_once_cars_cannot_pass():
     text = template("warning", "AMB Mall underpass", 15, 25, 0.8, "5:42 pm",
                     cars_lose_passage_min=(15, 25))
-    assert "Not safe for bikes and scooters, autos and cars." in text
+    assert "Not safe for bikes, scooters, autos and cars." in text
     assert "lose passage" not in text
 
 
@@ -71,3 +71,32 @@ def test_every_rule_has_a_template():
     for state in (WATCH, WARNING, CRITICAL, RECEDING):
         for kind in RULES[state].values():
             assert template(kind, "Site", 10, 14, 0.8, "6:00 pm")
+
+
+def test_no_sentence_joins_its_list_with_two_ands():
+    for high in range(0, 60, 2):
+        for kind in ("warning", "advisory"):
+            for moving in (False, True):
+                text = template(kind, "Site", max(0, high - 5), high, 0.8, "6:00 pm", moving=moving)
+                for sentence in text.split("."):
+                    assert sentence.count(" and ") <= 1, sentence
+
+
+def test_a_photo_request_gives_the_forecast_before_water_and_the_last_reading_after():
+    before = template("photo_request", "Site", 0, 0, 0, "6:00 pm")
+    during = template("photo_request", "Site", 19, 24, 0.8, "6:56 pm")
+    assert before.startswith("Heavy rain is expected at Site.")
+    assert during.startswith("Water at Site was below the knee (19-24 cm, seen 6:56 pm).")
+    assert "expected" not in during
+    for text in (before, during):
+        assert "from a safe, dry spot" in text and "Do not go near the water." in text
+
+
+def test_the_stand_down_says_what_was_seen_and_never_that_the_road_is_open_or_safe():
+    text = template("cleared", "Site", 1, 6, 0.8, "7:05 pm")
+    assert text == ("Site: water is now ankle deep (1-6 cm, seen 7:05 pm). Earlier warnings for "
+                    "this site have ended. Do not enter moving water at any depth.")
+    gone = template("cleared", "Site", 0, 0, 0.8, "7:05 pm")
+    assert "has gone (seen 7:05 pm)" in gone
+    for t in (text, gone):
+        assert not any(word in t.lower() for word in ("open", "safe to", "is safe", "closed"))

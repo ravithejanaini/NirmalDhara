@@ -29,7 +29,9 @@ RULES = {
 
 BAND_LABEL = {"B0": "dry", "B1": "ankle deep", "B2": "shin deep", "B3": "below the knee",
               "B4": "about knee deep", "B5": "above the knee"}
-VEHICLE_LABEL = {"two_wheeler": "bikes and scooters", "auto": "autos", "car": "cars",
+# "bikes, scooters" not "bikes and scooters": the list is joined with commas and one "and",
+# and two-wheelers always share their answer with autos, so this label never ends a sentence.
+VEHICLE_LABEL = {"two_wheeler": "bikes, scooters", "auto": "autos", "car": "cars",
                  "suv": "SUVs", "pedestrian": "people on foot"}
 MOVING_WATER = "Do not enter moving water at any depth."
 
@@ -86,8 +88,17 @@ def template(kind, site_name, low, high, confidence, seen_at, trusted=True, movi
     unconfirmed = "" if trusted else " This is from one unconfirmed photo."
 
     if kind == "photo_request":
-        return (f"Heavy rain is expected at {site_name}. Please send a photo of the road "
-                "from a safe, dry spot. Do not go near the water.")
+        # Before any water is seen the reason is the forecast; after, it is the last reading.
+        reason = (f"Water at {site_name} was {depth}." if high > 0
+                  else f"Heavy rain is expected at {site_name}.")
+        return (f"{reason} Please send a photo of the road from a safe, dry spot. "
+                "Do not go near the water.")
+    if kind == "cleared":
+        # Sent once when a flood ends, to everyone who was warned. It says what was seen and
+        # that the warnings have ended. It does not say the road is open or safe.
+        level = f"is now {depth}" if high > 0 else f"has gone (seen {seen_at})"
+        return (f"{site_name}: water {level}. Earlier warnings for this site have ended. "
+                f"{MOVING_WATER}")
     if kind == "pump_request":
         return f"Water at {site_name} is {depth} and rising. Please start the pump."
     if kind == "pump_urgent":

@@ -523,7 +523,7 @@ It only keeps time, and a reading causes an alert through the reactor without wa
 
 | Condition | Result |
 |---|---|
-| Site is CLEAR | Close: `flood` if water was seen, else `no_flood`. Nothing else |
+| Site is CLEAR | Close: `flood` if water was seen, else `no_flood`. A flood that ends sends one `cleared` alert to every audience it warned, so a "do not enter" is always withdrawn; a watch that saw no water warned nobody and ends silently |
 | An audience allowed in this state has never been alerted, or the state's rank has risen since, or 20 minutes have passed | Alert due, with the kind the state gives it |
 | A closure recommendation to an audience is unacknowledged, 5 minutes old, the site is still CRITICAL, a contact is left, and no fresh alert is due to that audience | Escalate to the next contact. At most 3 contacts |
 | Fewer than 3 photo requests have gone unanswered, and none was sent in the last 10 minutes (WATCH) or 5 minutes (other states) | Ask guardians for photos |
@@ -1026,6 +1026,9 @@ lines.
 | 14 | **The engine saved, then published** | A crash between lost the event. A lost CLEAR → WATCH meant no flood event and no photo requests | Events saved in the record with the change, published, then removed; found and published by the next run if not (7.2) |
 | 15 | **A redelivered reading was applied twice** | Counted twice in the median, so one reading could move the state; one low reading could clear a receding site | Message keys in the record, and `apply_reading` ignores an equal reading (7.2) |
 | 16 | After a failed message the engine carried on with the same site's later messages | A later reading applied before an earlier one | The site's later messages in the batch go back unapplied |
+| 17 | **A flood ended without telling anyone.** Residents told "DO NOT ENTER" were never told the warning was over. Found by reading the alerts the smoke test delivered | People keep avoiding, or stop trusting, a warning that is never withdrawn | On close, a `cleared` alert goes to every audience that was warned. It says what was seen and that the warnings have ended; it never says the road is open or safe |
+| 18 | The photo re-ask during a flood said "Heavy rain is expected" | Wrong and confusing five minutes into a critical flood | A photo request quotes the last reading once water has been seen |
+| 19 | Alerts read "bikes and scooters and autos" | Clumsy in the one sentence that matters | "bikes, scooters and autos"; a test forbids two "and"s in one sentence |
 | 13 | Earlier pass: rain check asked for every site separately, read one page, sent one message per call, 30 s limit | No watches at real city size | Grid cells (500 sites → 56 points, 3.3 s, measured live), pagination, batches of 10, 120 s |
 
 ### 17.2 Open
@@ -1036,9 +1039,11 @@ In order of importance.
 |---|---|---|---|
 | 1 | A site's event can sit unpublished for up to 15 minutes if its message reaches the dead-letter queue | A late watch or alert, with an alarm already raised by the dead-letter queue | A sweep on the alarm: load each site with stored events and publish them |
 | 2 | Every reading now costs two writes to `Sites` | Twice the write cost of the engine; no effect on correctness | Publish from the table's change stream, which needs no second write. Not done because it cannot be tested without a deployment |
+| 2a | **The account allows 10 Lambda executions at once, in total**, and the interim site host shares that pool with the engine, the workflow and the notifier | One visitor loading the page makes about a dozen requests together and can briefly take the whole pool. Queued and event-driven work is retried, so nothing is lost, but an alert can be delayed while pages load; under real traffic the delay would be constant | Serve the site from CloudFront, which makes no Lambda call per request (needs the account verified), and ask for a higher concurrency limit. Found in the review of block C, 9 October |
+| 2b | A site that starts receding sends its "water is falling" update only when the 20-minute repeat comes round, because alerts are re-sent at once only when the level rises | Good news arrives late; the stand-down on clearing (finding 17) still arrives at once | Send the update once on entering RECEDING, with a minimum gap so a depth hovering at a threshold cannot send a stream of messages |
 | 3 | An alert that fails all retries is recorded as sent | Late by up to 20 minutes, needs a person | Notifier publishes `AlertFailed`; the workflow clears that audience's record so the next step sends again |
 | 4 | A timer loop that fails for about two days ends at the history limit | Alarm only | Count failures in the loop state and hand over to a fresh execution |
-| 5 | The condition expressions have only run against in-memory stand-ins | A wrong expression would pass every test and fail in AWS | Run the engine and workflow tests against DynamoDB Local or a deployed table |
+| 5 | The condition expressions were first run against in-memory stand-ins only | Closed for the paths the smoke test walks (`docs/smoke-test.md`): site and event writes, the alert claim, a repeated reading, the timer's name. Not closed for forced races, which need two writers at the same instant | A test that drives two writers at one record on a deployed table |
 | 6 | A stale milder alert can arrive just after a stronger one | Confusing, not unsafe | Notifier drops an alert whose `site_version` is older than the last one sent to that audience |
 | 7 | The state machine may start any execution in the account | Wider than needed | Narrow to its own name |
 | 8 | Fallback wording is English only | Unusable for many residents | Telugu, Urdu and Hindi templates checked by native speakers |
