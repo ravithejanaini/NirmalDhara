@@ -85,6 +85,10 @@ class Site:
     trusted: bool = False          # a trusted source has confirmed the current depth
     water_seen: bool = False
     rain_low_since: float | None = None
+    since: float | None = None     # when the site last left CLEAR
+    applied: tuple = ()            # keys of the last messages applied, oldest first
+    # Facts produced by the last step. Stored with the record until they have been
+    # published, so a saved change cannot lose its events.
     events: tuple = field(default=(), compare=False)
 
 
@@ -130,10 +134,13 @@ def _state_for(site):
 
 
 def _with_state(site, new_state, ts):
-    events = site.events
+    events, since = site.events, site.since
     if new_state != site.state:
         events += (("SiteStateChanged", site.state, new_state, ts),)
-    return replace(site, state=new_state, events=events, version=site.version + 1)
+        if site.state == CLEAR:
+            since = ts
+    return replace(site, state=new_state, since=since, events=events,
+                   version=site.version + 1)
 
 
 def apply_rain(site, index_mm, ts):
@@ -154,6 +161,9 @@ def apply_rain(site, index_mm, ts):
 def apply_reading(site, reading):
     """Apply one depth reading and return the new Site with any events."""
     site = replace(site, events=())
+    # The same reading again (a sender or a queue repeating itself) changes nothing.
+    if reading == site.held or reading in site.readings:
+        return replace(site, version=site.version + 1)
     last = site.readings[-1] if site.readings else None
 
     # A sudden jump is held, not rejected, until the next reading agrees with it.

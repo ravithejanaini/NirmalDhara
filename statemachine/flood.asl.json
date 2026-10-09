@@ -1,0 +1,84 @@
+{
+  "Comment": "One execution per flood at one site. It only keeps time: every decision is made by the Tick function.",
+  "StartAt": "Tick",
+  "States": {
+    "Tick": {
+      "Type": "Task",
+      "Resource": "${TickFunctionArn}",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 5,
+          "BackoffRate": 2,
+          "MaxAttempts": 4
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "ResultPath": "$.error",
+          "Next": "WaitAfterFailure"
+        }
+      ],
+      "Next": "Next"
+    },
+    "Next": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.done",
+          "BooleanEquals": true,
+          "Next": "Closed"
+        },
+        {
+          "Variable": "$.loops",
+          "NumericGreaterThanEquals": 2000,
+          "Next": "ContinueAsNew"
+        }
+      ],
+      "Default": "Wait"
+    },
+    "Wait": {
+      "Type": "Wait",
+      "SecondsPath": "$.wait_s",
+      "Next": "Tick"
+    },
+    "WaitAfterFailure": {
+      "Type": "Wait",
+      "Seconds": 60,
+      "Next": "Tick"
+    },
+    "ContinueAsNew": {
+      "Comment": "An execution's history is limited, so a very long flood carries on in a fresh execution.",
+      "Type": "Task",
+      "Resource": "arn:aws:states:::states:startExecution",
+      "Parameters": {
+        "StateMachineArn.$": "$$.StateMachine.Id",
+        "Input": {
+          "city.$": "$.city",
+          "site_id.$": "$.site_id",
+          "start.$": "$.start",
+          "loops": 0
+        }
+      },
+      "Next": "Closed",
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "IntervalSeconds": 5,
+          "BackoffRate": 2,
+          "MaxAttempts": 4
+        }
+      ]
+    },
+    "Closed": {
+      "Type": "Succeed"
+    }
+  }
+}

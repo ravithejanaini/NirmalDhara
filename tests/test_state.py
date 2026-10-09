@@ -113,3 +113,28 @@ def test_fuse_takes_the_highest_credible_upper_end():
 def test_fuse_halves_confidence_when_estimates_disagree_widely():
     _, _, confidence = fuse([(2, 8, 0.8), (40, 70, 0.8)])
     assert confidence == 0.4
+
+
+def test_since_records_when_the_site_last_left_clear():
+    site = apply_rain(Site("s"), 25, 100)
+    assert site.since == 100
+    site = apply_reading(site, Reading(400, 10, 16, 0.8, "guardian", "g1"))
+    assert site.state == WARNING and site.since == 100      # unchanged while the flood lasts
+
+
+def test_the_same_reading_twice_is_counted_once():
+    reading = Reading(400, 10, 16, 0.8, "resident", "phone-1")
+    once = apply_reading(apply_rain(Site("s"), 25, 100), reading)
+    twice = apply_reading(once, reading)
+    assert twice.readings == once.readings and twice.state == once.state
+    assert twice.events == () and twice.version == once.version + 1
+
+
+def test_a_repeated_low_reading_does_not_clear_a_receding_site_early():
+    site = apply_rain(Site("s"), 25, 0)
+    for minute, high in ((1, 26), (5, 24), (9, 22), (13, 18)):
+        site = apply_reading(site, Reading(minute * 60, high - 5, high, 0.8, "guardian", "g1"))
+    assert site.state == RECEDING
+    low = Reading(17 * 60, 3, 8, 0.8, "guardian", "g1")
+    site = apply_reading(apply_reading(site, low), low)
+    assert site.state == RECEDING       # one low reading, however often it arrives

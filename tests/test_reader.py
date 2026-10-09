@@ -6,6 +6,9 @@ This does not test what a real model says about a real photo.
 import json
 from types import SimpleNamespace
 
+import anthropic
+import httpx
+import pytest
 from PIL import Image
 
 from nirmaldhara import reader
@@ -55,3 +58,32 @@ def test_refusal_becomes_cannot_tell(tmp_path, monkeypatch):
     reading = reader.read_depth(photo(tmp_path))
     assert reading["cannot_tell"] is True
     assert reading["confidence"] == 0
+
+
+def failing_client(error):
+    def create(**_):
+        raise error
+    return lambda **_: SimpleNamespace(messages=SimpleNamespace(create=create))
+
+
+def http_error(kind, status):
+    request = httpx.Request("POST", "https://bedrock.invalid")
+    return kind("failed", response=httpx.Response(status, request=request), body=None)
+
+
+@pytest.mark.parametrize("error", [
+    http_error(anthropic.RateLimitError, 429),
+    http_error(anthropic.InternalServerError, 503),
+    anthropic.APIConnectionError(request=httpx.Request("POST", "https://bedrock.invalid")),
+])
+def test_a_busy_or_unreachable_service_becomes_cannot_tell(tmp_path, monkeypatch, error):
+    monkeypatch.setattr(reader, "AnthropicBedrock", failing_client(error))
+    reading = reader.read_depth(photo(tmp_path))
+    assert reading["cannot_tell"] is True and "unavailable" in reading["reason"]
+
+
+def test_a_wrong_setting_is_not_hidden(tmp_path, monkeypatch):
+    error = http_error(anthropic.BadRequestError, 400)
+    monkeypatch.setattr(reader, "AnthropicBedrock", failing_client(error))
+    with pytest.raises(anthropic.BadRequestError):
+        reader.read_depth(photo(tmp_path))

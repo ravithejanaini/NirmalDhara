@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  NirmalDhara, first slice: rain check, state engine and the event bus.
-  See ARCHITECTURE.md sections 5, 6.1 and 6.2.
+  NirmalDhara: rain check, state engine, flood workflow and notifier.
+  See ARCHITECTURE.md sections 5 and 6, and DESIGN.md.
 
 Parameters:
   City:
@@ -18,6 +18,8 @@ Globals:
     Environment:
       Variables:
         SITES_TABLE: !Ref SitesTable
+        FLOODS_TABLE: !Ref FloodsTable
+        ALERTS_TABLE: !Ref AlertsTable
         EVENT_BUS: !Ref Bus
         CITY: !Ref City
 
@@ -95,6 +97,139 @@ Resources:
           Properties:
             ScheduleExpression: rate(15 minutes)
 
+  # One item per site per flood, owned by the workflow.
+  FloodsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: site_id, AttributeType: S }
+        - { AttributeName: start, AttributeType: N }
+      KeySchema:
+        - { AttributeName: site_id, KeyType: HASH }
+        - { AttributeName: start, KeyType: RANGE }
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # One item per alert id. Claiming the id before sending is what stops repeats.
+  AlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: alert_id, AttributeType: S }
+      KeySchema:
+        - { AttributeName: alert_id, KeyType: HASH }
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+
+  AlertsTopic:
+    Type: AWS::SNS::Topic
+
+  # Events the reactor or the notifier could not handle after their retries.
+  WorkflowDeadLetters:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+
+  ReactorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.flood.reactor
+      DeadLetterQueue: { Type: SQS, TargetArn: !GetAtt WorkflowDeadLetters.Arn }
+      Environment:
+        Variables:
+          FLOOD_STATE_MACHINE: !Ref FloodStateMachine
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref FloodsTable }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref Bus }
+        - StepFunctionsExecutionPolicy: { StateMachineName: !GetAtt FloodStateMachine.Name }
+      Events:
+        SiteChanged:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref Bus
+            Pattern:
+              source: [nirmaldhara]
+              detail-type: [SiteStateChanged, ReadingAccepted]
+
+  TickFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.flood.tick
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref FloodsTable }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref Bus }
+
+  FloodStateMachine:
+    Type: AWS::Serverless::StateMachine
+    Properties:
+      Type: STANDARD
+      DefinitionUri: statemachine/flood.asl.json
+      DefinitionSubstitutions:
+        TickFunctionArn: !GetAtt TickFunction.Arn
+      Policies:
+        - LambdaInvokePolicy: { FunctionName: !Ref TickFunction }
+        - Statement:
+            - Effect: Allow
+              Action: states:StartExecution
+              Resource: !Sub arn:${AWS::Partition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*
+
+  NotifierFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers.notifier.handler
+      DeadLetterQueue: { Type: SQS, TargetArn: !GetAtt WorkflowDeadLetters.Arn }
+      Environment:
+        Variables:
+          ALERTS_TOPIC: !Ref AlertsTopic
+      Policies:
+        - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
+        - DynamoDBCrudPolicy: { TableName: !Ref AlertsTable }
+        - SNSPublishMessagePolicy: { TopicName: !GetAtt AlertsTopic.TopicName }
+        - EventBridgePutEventsPolicy: { EventBusName: !Ref Bus }
+      Events:
+        AlertRequested:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref Bus
+            Pattern:
+              source: [nirmaldhara]
+              detail-type: [AlertRequested, PhotoRequested]
+
+  WorkflowDeadLettersAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: An alert or a workflow step failed for good and needs a person.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - { Name: QueueName, Value: !GetAtt WorkflowDeadLetters.QueueName }
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+
+  FloodFailedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: A flood's timer loop stopped without closing its event.
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+        - { Name: StateMachineArn, Value: !Ref FloodStateMachine }
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+
   DeadLettersAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -116,3 +251,7 @@ Outputs:
     Value: !Ref EngineQueue
   EventBus:
     Value: !Ref Bus
+  AlertsTopic:
+    Value: !Ref AlertsTopic
+  FloodStateMachine:
+    Value: !Ref FloodStateMachine

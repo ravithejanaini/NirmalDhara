@@ -55,6 +55,6 @@ def handler(event, context):
         result = SQS.send_message_batch(QueueUrl=QUEUE_URL,
                                         Entries=entries[start:start + 10])
         if result.get("Failed"):
-            # Fail the run so the schedule's retry sends them; duplicates are dropped.
+            # Fail the run so it is retried; the queue drops what was already sent.
             raise RuntimeError(f"{len(result['Failed'])} rain messages were not queued")
     return {"sites": len(sites)}

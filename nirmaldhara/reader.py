@@ -8,6 +8,7 @@ import json
 import mimetypes
 import os
 
+import anthropic
 from anthropic import AnthropicBedrock
 
 # The "in." inference profile keeps inference inside India: requests are routed only
@@ -72,7 +73,22 @@ def read_depth(image_path, region=None):
         data = base64.standard_b64encode(f.read()).decode("utf-8")
 
     client = AnthropicBedrock(aws_region=region or REGION)
-    response = client.messages.create(
+    try:
+        response = _ask(client, media_type, data)
+    except (anthropic.RateLimitError, anthropic.InternalServerError,
+            anthropic.APIConnectionError) as error:
+        # The service is busy or unreachable, after the client's own retries. The
+        # photo is simply unread; a wrong setting (a 4xx) is left to raise.
+        return {**CANNOT_TELL,
+                "reason": f"The reading service was unavailable ({type(error).__name__})."}
+    if response.stop_reason == "refusal":
+        return {**CANNOT_TELL, "reason": "The model declined to read this image."}
+    text = next(b.text for b in response.content if b.type == "text")
+    return json.loads(text)
+
+
+def _ask(client, media_type, data):
+    return client.messages.create(
         model=MODEL,
         max_tokens=16000,
         system=INSTRUCTION,
@@ -87,7 +103,3 @@ def read_depth(image_path, region=None):
         output_config={"effort": "medium",
                        "format": {"type": "json_schema", "schema": SCHEMA}},
     )
-    if response.stop_reason == "refusal":
-        return {**CANNOT_TELL, "reason": "The model declined to read this image."}
-    text = next(b.text for b in response.content if b.type == "text")
-    return json.loads(text)
