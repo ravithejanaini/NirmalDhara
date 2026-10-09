@@ -23,6 +23,7 @@ DESCRIPTIONS = {
     "test_alerts.py": "Who is alerted, the repeat rule, wording, the stand-down, no sentence with two \"and\"s",
     "test_architecture.py": "The picture shows only what the template deploys and leaves out no function",
     "test_claims.py": "Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists",
+    "test_camera_simulation.py": "The simulated cameras: both depth methods are exact on a level view, only three marks survive a steep one, and the result is labelled simulated",
     "test_change.py": "Camera frame gate",
     "test_contrast.py": "Every colour pairing in use meets its contrast minimum",
     "test_core.py": "Bands, passability, prediction",

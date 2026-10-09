@@ -1094,6 +1094,7 @@ after adding a test.
 | `test_accessibility.py` | 18 | Page order, type floor, touch targets, the pinned Close button, reduced motion, names on controls |
 | `test_alerts.py` | 21 | Who is alerted, the repeat rule, wording, the stand-down, no sentence with two "and"s |
 | `test_architecture.py` | 10 | The picture shows only what the template deploys and leaves out no function |
+| `test_camera_simulation.py` | 8 | The simulated cameras: both depth methods are exact on a level view, only three marks survive a steep one, and the result is labelled simulated |
 | `test_change.py` | 5 | Camera frame gate |
 | `test_claims.py` | 7 | Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists |
 | `test_contrast.py` | 20 | Every colour pairing in use meets its contrast minimum |
@@ -1127,7 +1128,7 @@ after adding a test.
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **416** | Collected by `pytest --collect-only` |
+| **Total** | **424** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1179,6 +1180,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `replay.py` | Plays `data/scenarios/evening.json` into four real registry sites |
 | `reset.py` | Returns those four sites to clear, ready for another replay |
 | `make_icons.py` | Draws `web/icon-192.png` and `web/icon-512.png` (the depth glyph, a third full) from the design tokens, with no imaging library |
+| `simulate_cameras.py` | **Simulated.** 400 pinhole cameras at random heights, distances and tilts read a 150 cm gauge by the method of METHOD.md C2 (two marks) and by three marks; writes `docs/camera-simulation.md`. `--play` picks one at random and plays a flood from it into the local map. No real camera, and nothing reaches AWS |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |
