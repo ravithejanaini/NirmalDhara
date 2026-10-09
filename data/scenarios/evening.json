@@ -1,0 +1,105 @@
+{
+  "name": "evening",
+  "description": "A monsoon evening over four sites, 90 minutes. Times are minutes from the start; the replay adds the real start time.",
+  "duration_min": 90,
+  "sites": {
+    "a": {
+      "role": "Rises to critical on trusted guardian photos, then recedes and clears",
+      "expect": {
+        "residents_told_do_not_enter": true,
+        "final_state": "CLEAR",
+        "reached": [
+          "WATCH",
+          "WARNING",
+          "CRITICAL",
+          "RECEDING",
+          "CLEAR"
+        ],
+        "outcome": "flood",
+        "closure_recommended": true
+      }
+    },
+    "b": {
+      "role": "One resident's photos only: the public is warned, officials are not asked to close",
+      "expect": {
+        "residents_told_do_not_enter": true,
+        "final_state": "WARNING",
+        "reached": [
+          "WATCH",
+          "WARNING"
+        ],
+        "trusted": false,
+        "outcome": null,
+        "closure_recommended": false
+      }
+    },
+    "c": {
+      "role": "Rain starts a watch; no water appears and the watch ends after an hour of light rain",
+      "expect": {
+        "residents_told_do_not_enter": false,
+        "final_state": "CLEAR",
+        "reached": [
+          "WATCH",
+          "CLEAR"
+        ],
+        "outcome": "no_flood",
+        "closure_recommended": false
+      }
+    },
+    "d": {
+      "role": "Stays clear all evening",
+      "expect": {
+        "residents_told_do_not_enter": false,
+        "final_state": "CLEAR",
+        "reached": [],
+        "outcome": null,
+        "closure_recommended": false
+      }
+    }
+  },
+  "events": [
+    {"t_min": 0, "site": "a", "type": "rain", "index_mm": 28},
+    {"t_min": 0, "site": "b", "type": "rain", "index_mm": 24},
+    {"t_min": 0, "site": "c", "type": "rain", "index_mm": 22},
+    {"t_min": 0, "site": "d", "type": "rain", "index_mm": 8},
+    {"t_min": 15, "site": "a", "type": "rain", "index_mm": 30},
+    {"t_min": 15, "site": "b", "type": "rain", "index_mm": 26},
+    {"t_min": 15, "site": "c", "type": "rain", "index_mm": 8},
+    {"t_min": 15, "site": "d", "type": "rain", "index_mm": 10},
+    {"t_min": 18, "site": "a", "type": "reading", "low": 5, "high": 10, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 21, "site": "a", "type": "reading", "low": 9, "high": 14, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 24, "site": "a", "type": "reading", "low": 14, "high": 19, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 27, "site": "a", "type": "reading", "low": 19, "high": 24, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 30, "site": "a", "type": "rain", "index_mm": 26},
+    {"t_min": 30, "site": "a", "type": "reading", "low": 24, "high": 29, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 30, "site": "b", "type": "rain", "index_mm": 25},
+    {"t_min": 30, "site": "b", "type": "reading", "low": 12, "high": 17, "confidence": 0.7, "source": "resident", "device": "resident-phone-1"},
+    {"t_min": 30, "site": "c", "type": "rain", "index_mm": 6},
+    {"t_min": 30, "site": "d", "type": "rain", "index_mm": 12},
+    {"t_min": 33, "site": "a", "type": "reading", "low": 28, "high": 33, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 36, "site": "a", "type": "reading", "low": 29, "high": 34, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 38, "site": "b", "type": "reading", "low": 21, "high": 27, "confidence": 0.7, "source": "resident", "device": "resident-phone-1"},
+    {"t_min": 39, "site": "a", "type": "reading", "low": 25, "high": 30, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 42, "site": "a", "type": "reading", "low": 19, "high": 24, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 45, "site": "a", "type": "rain", "index_mm": 14},
+    {"t_min": 45, "site": "a", "type": "reading", "low": 13, "high": 18, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 45, "site": "b", "type": "rain", "index_mm": 22},
+    {"t_min": 45, "site": "c", "type": "rain", "index_mm": 5},
+    {"t_min": 45, "site": "d", "type": "rain", "index_mm": 9},
+    {"t_min": 48, "site": "a", "type": "reading", "low": 7, "high": 12, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 51, "site": "a", "type": "reading", "low": 3, "high": 8, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 54, "site": "a", "type": "reading", "low": 0, "high": 5, "confidence": 0.85, "source": "guardian", "device": "guardian-1"},
+    {"t_min": 60, "site": "a", "type": "rain", "index_mm": 6},
+    {"t_min": 60, "site": "b", "type": "rain", "index_mm": 18},
+    {"t_min": 60, "site": "c", "type": "rain", "index_mm": 4},
+    {"t_min": 60, "site": "d", "type": "rain", "index_mm": 7},
+    {"t_min": 75, "site": "a", "type": "rain", "index_mm": 3},
+    {"t_min": 75, "site": "b", "type": "rain", "index_mm": 15},
+    {"t_min": 75, "site": "c", "type": "rain", "index_mm": 3},
+    {"t_min": 75, "site": "d", "type": "rain", "index_mm": 6},
+    {"t_min": 90, "site": "a", "type": "rain", "index_mm": 2},
+    {"t_min": 90, "site": "b", "type": "rain", "index_mm": 12},
+    {"t_min": 90, "site": "c", "type": "rain", "index_mm": 2},
+    {"t_min": 90, "site": "d", "type": "rain", "index_mm": 5}
+  ]
+}
