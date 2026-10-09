@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rules check</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 24px; background: #0E1A2B; color: #F3EDE1; }
+  h1 { font-size: 20px; font-weight: 600; }
+  #result { font-size: 40px; font-weight: 700; margin: 16px 0; }
+  .ok { color: #8A9A5B; } .bad { color: #E4572E; }
+  pre { background: #16202E; padding: 12px; overflow: auto; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>web/rules.js against src/nirmaldhara/bands.py</h1>
+<p>Serve the repository root (not only <code>web/</code>) and open <code>/web/rules-check.html</code>.</p>
+<div id="result">…</div>
+<pre id="detail"></pre>
+<script type="module">
+import { bandFor, passability } from "./rules.js";
+
+const result = document.getElementById("result");
+const detail = document.getElementById("detail");
+try {
+  const { cases } = await (await fetch("../data/rule-cases.json")).json();
+  const failures = [];
+  for (const c of cases) {
+    const band = bandFor(c.high);
+    const answers = passability(c.low, c.high, c.confidence, c.moving);
+    const wrong = Object.keys(c.answers).filter((v) => answers[v] !== c.answers[v]);
+    if (band !== c.band || wrong.length) {
+      failures.push(`low ${c.low} high ${c.high} conf ${c.confidence} moving ${c.moving}: ` +
+        `band ${band} (want ${c.band}); ` +
+        wrong.map((v) => `${v} ${answers[v]} (want ${c.answers[v]})`).join(", "));
+    }
+  }
+  const passed = cases.length - failures.length;
+  result.textContent = `${passed} of ${cases.length}`;
+  result.className = failures.length ? "bad" : "ok";
+  detail.textContent = failures.slice(0, 20).join("\n");
+  window.rulesCheck = { passed, total: cases.length };
+} catch (error) {
+  result.textContent = "could not run";
+  result.className = "bad";
+  detail.textContent = String(error);
+  window.rulesCheck = { error: String(error) };
+}
+</script>
+</body>
+</html>
