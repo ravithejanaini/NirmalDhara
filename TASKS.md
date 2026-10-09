@@ -469,6 +469,7 @@ only way forward changes what the project claims.
   equal: "Labels are one person's reading of the photo, not measured depth."
 
 ### MOD-05 · Inlet blockage instruction · AI: Opus · 1 h · Should
+- **Status, 9 Oct: not done.** Needs a working model route (MOD-01) and inlet photos (MOD-03).
 - **Goal:** The same reader can estimate how blocked a drain inlet is.
 - **Files:** `src/nirmaldhara/reader.py` (`read_inlet`), schema `{inlet_visible, blocked_share_low,
   blocked_share_high, material: [plastic, leaves, silt, debris], confidence, cannot_tell}`,
@@ -697,6 +698,9 @@ No framework and no build step: plain HTML, CSS and JavaScript modules in `web/`
 - **Done when:** After two replays the order and numbers match the Floods table.
 
 ### ENV-02 · What the record implies · AI: Opus · 45 min · Should
+- **Status, 9 Oct: not done, on purpose.** It draws a site's typical time to flood and its drainage
+  rate from recorded floods. No real flood has been recorded, and the only records are from a
+  scripted replay, so any figure would describe the script, not a place. Do it once real floods exist.
 - **Goal:** Turn "it floods often" into a statement an engineer could act on.
 - **Steps:** For the top site, from its recorded floods: typical time from watch to 20 cm,
   typical duration, and the drawdown rate from the receding readings (cm per minute), which
@@ -705,6 +709,7 @@ No framework and no build step: plain HTML, CSS and JavaScript modules in `web/`
   the count is too small to mean much.
 
 ### ENV-03 · Blocked inlet worked example · AI: Opus · 1.5 h · Should
+- **Status, 9 Oct: not done.** Depends on MOD-05.
 - **Files:** `web/inlet.html`, `src/nirmaldhara/inlet.py` (capacity from METHOD 16.10),
   `tests/test_inlet.py`.
 - **Steps:** For one inlet photo: the blocked share from MOD-05; clear and current capacity by

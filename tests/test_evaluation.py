@@ -143,11 +143,12 @@ def run(monkeypatch, *argv):
     return evaluate.main()
 
 
-def test_a_simulated_run_never_writes_the_real_evaluation(monkeypatch):
-    real = ROOT / "EVALUATION.md"
-    assert not real.exists()
+def test_a_simulated_run_never_touches_the_real_evaluation(monkeypatch):
+    """Whether or not a real evaluation has been written yet, a simulated run leaves it exactly as it was."""
+    real, results = ROOT / "EVALUATION.md", ROOT / "data" / "eval-results.json"
+    before = [(p.exists(), p.read_bytes() if p.exists() else None) for p in (real, results)]
     assert run(monkeypatch, "--reader", "simulated", "--synthetic") == 0
-    assert not real.exists()
+    assert [(p.exists(), p.read_bytes() if p.exists() else None) for p in (real, results)] == before
     text = (ROOT / "docs" / "evaluation-simulated.md").read_text("utf-8")
     assert text.startswith("# Depth reading: evaluation (SIMULATED)") and "Nothing below is evidence" in text
     assert '"simulated": true' in (ROOT / "data" / "eval-results-simulated.json").read_text("utf-8")

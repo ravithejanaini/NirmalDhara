@@ -11,8 +11,8 @@ places flood again and again. Built solo for Environmental Hacks (Heat and Water
    the range decides, and anything under 0.6 confidence is never "passable".
 3. **One engine per place, one decision per flood.** A single engine owns each site's state. A flood
    workflow decides who is alerted, repeats, escalates to the next contact after five minutes
-   without acknowledgement, and withdraws the warning when the flood ends. Each alert is sent once
-   (twice in one rare crash case, never lost).
+   without acknowledgement, and withdraws the warning when the flood ends. Each alert is sent once;
+   a failed send is retried, and one that keeps failing raises an alarm for a person.
 4. **A public map and a sheet per place.** The map shows each place as a small road cross-section
    that fills with water. Tapping one shows the depth, a to-scale drawing, and who can pass.
 5. **The environmental case.** Every closed flood is kept, so a page ranks places by how long they
@@ -29,8 +29,9 @@ waste-and-drain tracking half of the pitch is designed, not built. The full list
 
 Open **https://s76zfmc6n5xd65b32tzf46dw3m0kvvik.lambda-url.ap-south-1.on.aws/** on a phone.
 
-Right now it shows nine places, all clear, because it is not raining at them and no real flood has
-happened. That is the true state, not a broken page. Tap a place to open its sheet. Press **Key**
+Unless heavy rain is forecast in Hyderabad as you look, it shows nine places, all clear, because no
+real flood has been recorded. That is the true state, not a broken page. If rain is forecast, some
+places show a thin ring: a watch, opened by the live forecast. Tap a place to open its sheet. Press **Key**
 to see how to read the glyphs. **Repeat floods** shows the history page, which is empty until a
 flood has been recorded.
 
@@ -150,7 +151,7 @@ writes `docs/smoke-test.md`.
 | `tests/` | The automated tests |
 | `scripts/` | Seeding, sending, replay, reset, smoke test and file generators |
 | `data/` | Site list and sources, scenarios, sample files |
-| `docs/` | Smoke-test record, architecture picture |
+| `docs/` | Smoke-test record, architecture picture, video script, submission writeup, and the list of claims with their support |
 | `layers/vision/` | Requirements for the photo functions, built as a layer |
 | `METHOD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `TASKS.md` | Method, high-level design, low-level design, task plan |
 

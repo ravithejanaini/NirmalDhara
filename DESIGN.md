@@ -1095,6 +1095,7 @@ after adding a test.
 | `test_alerts.py` | 21 | Who is alerted, the repeat rule, wording, the stand-down, no sentence with two "and"s |
 | `test_architecture.py` | 10 | The picture shows only what the template deploys and leaves out no function |
 | `test_change.py` | 5 | Camera frame gate |
+| `test_claims.py` | 7 | Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists |
 | `test_contrast.py` | 20 | Every colour pairing in use meets its contrast minimum |
 | `test_core.py` | 8 | Bands, passability, prediction |
 | `test_data_js.py` | 8 | The page's file reading, diffing, stale notice and polling, run with Node |
@@ -1122,8 +1123,9 @@ after adding a test.
 | `test_sheet.py` | 16 | The site sheet's words against the Python rules, run with Node |
 | `test_site.py` | 22 | The interim site host: what it serves, and the paths and methods it refuses |
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
+| `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **383** | Collected by `pytest --collect-only` |
+| **Total** | **398** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1187,7 +1189,8 @@ Forty-three messages over 90 scenario minutes: one site rises to critical on tru
 recedes; one is held at warning by a single resident's photos; one is a watch that ends after
 an hour of light rain; one stays clear. `--speed 45` plays it in two minutes. The scenario is
 tested against the real state and workflow code (`tests/test_scenario.py`), so the story it
-tells on AWS is the story the logic produces.
+tells on AWS is the story the logic produces. On 9 October 2026, reset, replay, reset, replay on the
+deployed stack gave an identical public map both times, with each site ending where the scenario says.
 
 ### 20.2 Reset
 

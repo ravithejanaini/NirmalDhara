@@ -22,6 +22,7 @@ DESCRIPTIONS = {
     "test_accessibility.py": "Page order, type floor, touch targets, the pinned Close button, reduced motion, names on controls",
     "test_alerts.py": "Who is alerted, the repeat rule, wording, the stand-down, no sentence with two \"and\"s",
     "test_architecture.py": "The picture shows only what the template deploys and leaves out no function",
+    "test_claims.py": "Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists",
     "test_change.py": "Camera frame gate",
     "test_contrast.py": "Every colour pairing in use meets its contrast minimum",
     "test_core.py": "Bands, passability, prediction",
@@ -50,6 +51,7 @@ DESCRIPTIONS = {
     "test_sheet.py": "The site sheet's words against the Python rules, run with Node",
     "test_site.py": "The interim site host: what it serves, and the paths and methods it refuses",
     "test_state.py": "Transitions, trust, jump hold, fusion, a repeated reading",
+    "test_video_script.py": "The video script: length, the spoken disclosures, cut points the replay really produces, real commands",
     "test_workflow.py": "Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids",
 }
 
