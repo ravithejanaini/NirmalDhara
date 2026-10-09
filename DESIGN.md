@@ -925,6 +925,21 @@ nothing has been reported. It is never the time the file was written, so an idle
 does not change from run to run. Pages must treat 0 as "no report" and show an age only for a
 site with water.
 
+**How the site is served.** The design is CloudFront in front of the private bucket through an
+origin access control (in `template.yaml`, switched off by the `EnableCloudFront` parameter).
+On 9 October 2026 AWS refused to create the distribution: "Your account must be verified
+before you can add new CloudFront resources. To verify your account, please contact AWS
+Support." That is the same account-verification block as Bedrock. Until Support clears it, a
+Lambda function URL (`handlers/site.py`) serves the bucket over HTTPS, read-only, GET and HEAD
+of one object, with the security headers CloudFront would add and a 304 for an unchanged
+object. It refuses any path that is not exactly one object key (`..`, `.`, empty segments,
+backslashes, NUL, repeated slashes). The pages use only relative addresses, so switching to
+CloudFront changes the address and nothing else. What the stand-in lacks: a CDN. Every request,
+including each phone's 20-second poll of the map file, is one Lambda invocation (about 30 ms),
+which is fine for a demonstration and is the reason to move to CloudFront before any real
+audience. To switch: `sam deploy ... --parameter-overrides EnableCloudFront=true`, once Support
+has verified the account.
+
 **How the file is kept current** (`handlers/publisher.py`). Site changes go through a queue to
 the publisher, at most two runs at once, ten events to a run; a 15-minute schedule is the
 backstop. Each run reads the file's version, then every site, and writes only if the file is

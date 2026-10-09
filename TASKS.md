@@ -569,7 +569,9 @@ only way forward changes what the project claims.
 ### PUB-04 · Hosting · AI: Sonnet · 45 min · Must
 - **Files:** template: CloudFront distribution in front of `PublicBucket` with origin access
   control; `scripts/deploy_web.py` (sync `web/`).
-- **Done when:** The map opens on your phone from the CloudFront address over HTTPS.
+- **Done when:** The map opens on your phone from a public HTTPS address. CloudFront was
+  refused (account not verified, 9 Oct), so a Lambda function URL serves it until Support
+  clears that; see DESIGN.md.
 - **Risk:** A new distribution takes several minutes to become reachable. Start it early.
 
 ---

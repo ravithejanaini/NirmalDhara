@@ -48,6 +48,11 @@ Deployed on 9 October 2026 to ap-south-1 (Mumbai): five functions, three tables,
 one topic, one event bus with two rules, one state machine, three alarms and a 15-minute
 schedule. The resource names are in `data/stack-outputs.json`.
 
+The site is served over HTTPS from the stack's `SiteUrl` output
+(`aws cloudformation describe-stacks --stack-name nirmaldhara --query "Stacks[0].Outputs"`).
+Upload the pages with `python scripts/deploy_web.py --apply`. CloudFront is written but off
+until AWS verifies the account; see DESIGN.md.
+
 ## Layout
 
 | Folder or file | Holds |

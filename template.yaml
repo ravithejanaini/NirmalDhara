@@ -8,6 +8,17 @@ Parameters:
   City:
     Type: String
     Default: hyderabad
+  # CloudFront needs the AWS account to be verified by Support first; without that, creating
+  # the distribution fails and rolls the whole stack back. Until then the site is served by
+  # SiteFunction. Switch on with: sam deploy ... --parameter-overrides EnableCloudFront=true
+  EnableCloudFront:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+
+Conditions:
+  UseCloudFront: !Equals [!Ref EnableCloudFront, "true"]
+  UseFunctionUrl: !Not [!Condition UseCloudFront]
 
 Globals:
   Function:
@@ -277,6 +288,80 @@ Resources:
         - Id: publish-queue
           Arn: !GetAtt PublishQueue.Arn
 
+  # The public address. CloudFront reads the private bucket through an origin access control,
+  # so nothing in the bucket is reachable except through this distribution.
+  SiteAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Condition: UseCloudFront
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub ${AWS::StackName}-site
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  SiteDistribution:
+    Type: AWS::CloudFront::Distribution
+    Condition: UseCloudFront
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: NirmalDhara public site and map file
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        PriceClass: PriceClass_200          # includes India; PriceClass_100 does not
+        Origins:
+          - Id: public-bucket
+            DomainName: !GetAtt PublicBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt SiteAccessControl.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+        DefaultCacheBehavior:
+          TargetOriginId: public-bucket
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          Compress: true
+          # Managed policies: CachingOptimized (honours the object's own Cache-Control, so the
+          # map file's max-age=15 holds) and SecurityHeadersPolicy (HSTS, nosniff, frame options).
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03
+        CustomErrorResponses:
+          # A missing object is a 403 through an origin access control. Do not remember it long:
+          # the map file does not exist until the first publish.
+          - ErrorCode: 403
+            ErrorCachingMinTTL: 5
+
+  PublicBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: UseCloudFront
+    Properties:
+      Bucket: !Ref PublicBucket
+      PolicyDocument:
+        Statement:
+          - Sid: ReadOnlyThroughCloudFront
+            Effect: Allow
+            Principal: { Service: cloudfront.amazonaws.com }
+            Action: s3:GetObject
+            Resource: !Sub ${PublicBucket.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}
+
+  # Stands in for CloudFront until the account is verified. Read-only: serves one object from
+  # the bucket per request, over HTTPS, in the Mumbai region.
+  SiteFunction:
+    Type: AWS::Serverless::Function
+    Condition: UseFunctionUrl
+    Properties:
+      Handler: handlers.site.handler
+      Environment:
+        Variables:
+          PUBLIC_BUCKET: !Ref PublicBucket
+      Policies:
+        - S3ReadPolicy: { BucketName: !Ref PublicBucket }
+      FunctionUrlConfig:
+        AuthType: NONE
+
   PublisherFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -328,5 +413,14 @@ Outputs:
     Value: !Ref AlertsTopic
   PublicBucket:
     Value: !Ref PublicBucket
+  SiteUrl:
+    Value: !If
+      - UseCloudFront
+      - !Sub https://${SiteDistribution.DomainName}
+      - !GetAtt SiteFunctionUrl.FunctionUrl
+    Description: The public address of the site
+  SiteDistributionId:
+    Condition: UseCloudFront
+    Value: !Ref SiteDistribution
   FloodStateMachine:
     Value: !Ref FloodStateMachine

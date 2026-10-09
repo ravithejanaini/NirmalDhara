@@ -16,6 +16,8 @@
     "SitesTable": "nirmaldhara-SitesTable-HNA3N9WD1P7W",
     "TickFunction": "nirmaldhara-TickFunction-JfBr86IJvoBb",
     "PublicBucket": "nirmaldhara-publicbucket-fpohbn9pkemy",
-    "PublisherFunction": "nirmaldhara-PublisherFunction-04rZ15tNyXIO"
+    "PublisherFunction": "nirmaldhara-PublisherFunction-04rZ15tNyXIO",
+    "PublishQueue": "https://sqs.ap-south-1.amazonaws.com/784505480234/nirmaldhara-PublishQueue-3U3ZL7vkpPk4",
+    "SiteFunction": "nirmaldhara-SiteFunction-adDu5cXxRoTZ"
   }
 }
