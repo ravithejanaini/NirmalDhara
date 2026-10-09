@@ -4,6 +4,8 @@ import gzip
 import hashlib
 import json
 import os
+import time
+from datetime import datetime, timezone
 
 import pytest
 from botocore.exceptions import ClientError
@@ -41,12 +43,13 @@ class Table:
 
 class Bucket:
     def __init__(self):
-        self.object, self.writes, self.before_write = None, [], None
+        self.object, self.writes, self.before_write, self.now = None, [], None, NOW
 
     def head_object(self, Bucket, Key):
         if self.object is None:
             raise error("404")
-        return {"ETag": self.object["etag"]}
+        return {"ETag": self.object["etag"], "Metadata": self.object.get("Metadata", {}),
+                "LastModified": datetime.fromtimestamp(self.object.get("written", 0), timezone.utc)}
 
     def put_object(self, Bucket, Key, Body, IfMatch=None, IfNoneMatch=None, **meta):
         if self.before_write:                   # another run gets in just before this write
@@ -56,7 +59,8 @@ class Bucket:
             raise error("PreconditionFailed")
         if IfMatch is not None and (self.object is None or self.object["etag"] != IfMatch):
             raise error("PreconditionFailed")
-        self.object = {"body": Body, "etag": '"' + hashlib.md5(Body).hexdigest() + str(len(self.writes)) + '"', **meta}
+        self.object = {"body": Body, "written": self.now,
+                       "etag": '"' + hashlib.md5(Body).hexdigest() + str(len(self.writes)) + '"', **meta}
         self.writes.append(Key)
 
 
@@ -111,19 +115,62 @@ def test_state_and_depth_come_from_the_engines_record(world):
                    registry("hyd-001", "Never touched")]
     publisher.run(NOW)
     clear, wet = document(bucket)["sites"]
-    assert clear[4] == "CLEAR" and clear[7] == 0 and clear[9] == NOW        # shown as current
+    assert clear[4] == "CLEAR" and clear[7] == 0 and clear[9] == 0          # nothing reported yet
     assert wet[:2] == ["hyd-002", "Underpass"]
     assert wet[4:9] == [WARNING, "B2", 11, 16, 1] and wet[10] == 0.8   # medians of the last three
     assert wet[9] == NOW - 1200 + 16 * 60                                    # newest reading
 
 
-def test_an_unchanged_city_still_writes_a_valid_file(world):
+def test_an_unchanged_city_writes_nothing_while_the_file_is_fresh(world):
+    table, bucket = world
+    table.items = [registry("hyd-001", "Site"), with_state(registry("hyd-002", "Wet"), warning_site())]
+    assert publisher.run(NOW)["written"] is True
+    for later in (NOW + 2, NOW + 120, NOW + publisher.REFRESH_S - 1):
+        assert publisher.run(later) == {"sites": 2, "bytes": 0, "written": False}
+    assert len(bucket.writes) == 1
+    assert document(bucket)["generated_at"] == NOW and len(document(bucket)["sites"]) == 2
+
+
+def test_an_unchanged_city_is_rewritten_once_the_file_is_five_minutes_old(world):
     table, bucket = world
     table.items = [registry("hyd-001", "Site")]
     publisher.run(NOW)
-    publisher.run(NOW + 900)
-    assert len(bucket.writes) == 2
-    assert document(bucket)["generated_at"] == NOW + 900 and len(document(bucket)["sites"]) == 1
+    later = NOW + publisher.REFRESH_S
+    assert publisher.run(later)["written"] is True
+    assert document(bucket)["generated_at"] == later and len(bucket.writes) == 2
+
+
+def test_any_change_to_a_row_is_written_at_once(world):
+    table, bucket = world
+    table.items = [registry("hyd-001", "Site")]
+    publisher.run(NOW)
+    table.items[0] = with_state(registry("hyd-001", "Site"), warning_site("hyd-001"))
+    assert publisher.run(NOW + 1)["written"] is True
+    assert document(bucket)["sites"][0][4] == WARNING
+    table.items[0]["name"] = "Renamed"
+    assert publisher.run(NOW + 2)["written"] is True and document(bucket)["sites"][0][1] == "Renamed"
+
+
+def test_a_batch_of_events_is_one_run_and_most_of_a_burst_writes_nothing(world, monkeypatch):
+    table, bucket = world
+    monkeypatch.setattr(publisher.time, "time", lambda: NOW)
+    table.items = [registry(f"hyd-{n:03d}", f"Site {n}") for n in range(1, 501)]
+    batch = {"Records": [{"messageId": str(n), "body": json.dumps({"detail-type": "ReadingAccepted"})}
+                         for n in range(10)]}
+    for _ in range(30):                              # 300 events, ten to an invocation
+        publisher.handler(batch, None)
+    assert len(bucket.writes) == 1                   # the first run writes; the rest find no change
+
+
+def test_five_hundred_busy_sites_are_cheap_to_publish(world):
+    table, bucket = world
+    busy = warning_site("x")
+    table.items = [with_state(registry(f"hyd-{n:03d}", f"Underpass {n}", 17.2 + n / 2000, 78.3 + n / 3000), busy)
+                   for n in range(1, 501)]
+    started = time.perf_counter()
+    result = publisher.run(NOW)
+    assert time.perf_counter() - started < 1.0       # measured about 30 ms
+    assert result["sites"] == 500 and result["bytes"] < 15_000
 
 
 def test_an_empty_city_writes_an_empty_valid_file(world):
@@ -154,15 +201,16 @@ def test_a_run_that_loses_a_race_reads_again_and_writes_the_newer_data(world):
     table, bucket = world
     table.items = [registry("hyd-001", "Site")]
     publisher.run(NOW)                                    # the file exists
+    table.items.append(registry("hyd-002", "Added before this run"))   # so this run must write
 
     def other_run_writes_first():
-        table.items.append(registry("hyd-002", "Added meanwhile"))
+        table.items.append(registry("hyd-003", "Added meanwhile"))
         bucket.object = {**bucket.object, "etag": '"someone-else"'}
 
     bucket.before_write = other_run_writes_first
     result = publisher.run(NOW + 60)
-    assert result["sites"] == 2                           # read again after losing
-    assert [row[0] for row in document(bucket)["sites"]] == ["hyd-001", "hyd-002"]
+    assert result["sites"] == 3                           # read again after losing
+    assert [row[0] for row in document(bucket)["sites"]] == ["hyd-001", "hyd-002", "hyd-003"]
 
 
 def test_two_first_writers_one_wins_and_the_other_rereads(world):

@@ -243,6 +243,40 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault: { SSEAlgorithm: AES256 }
 
+  # Every site change lands here first. At most two publisher runs at a time drain it, ten
+  # events each, so a flood of readings cannot start more than two full reads at once.
+  PublishQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 180
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt WorkflowDeadLetters.Arn
+        maxReceiveCount: 3
+
+  PublishQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues: [!Ref PublishQueue]
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: { Service: events.amazonaws.com }
+            Action: sqs:SendMessage
+            Resource: !GetAtt PublishQueue.Arn
+            Condition:
+              ArnEquals: { "aws:SourceArn": !GetAtt PublishRule.Arn }
+
+  PublishRule:
+    Type: AWS::Events::Rule
+    Properties:
+      EventBusName: !Ref Bus
+      EventPattern:
+        source: [nirmaldhara]
+        detail-type: [SiteStateChanged, ReadingAccepted]
+      Targets:
+        - Id: publish-queue
+          Arn: !GetAtt PublishQueue.Arn
+
   PublisherFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -255,13 +289,15 @@ Resources:
         - DynamoDBReadPolicy: { TableName: !Ref SitesTable }
         - S3CrudPolicy: { BucketName: !Ref PublicBucket }
       Events:
-        SiteChanged:
-          Type: EventBridgeRule
+        # Site changes arrive through PublishQueue. No batching window: one measured 4 to 19
+        # seconds of delay with a 2-second window. Two workers at most, ten events a run.
+        Changes:
+          Type: SQS
           Properties:
-            EventBusName: !Ref Bus
-            Pattern:
-              source: [nirmaldhara]
-              detail-type: [SiteStateChanged, ReadingAccepted]
+            Queue: !GetAtt PublishQueue.Arn
+            BatchSize: 10
+            ScalingConfig:
+              MaximumConcurrency: 2
         EveryFifteenMinutes:
           Type: ScheduleV2
           Properties:

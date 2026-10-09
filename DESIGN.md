@@ -920,6 +920,25 @@ apply the rule that "passable" needs a confidence of at least 0.6.
 | 500 | 41,576 | 10,094 |
 | 2,000 | 168,089 | 38,311 |
 
+`u` is the time of the site's newest reading, else when it left CLEAR, else **0**, meaning
+nothing has been reported. It is never the time the file was written, so an idle site's row
+does not change from run to run. Pages must treat 0 as "no report" and show an age only for a
+site with water.
+
+**How the file is kept current** (`handlers/publisher.py`). Site changes go through a queue to
+the publisher, at most two runs at once, ten events to a run; a 15-minute schedule is the
+backstop. Each run reads the file's version, then every site, and writes only if the file is
+still at that version, so an older snapshot cannot replace a newer one. A run that finds the
+rows identical to the file's (compared by a fingerprint stored with the file) and the file
+under five minutes old writes nothing. At 500 busy sites one run takes about 30 ms to build,
+reads about 220 read units and writes about 8 KB, so a burst of readings costs at most two of
+these at a time. Measured on AWS: from a reading queued for the engine to the public file
+changing took 0.6 to 0.7 seconds, three times from idle; a burst of 300 events caused 33
+publisher runs over about 7 seconds, about 7,000 read units in all, and left a valid file.
+Most of those runs found nothing changed and wrote nothing. The first design batched events
+for two seconds to cut the runs further; on AWS that delayed the file by 4 to 19 seconds, so it
+was dropped in favour of the cap on concurrent runs.
+
 Measured with random five-decimal positions, mixed states and names like "Underpass 123". The
 compressed sizes are about twice the first measurement, which used evenly spaced positions that
 compress unrealistically well. The 50 KB target holds uncompressed up to about 600 sites.
