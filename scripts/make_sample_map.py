@@ -26,7 +26,8 @@ def site(state, low, high, trusted, confidence, age_min, source="guardian"):
     ts = NOW - age_min * MIN
     readings = tuple(Reading(ts - k * 3 * MIN, low, high, confidence, source, f"d{k}")
                      for k in (2, 1, 0)) if high else ()
-    return Site("x", state=state, low=low, high=high, trusted=trusted, readings=readings), ts
+    # An idle site has reported nothing, so its update time is 0, as in the real file (DESIGN.md 15.3).
+    return Site("x", state=state, low=low, high=high, trusted=trusted, readings=readings), (ts if high else 0)
 
 
 # id, name, lat, lon, site, last update

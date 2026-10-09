@@ -5,11 +5,8 @@
       "name": "web",
       "runtimeExecutable": "python",
       "runtimeArgs": [
-        "-m",
-        "http.server",
-        "8080",
-        "--directory",
-        "web"
+        "scripts/serve_web.py",
+        "8080"
       ],
       "port": 8080
     },

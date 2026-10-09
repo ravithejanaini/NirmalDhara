@@ -42,6 +42,30 @@
   margin-top: var(--space-1);
 }
 
+/* The notice that data is old or could not be fetched. Signal on night: 4.75 to 1. */
+.data-status {
+  margin: var(--space-2) 0 0;
+  color: var(--signal);
+  font-size: var(--size-small);
+  font-weight: 500;
+}
+
+/* One marker per site: a 44 px target around the 28 px glyph. */
+.site-marker {
+  display: block;
+  width: var(--touch);
+  height: var(--touch);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-marker:focus-visible {
+  border-radius: 50%;
+}
+
 .map-error {
   position: fixed;
   inset: auto var(--gutter) var(--space-5);

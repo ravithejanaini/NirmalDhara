@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="glyph.css">
 <link rel="stylesheet" href="map.css">
 </head>
 <body class="map-page">
@@ -20,6 +21,7 @@
 <header class="masthead">
   <h1 class="display wordmark">NirmalDhara</h1>
   <p class="label place">Hyderabad</p>
+  <p id="data-status" class="data-status" role="status" aria-live="polite" hidden></p>
 </header>
 
 <p id="map-error" class="map-error" hidden>The map could not be loaded. Check the connection and reload.</p>
@@ -27,13 +29,33 @@
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script type="module">
 import { createMap } from "./map.js";
+import { startLive } from "./data.js";
+import { SiteLayer } from "./sites.js";
 
+const status = document.getElementById("data-status");
+let map;
 try {
-  window.map = await createMap("map");
+  map = await createMap("map");
+  window.nirmaldhara = { map };
   document.body.classList.add("map-ready");
 } catch (error) {
   document.getElementById("map-error").hidden = false;
   console.error(error);
+}
+
+if (map) {
+  const layer = new SiteLayer(map);
+  const live = startLive({
+    url: "data/hyderabad.json",
+    onData: (load) => layer.apply(load),
+    onStatus: (notice) => {
+      status.hidden = !notice;
+      status.textContent = notice ? notice.text : "";
+      status.dataset.level = notice ? notice.level : "";
+    },
+  });
+  layer.keepAges(live.now);
+  Object.assign(window.nirmaldhara, { layer, live });
 }
 </script>
 </body>
