@@ -65,7 +65,8 @@ def project(camera, height_cm):
     x, y = x * bend, y * bend
     c, s = math.cos(camera["roll"]), math.sin(camera["roll"])
     x, y = x * c - y * s, x * s + y * c
-    return IMAGE[0] / 2 + camera["focal_px"] * x, IMAGE[1] / 2 - camera["focal_px"] * y
+    width, height = camera.get("image", IMAGE)
+    return width / 2 + camera["focal_px"] * x, height / 2 - camera["focal_px"] * y
 
 
 def clicked(rng, point, sd):
@@ -112,6 +113,114 @@ def usable(camera):
     base, top = project(camera, 0.0), project(camera, GAUGE_CM)
     inside = all(0 <= p[0] <= IMAGE[0] and 0 <= p[1] <= IMAGE[1] for p in (base, top))
     return inside and math.dist(base, top) >= 60            # at least 60 px of gauge: 2.5 cm a pixel
+
+
+# --- A handheld phone ---------------------------------------------------------------------
+# Nominal figures for a recent iPhone's main camera: a 12-megapixel photo of 4032 x 3024 pixels
+# and a lens equal to 26 mm on a 36 mm-wide frame. Taken from the published specification, not
+# measured on a phone.
+PHONE_IMAGE = (4032, 3024)
+PHONE_FOCAL_PX = PHONE_IMAGE[0] * 26 / 36
+ASSUMED_WHEEL_CM = 62.0                  # METHOD.md section 17: a car wheel is about 62 cm
+WHEEL_RANGE_CM = (56.0, 70.0)            # small hatchback to SUV: the photo does not say which
+PHONE_DEPTHS_CM = (5, 10, 15, 20, 25)    # above about 31 cm the hub is under water and this fails
+PHONE_CLICK_SD_PX = 4.0                  # finding the wheel's top and hub in a 12-megapixel photo
+PHONE_WATERLINE_SD_PX = 8.0              # ripples and reflection at the tyre
+DISTANCE_GROUPS = ((3, 6), (6, 10), (10, 15))
+
+
+def make_phone(rng, number):
+    """One photo position: a person standing or on a two-wheeler, some metres from a car."""
+    height, distance = rng.uniform(1.0, 1.6), rng.uniform(3.0, 15.0)
+    aim = rng.uniform(0.0, 0.9)                              # nobody aims exactly at the wheel
+    return {"id": f"sim-phone-{number:03d}", "height_m": height, "distance_m": distance,
+            "side_m": rng.uniform(-2.0, 2.0), "tilt": math.atan2(height - aim, distance),
+            "roll": math.radians(rng.uniform(-8.0, 8.0)),    # handheld: never level
+            "focal_px": PHONE_FOCAL_PX, "distortion": rng.uniform(-0.01, 0.01), "image": PHONE_IMAGE,
+            "wheel_cm": rng.uniform(*WHEEL_RANGE_CM)}
+
+
+def wheel_depth(top, hub, waterline, wheel_cm):
+    """Depth from what stays visible: the wheel's top, its hub, and where the water meets the tyre.
+
+    The wheel's base is under water, so it cannot be marked. The hub-to-top distance is half the
+    wheel and gives the scale; the depth is the wheel's height less the part still showing.
+    """
+    cm_per_px = (wheel_cm / 2) / math.dist(hub, top)
+    return wheel_cm - math.dist(waterline, top) * cm_per_px
+
+
+def measure_phone(phone, rng, trials=20):
+    """Absolute errors in cm: with the wheel's true size known, and with 62 cm assumed."""
+    errors = {"known": [], "assumed": []}
+    true = phone["wheel_cm"]
+    for _ in range(trials):
+        top = clicked(rng, project(phone, true), PHONE_CLICK_SD_PX)
+        hub = clicked(rng, project(phone, true / 2), PHONE_CLICK_SD_PX)
+        for depth in PHONE_DEPTHS_CM:
+            waterline = clicked(rng, project(phone, depth), PHONE_WATERLINE_SD_PX)
+            errors["known"].append(abs(wheel_depth(top, hub, waterline, true) - depth))
+            errors["assumed"].append(abs(wheel_depth(top, hub, waterline, ASSUMED_WHEEL_CM) - depth))
+    return errors
+
+
+def run_phones(seed=7, count=300):
+    rng = random.Random(seed + 1000)                        # its own stream: the camera table is unchanged
+    phones = [make_phone(rng, n) for n in range(count)]
+    for phone in phones:
+        phone["errors"] = measure_phone(phone, rng)
+    return phones
+
+
+def phone_summary(phones):
+    rows = []
+    for low, high in DISTANCE_GROUPS + ((3, 15),):
+        group = [p for p in phones if low <= p["distance_m"] < high or (low, high) == (3, 15)]
+        row = {"distance": "**All**" if (low, high) == (3, 15) else f"{low} to {high} m", "photos": len(group),
+               "wheel_px": statistics.median(math.dist(project(p, 0.0), project(p, p["wheel_cm"])) for p in group)}
+        for kind in ("known", "assumed"):
+            errors = [e for p in group for e in p["errors"][kind]]
+            row[kind] = (statistics.median(errors), percentile(errors, 0.95))
+        rows.append(row)
+    return rows
+
+
+def phone_report(phones):
+    cell = lambda pair: f"{pair[0]:.1f} cm, 95% under {pair[1]:.1f} cm"                 # noqa: E731
+    lines = [
+        "## A handheld phone (an iPhone's main camera)",
+        "",
+        "A resident's photo has no gauge and no dry view to mark, so the depth is read against a car's",
+        "wheel, as METHOD.md C2 estimator 2 intends. The wheel's base is under water, so only its top, its",
+        "hub and the waterline can be found.",
+        "",
+        f"- {len(phones)} photo positions: held 1.0 to 1.6 m above the road, 3 to 15 m from the car, tilted to look",
+        "  at it, never level (roll up to 8°).",
+        f"- The camera is nominal: {PHONE_IMAGE[0]} x {PHONE_IMAGE[1]} pixels, a lens equal to 26 mm. These are",
+        "  the published figures for a recent iPhone's main camera, not measurements of one.",
+        f"- The car's wheel is anywhere from {WHEEL_RANGE_CM[0]:.0f} to {WHEEL_RANGE_CM[1]:.0f} cm; the method assumes {ASSUMED_WHEEL_CM:.0f} cm.",
+        f"- Depths of {PHONE_DEPTHS_CM[0]} to {PHONE_DEPTHS_CM[-1]} cm. Above about 31 cm the hub is under water and this reading fails.",
+        "",
+        "| Distance to the car | Photos | Wheel height in the image | If the wheel's size were known | Assuming 62 cm |",
+        "|---|---|---|---|---|",
+    ]
+    for row in phone_summary(phones):
+        lines.append(f"| {row['distance']} | {row['photos']} | about {row['wheel_px']:.0f} px | {cell(row['known'])} | {cell(row['assumed'])} |")
+    lines += [
+        "",
+        "- **Distance decides it.** From within 6 m the wheel is about 400 pixels tall and the reading is",
+        "  within about 4 cm 95% of the time. From 10 to 15 m it is about 150 pixels and the same slip in",
+        "  finding the waterline costs up to 9 cm. Standing closer is worth more than any correction.",
+        "- **Not knowing the car matters less than expected.** The wheel sets both the scale and the height",
+        "  the depth is taken from, so a wrong wheel size shifts the answer only in proportion to the depth:",
+        "  at most about 3 cm at 25 cm deep, and under 1 cm in shallow water.",
+        "- **The tilt and roll of a handheld shot cost little**, because the phone is low and looks almost",
+        "  level at the wheel.",
+        "- This is why a resident's photo gives a range, and why the capture page should ask for a photo from",
+        "  a few metres, not from across the road.",
+        "",
+    ]
+    return lines
 
 
 def percentile(values, share):
@@ -204,6 +313,9 @@ def report(cameras, kept, seed):
         "- The depth bands are 8 to 20 cm wide and a reading is always a range. The 95% figures above say how",
         "  wide that range must be for a camera of each kind to be honest.",
         "",
+    ]
+    lines += phone_report(run_phones(seed))
+    lines += [
         "## What it does not show",
         "",
         "- Whether a model or a segmentation step can find the waterline at night, in rain, with reflections",

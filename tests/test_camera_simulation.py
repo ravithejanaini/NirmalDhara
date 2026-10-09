@@ -73,3 +73,34 @@ def test_no_public_page_or_writeup_quotes_the_simulation_as_accuracy():
         assert "camera-simulation" not in (ROOT / name).read_text("utf-8"), name
     rng = random.Random(1)
     assert len({sim.make_camera(rng, n)["id"] for n in range(5)}) == 5
+
+
+PHONE = {"id": "phone", "height_m": 1.4, "distance_m": 5.0, "side_m": 0.5, "tilt": math.atan2(1.1, 5.0),
+         "roll": math.radians(6), "focal_px": sim.PHONE_FOCAL_PX, "distortion": 0.0, "image": sim.PHONE_IMAGE,
+         "wheel_cm": 62.0}
+
+
+def phone_reading(phone, depth, assumed):
+    true = phone["wheel_cm"]
+    return sim.wheel_depth(sim.project(phone, true), sim.project(phone, true / 2), sim.project(phone, depth), assumed)
+
+
+def test_a_phone_photo_with_perfect_marks_and_a_known_wheel_reads_within_a_centimetre():
+    # Not exact: one scale along the wheel ignores perspective. Small, because the phone looks almost level.
+    assert all(abs(phone_reading(PHONE, depth, 62.0) - depth) < 1.0 for depth in sim.PHONE_DEPTHS_CM)
+
+
+def test_a_wrong_wheel_size_shifts_the_depth_only_in_proportion_to_the_depth():
+    small = {**PHONE, "wheel_cm": 56.0}
+    for depth in sim.PHONE_DEPTHS_CM:
+        shift = phone_reading(small, depth, sim.ASSUMED_WHEEL_CM) - phone_reading(small, depth, 56.0)
+        assert abs(shift - depth * (62.0 / 56.0 - 1)) < 0.5
+    assert sim.ASSUMED_WHEEL_CM == 62.0 and sim.PHONE_DEPTHS_CM[-1] < sim.ASSUMED_WHEEL_CM / 2
+
+
+def test_the_phone_table_gets_worse_with_distance_and_does_not_change_the_camera_table():
+    rows = sim.phone_summary(sim.run_phones(seed=7))
+    near, far = rows[0], rows[2]
+    assert near["wheel_px"] > far["wheel_px"] and near["known"][1] < far["known"][1]
+    text = sim.OUT.read_text("utf-8")
+    assert "not measurements of one" in text and "| **All** | 376 |" in text
