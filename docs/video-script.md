@@ -1,6 +1,6 @@
 # Video script and shot list
 
-Target length **2:45**, hard limit 3:00. The event page asks for "Three minutes, recorded… to show
+Target length **2:45**. The rules say the video must run **under three minutes**, so 3:00 is too long. The event page asks for "Three minutes, recorded… to show
 what it does, who it is for, and where AWS fits"; shot 1 says who it is for, shot 5 where AWS fits.
 The narration below is about 370 words: at an ordinary
 speaking pace of 150 words a minute that is 2:20 of speech, which leaves 25 seconds of breathing
@@ -128,4 +128,6 @@ Screen: the README on GitHub, scrolled to "What is built", then "Limits".
 - Total under 3:00. Check the caption is on shots 2, 3 and 6 and the map credit is readable.
 - Run `python scripts/reset.py --go --forget-floods` so the public map does not keep showing the
   replay's floods.
-- Upload to YouTube with the visibility the submission form asks for.
+- Upload to YouTube as **public or unlisted** (the rules allow either; private is not accepted), and
+  open the link in a signed-out browser before you submit it. `python scripts/preflight.py --video <link>`
+  checks that it opens.

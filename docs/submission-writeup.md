@@ -1,6 +1,6 @@
 # Submission writeup
 
-Text for the submission form. Two lengths are given because the form's limits are not confirmed
+Text for the submission form. Two lengths are given because the form's length limits are not published
 (task SUB-08): use the long one if it fits, the short one if not. Every statement here is listed
 with its evidence in [claims.md](claims.md).
 

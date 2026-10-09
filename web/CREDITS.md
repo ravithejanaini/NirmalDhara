@@ -25,6 +25,15 @@ The demo video must carry this line on any shot that shows the map.
 unreachable the page shows an error and no map. A production deployment should self-host the
 tiles for the city, which the project's licence allows.
 
+## Rain forecast
+
+| What | From | Licence and terms |
+|---|---|---|
+| Hourly rain forecast at each site, read every 15 minutes | [Open-Meteo](https://open-meteo.com/) forecast API (`src/nirmaldhara/rain.py`) | Data under CC BY 4.0, attribution required. The free API needs no key and is offered for non-commercial use |
+
+Weather data by Open-Meteo.com. A deployment that is commercial, or that a city relies on, needs
+Open-Meteo's paid plan or the weather service's own feed.
+
 ## Type
 
 Fraunces and Inter, both under the SIL Open Font License, loaded from Google Fonts.

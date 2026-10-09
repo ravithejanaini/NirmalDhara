@@ -818,6 +818,11 @@ No framework and no build step: plain HTML, CSS and JavaScript modules in `web/`
   collected count.
 
 ### SUB-08 · Confirm the closing time and the video rules · You · 10 min · Must
+- **Status, 9 Oct: two of three known.** Read from the event's rules page
+  (wemakedevs.org/aws/env/rules, last updated 16 September 2026): the video must be on YouTube, run
+  **under three minutes**, and be **public or unlisted**, and the link must open in a signed-out
+  browser. The **closing time is not published**: the schedule page says 11 October is the last day
+  and that "the hours are being finalised". Until it is, plan to submit on the morning of 11 October.
 - **Goal:** The plan's dates rest on the event's real deadline, not on an assumption.
 - **Deadline:** 6 PM on 9 October.
 - **Steps:** On the event page or its Discord, find when the submission form closes, the

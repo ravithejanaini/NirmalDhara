@@ -164,14 +164,15 @@ writes `docs/smoke-test.md`.
   tests and the AWS runs described here were executed in those sessions.
 - **A Claude model on Amazon Bedrock** is the intended photo reader (`src/nirmaldhara/reader.py`).
   It has not run: access is blocked pending AWS account verification.
-- Not AI: AWS SAM CLI and `cfn-lint` to validate the template, MapLibre for the map.
+- Not AI: AWS SAM CLI and `cfn-lint` to validate the template, MapLibre for the map, Open-Meteo
+  for the rain forecast.
 
 ## Sources
 
 - Thresholds and rules: [METHOD.md](METHOD.md) section 17.
 - The nine places: [data/SOURCES.md](data/SOURCES.md).
-- Map data and type: [web/CREDITS.md](web/CREDITS.md). Map data © OpenStreetMap contributors;
-  tiles from OpenFreeMap.
+- Map data, rain forecast and type: [web/CREDITS.md](web/CREDITS.md). Map data © OpenStreetMap
+  contributors; tiles from OpenFreeMap; weather data by Open-Meteo.com (CC BY 4.0).
 - What was tested on AWS: [docs/smoke-test.md](docs/smoke-test.md).
 
 MIT licence, see [LICENSE](LICENSE).

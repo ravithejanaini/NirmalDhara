@@ -141,13 +141,15 @@ def check_video(url):
         known = re.match(r"https://(www\.)?(youtube\.com|youtu\.be)/", url) is not None
         say("ok" if status == 200 else "FAIL", "The video link opens without signing in", f"HTTP {status}")
         say("ok" if known else "TODO", "The link is a YouTube link", "" if known else "check what the form accepts")
-        say("TODO", "Watch it once signed out: under 3:00, the replay caption shows, the map credit is readable")
+        say("TODO", "Watch it once signed out: under 3:00, set to public or unlisted, AWS is shown, the replay caption and the map credit are readable")
     writeup = (ROOT / "docs" / "submission-writeup.md").read_text("utf-8")
     long_words = len(writeup.split("## Long version")[1].split("## Short version")[0].split())
     short_words = len(writeup.split("## Short version")[1].split())
     say("ok", "The writeup is written, in two lengths", f"{long_words} and {short_words} words")
     say("ok" if (ROOT / "docs" / "claims.md").exists() else "FAIL", "Every claim is listed with its support")
-    say("TODO", "Confirm the form's closing time and its length limits", "the event page gives neither (task SUB-08)")
+    say("TODO", "Find the form's closing time", "not published yet: the schedule says 11 Oct and that the hours are being finalised (task SUB-08)")
+    say("TODO", "Your AWS Builder Center profile shows your university enrollment as verified",
+        "the rules require it to enter; an open SheerID case does not stop you submitting")
 
 
 def check_account(aws):
