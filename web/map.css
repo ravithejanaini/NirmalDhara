@@ -1,0 +1,69 @@
+/* The map page: a full-screen map with a masthead resting on it. */
+
+.map-page {
+  overflow: hidden;
+}
+
+#map {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-map);
+  background: var(--night);
+}
+
+/* The map fades in once drawn, so the page never flashes an empty grid. */
+#map .maplibregl-canvas {
+  opacity: 0;
+  transition: opacity 600ms var(--ease-out);
+}
+
+.map-ready #map .maplibregl-canvas {
+  opacity: 1;
+}
+
+.masthead {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-chrome);
+  padding: calc(var(--space-3) + env(safe-area-inset-top)) var(--gutter) var(--space-5);
+  pointer-events: none;
+  /* A soft fall of night behind the name, so it reads over any part of the map. */
+  background: linear-gradient(to bottom, var(--night) 0%, rgb(14 26 43 / 0.7) 45%, transparent 100%);
+}
+
+.wordmark {
+  font-size: var(--size-title);
+  letter-spacing: 0;
+}
+
+.place {
+  margin-top: var(--space-1);
+}
+
+.map-error {
+  position: fixed;
+  inset: auto var(--gutter) var(--space-5);
+  z-index: var(--z-chrome);
+  color: var(--signal);
+  text-align: center;
+}
+
+/* MapLibre's own controls, brought into the palette. */
+.maplibregl-ctrl-attrib {
+  font-family: var(--font-text);
+  font-size: 0.75rem;                 /* a legal credit, not content; the 14px floor is for content */
+  background: rgb(14 26 43 / 0.8) !important;
+  color: var(--mist);
+}
+
+.maplibregl-ctrl-attrib a,
+.maplibregl-ctrl-attrib-inner {
+  color: var(--mist);
+}
+
+.maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+  opacity: 0.7;
+}

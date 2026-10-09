@@ -29,6 +29,11 @@
   --moss-ink: #55622F;     /* Moss as text on paper */
   --water-ink: #1F6577;    /* Water as text on paper */
 
+  /* The map's own two tones, a step off Night. Used only in style.json, which cannot read
+     these variables: tests/test_map_style.py keeps the two files in agreement. */
+  --map-water: #16304A;    /* lakes and rivers: visible, never competing with flood water */
+  --map-land: #122236;     /* parks, woods, buildings at high zoom */
+
   /* Water is always drawn on paper, never straight onto night: Deep on night is 1.85:1 and
      would make the deepest water the hardest to see. */
   --glyph-ground: var(--paper);
