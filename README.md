@@ -19,9 +19,11 @@ places flood again and again. Built solo for Environmental Hacks (Heat and Water
    blocked the road for cars. That points repair work at the drains and pumps that fail most.
 
 **Read this before relying on it.** No photo has been read by the model yet, so the depth
-readings you see come from scripts and a replay, not from camera or phone photos. The
-waste-and-drain tracking half of the pitch is designed, not built. The full list is under
-[What is built](#what-is-built).
+readings you see come from scripts and a replay, not from camera or phone photos. The watch in
+point 1 runs, but replayed over seven past seasons it would not have opened on any of the 20 days a
+news report names one of these places under water: the forecast holds far less rain than falls
+([docs/watch-history.md](docs/watch-history.md)). The waste-and-drain tracking half of the pitch is
+designed, not built. The full list is under [What is built](#what-is-built).
 
 ![Architecture: what is deployed, with designed parts dashed](docs/architecture.svg)
 
