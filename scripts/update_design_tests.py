@@ -40,6 +40,8 @@ DESCRIPTIONS = {
     "test_glyph.py": "The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node",
     "test_guide.py": "Summary line, welcome and the key's examples, run with Node",
     "test_history.py": "What counts as a flood, ranking, and the history writer",
+    "test_inflow.py": "The storage equation on a made dip: a flood gives back the ground it came from and its drain rate, a widening dip fills more slowly than a straight line says, depths ahead hold the truth, and a forecast from a fifth of the rain fails",
+    "test_inflow_simulation.py": "The made storms: the figures come back, each flood is foretold from the ones before it when the rain is right, and the report is labelled simulated",
     "test_intake.py": "Photo checks, crop, blur, signed links",
     "test_map_style.py": "The map style uses only token colours and none of the flood palette",
     "test_multi_reference.py": "How several strips in one view are joined on the real flood: each strip's record from days left out, the middle of three, the mean of two, and the report says which camera was run once",

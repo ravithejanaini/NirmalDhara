@@ -46,7 +46,8 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | Several reference objects in one view, and several cameras at one place (METHOD C8) | `nirmaldhara/multiview.py` | built: a camera fixed from marks of known height, length and width; the height where water meets a post at any camera angle; several readings joined by the weighted middle of three or more; two cameras placing a floating thing, and its speed. The joining was measured on a real flood (`docs/multi-reference-river.md`): four surfaces at one river lock, 10 cm out typically against 13 cm for one; no gain at a second camera. The rest is tested on made scenes and tried in a simulation (`docs/multiview-simulation.md`) only. No site has two cameras on one water; no caller yet |
 | One level from every witness, through time (METHOD C9) | `nirmaldhara/depthmodel.py` | built: each reference object learnt as a witness (its curve, its spread within and between days, its wild rate, what it says at each level); the witnesses' likelihoods multiplied at a share learnt from days left out; the level followed through time; a range stretched to hold nine in ten of those days; `to_reading` hands the answer to the site engine. Measured on a real flood (`docs/depth-model-river.md`): at one river lock every picture given a level, 11 to 12 cm out typically against 13 cm for one surface, one in ten more than 41 to 47 cm out. Cannot read past the levels it learnt from. The chain to the engine has been run on rendered scenes only (`docs/site-simulation.md`). Needs measured levels, which no site has; no caller yet |
 | Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
-| Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; no caller yet |
+| Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; used by `inflow.py`, which nothing calls |
+| The storage equation, backwards and forwards (METHOD 15.8) | `nirmaldhara/inflow.py` | built: what a flood reveals of the ground that drains to a place and the rate it empties at, as ranges; minutes until each class loses passage with the line drawn through the volume stored; the depth a given rain would bring; the rain that would close the road. Made floods only; needs a road profile and floods on record, which no place has; no caller yet |
 | Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
 | Agent wording, scenario engine, fix sheet, camera agent, activation, acknowledgement, channels, upload | | planned, section 16 |
 
@@ -888,6 +889,13 @@ rain.indexes(sites) -> {site_id: mm}
 
 predict.rise_rate([(minute, depth)]) -> cm per minute | None
 predict.clear_rise([(low, high)]) -> bool
+
+inflow.reveal(curve, [(seconds, low, high)], [(seconds, mm)]) -> Revealed(area_m2, drain_m3s) | None
+inflow.together([Revealed]) -> Revealed | None
+inflow.at_this_inflow(curve, [(seconds, low, high)]) -> {vehicle: (sooner, later) minutes} | None
+inflow.ahead(found, curve, low, high, [(seconds, mm)], seconds) -> [(seconds, low, high)]
+inflow.rain_to_reach(found, curve, low, high, limit, minutes) -> (least mm, most mm)
+inflow.check(curve, [(readings, rain)]) -> [{peak read, peak said, held}]
 predict.minutes_to_no_go(depth, rate) -> {vehicle: minutes | None}
 
 intake.check(image, hash, photo_pos, site_pos, requested_at, received_at, seen) -> reason
@@ -1117,6 +1125,8 @@ after adding a test.
 | `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
 | `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
+| `test_inflow.py` | 12 | The storage equation on a made dip: a flood gives back the ground it came from and its drain rate, a widening dip fills more slowly than a straight line says, depths ahead hold the truth, and a forecast from a fifth of the rain fails |
+| `test_inflow_simulation.py` | 5 | The made storms: the figures come back, each flood is foretold from the ones before it when the rain is right, and the report is labelled simulated |
 | `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
 | `test_learn_river_cameras.py` | 13 | How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once |
 | `test_map_style.py` | 2 | The map style uses only token colours and none of the flood palette |
@@ -1146,7 +1156,7 @@ after adding a test.
 | `test_watch_history.py` | 10 | The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **586** | Collected by `pytest --collect-only` |
+| **Total** | **603** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1209,6 +1219,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `simulate_site.py` | **Simulated.** Three rendered cameras on one water, each with its own conditions: rendered frames, the real detector, `nirmaldhara/depthmodel.py`, then the site engine's answer for a car set beside the answer the true depth would give; writes `docs/site-simulation.md`. A check that the chain holds together, not evidence of accuracy |
 | `river_forecast.py` | **Real flood, measured levels.** The first trial of the prediction stage on anything real. Three days in a row are left out, `nirmaldhara/depthmodel.py` follows the level through them, and the level one, three and six hours ahead, the next morning and a day ahead is told three ways: no change, the slope `predict.rise_rate` takes carried forward, and that slope only when `predict.clear_rise` or `predict.clear_fall` says it stands clear of the readings' doubt. The same from the measured levels themselves. One camera was used to choose the guard; the other was run once. Writes `docs/forecast-river.md`, with `docs/forecast-river-notes.md` under it |
 | `watch_history.py` | **Real rain history, real reports.** Replays the watch rule (`state.rain_index`, `state.apply_rain`) hour by hour over Open-Meteo's archive of the rain it served at the nine places, `data/rain-history.json.gz`, and sets it against `data/flood-reports.json`, sixteen dated news reports of water at them: whether a watch stood on each reported day, what the rule costs in watch days a season, the same for seven weather models by name and for other thresholds, and the model's rain beside what gauges recorded. `--fetch` asks the provider again. Writes `docs/watch-history.md`, with `docs/watch-history-notes.md` under it |
+| `simulate_inflow.py` | **Simulated.** Twenty-four made storms on the underpass of METHOD 15.1, the water moved by the equation `nirmaldhara/inflow.py` uses: whether the figures the floods were made with come back from readings 3 cm and 8 cm loose, each flood played forward from the ones before it with the rain exact, a tenth out and a fifth of what fell, minutes until cars lose passage by the straight line and through the volume, and the rain that closes the road. Writes `docs/inflow-simulation.md` |
 | `simulate_multiview.py` | **Simulated.** Tries the geometry of `nirmaldhara/multiview.py` with the errors a real camera would add: one height against every known dimension, three posts or three cameras against one, and the water's speed from two cameras against one; writes `docs/multiview-simulation.md`. Not evidence of how a waterline is found in a real picture |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |

@@ -853,6 +853,42 @@ demo also shows the calculation on replayed footage of a real flood, marked as r
 - The return period for underpasses and the ramp gradient limits are from secondary summaries
   of the national manual and road code, and must be confirmed from the documents.
 
+### 15.8 The equation as code, and run forwards
+
+Added 11 October 2026 (`nirmaldhara/inflow.py`). Sections 15.1 to 15.5 use one equation backwards:
+the water stored changes by what runs in less what drains out. The same equation is now code, and
+is also run forwards.
+
+**Backwards, after a flood.** `reveal` takes the depths read during one flood and the rain that
+fell, and gives the rate the place drains at and the ground the water came from, each as a range.
+It is 15.2 with 15.4's two rules: the readings are first made into a curve that only rises to the
+deepest and only falls after it, and the sum is worked 1,000 times with every depth drawn from
+within its range. Taking the largest of several uncertain readings as the peak always says too
+much; the curve does not.
+
+**Forwards, from what is running in now.** Section 7 carries the depth forward in a straight line.
+A dip widens as it fills, so a steady inflow raises the water more slowly the deeper it gets, and
+a straight line in depth says a road will be lost sooner than it will. `at_this_inflow` draws the
+line through the volume stored and reads the depth back off the road's profile. With water
+running steadily into the example of 15.1, the straight line says 16 minutes until cars lose
+passage where it is 27. It needs the profile and no rain figure.
+
+**Forwards, from rain.** With what earlier floods revealed, `ahead` gives the depth that a given
+rain would bring, as a range. `rain_to_reach` turns it round: the rain in the next hour that would
+close the road to each class. That is a threshold for the place worked out from its own floods,
+where section 4's 20 mm is a guess, and it needs no forecast: it is a figure to hold a forecast, a
+warning or a gauge reading against.
+
+**How it is to be judged.** `check` plays each recorded flood forward from the floods before it
+and says whether the deepest water foretold held the deepest read. That needs a place with floods
+on record and a road profile. No place has either.
+
+**Status.** Tested on a made dip whose true figures are known, and tried on made storms
+(`scripts/simulate_inflow.py`): the figures come back, and they come back because the made water
+obeys the same equation. A forecast from rain is no better than the rain. Fed a fifth of the rain
+that fell, which is how far short `docs/watch-history.md` found the forecast the live system is
+given, it foretold none of the made floods. Nothing calls this module.
+
 Sources: Tribune on Minto Bridge
 (https://www.tribuneindia.com/news/delhi/no-waterlogging-at-minto-bridge-as-rain-lashes-capital/amp);
 CAG audit of Delhi drainage, 2014
