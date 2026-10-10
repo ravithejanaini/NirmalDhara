@@ -75,6 +75,8 @@ level ([credits](../samples/tewkesbury/CREDITS.md)). A river, not a street, and 
 | 33 | Neither is connected to the warnings, and no place has a camera or a measured level | `design: "Never on a street; no caller yet"`, `design: "Needs measured levels, which no site has; no caller yet"` | |
 | 34 | Four reference surfaces in one view, read together, were 10 cm out, typically, at that lock, against 13 cm for one; at a second camera joining gained nothing | `file: docs/multi-reference-river.md`, `tests/test_multi_reference.py::test_the_report_says_which_camera_is_the_test_and_what_joining_gained` | One reading in ten was still more than 46 cm out, and the best single surface did about as well alone |
 | 35 | Fixing a camera from several known dimensions, and two cameras giving the speed of the water, are tested code and a simulation only | `tests/test_multiview.py::test_two_cameras_place_a_floating_thing_and_time_gives_its_speed`, `file: docs/multiview-simulation.md` | No place has two cameras on one water |
+| 36 | One model of every reference surface in a view, through time, gave every picture a level at that lock, 11 to 12 cm out, typically, against 13 cm for one surface | `file: docs/depth-model-river.md`, `tests/test_river_depth_model.py::test_the_report_says_which_camera_is_the_test_what_was_gained_and_what_was_taken_out` | One in ten was still more than 41 to 47 cm out, most of it water beyond the levels learnt from |
+| 37 | The chain from several cameras' frames to the site engine's answer has been run on rendered scenes only | `tests/test_site_simulation.py::test_the_chain_holds_from_frames_to_the_engines_answer`, `file: docs/site-simulation.md` | |
 
 ## Reworded or removed in this check
 

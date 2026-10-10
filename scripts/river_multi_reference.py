@@ -70,6 +70,11 @@ STRIPS = {
 def read_strip(camera, name, data=river.DATA):
     """Every picture with a measured level, read through one strip: {(month, day, hour): reading}."""
     box, from_bottom, _ = STRIPS[camera]["strips"][name]
+    return read_box(camera, box, from_bottom, data)
+
+
+def read_box(camera, box, from_bottom, data=river.DATA):
+    """The same for any box in the camera's picture: dry ground at the bottom of it, or at the top."""
     river.CAMERAS["__strip__"] = {"box": box, "shrink": 3, "from_bottom": from_bottom}
     table = json.loads(river.LEVELS.read_text("utf-8"))["cameras"][camera]
     folder = Path(data) / "FarsonDigital_CameraImages_NovDec2012" / table["folder"]
@@ -83,7 +88,7 @@ def read_strip(camera, name, data=river.DATA):
             continue
         result = waterline.locate(river.strip_of(folder / row["image"], "__strip__"), dry_view)
         out[key] = {"day": (key[0], key[1]), "hour": key[2], "level": row["level_m"], "std": row["std_m"],
-                    "found": bool(result.found), "row": float(result.row) if result.found else None}
+                    "found": bool(result.found), "row": float(result.row) if result.found else None, "reason": result.reason}
     return out
 
 

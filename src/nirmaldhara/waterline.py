@@ -66,7 +66,8 @@ It has not been measured on a street.
 
 gauge.py reads the same kind of camera another way, by learning from pictures whose level was
 measured. Where both have an answer the gauge's is used (gauge.with_fallback). multiview.py joins
-several strips in one view, and several cameras at one place.
+several strips in one view, and several cameras at one place. depthmodel.py is the model under
+all of them: one level, with every strip and every camera a witness to it, followed through time.
 """
 
 from dataclasses import dataclass

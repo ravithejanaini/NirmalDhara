@@ -341,6 +341,42 @@ one river lock were 10 cm out, typically, against 13 cm for one, and there was n
 surfaces were all one grass bank. Fixing the camera, and the speed, are tested on made scenes and
 tried in a simulation (`docs/multiview-simulation.md`) only.
 
+### C9. One level from every witness, through time
+
+Added 10 October 2026. C8 joins readings once each is finished. Underneath, there is one water
+level at a place at a moment, and every reference object in every camera is a witness to it
+(`nirmaldhara/depthmodel.py`).
+
+**What is learnt about a witness**, from moments at which the level was measured: the row it
+reports at each level, as a curve that only goes one way; how far its reports lie from that curve,
+within a day and between days, measured on days the curve did not see; the share of its reports
+that are nowhere near; and how often, at each level, it reports a line, "dry", or neither. Where
+its curve is flat the witness is blind: the water's edge is hidden, or has run off its strip.
+
+**One level from many.** For each level, each witness's report has a likelihood, never smaller than
+its wild rate allows. The likelihoods are multiplied. A blind witness then says nothing, a sharp one
+outweighs a blunt one by as much as it is sharper, and a wild one is outvoted by degrees. Witnesses
+in one camera share its light, so their evidence is counted at a share of face value: the share
+under which days left out are predicted best. Each camera has its own.
+
+**Through time.** What was believed is spread by as much as the level could have moved in the time
+gone by, at a rate learnt from the measured levels, and multiplied by what the witnesses say now.
+Only the past is used. A witness wrong at one hour is usually wrong the same way the next, so
+through time its evidence is counted at a second, smaller share.
+
+**What comes out.** A level, and a range stretched until it would have held nine in ten of the days
+left out. `depthmodel.to_reading` gives the engine a depth range above the road and a confidence,
+which is zero when the witnesses said nothing that tells levels apart.
+
+**Two limits.** It cannot read past the levels it learnt from, and does not know when it is there.
+And it learns from measured levels, which no site has.
+
+**Status.** Measured on a real flood (`docs/depth-model-river.md`): at one river lock, seven surfaces
+and the learnt gauge gave every picture a level, 11 to 12 cm out, typically, with one in ten more
+than 41 to 47 cm out, against 13 cm and 54 cm for one surface. The strips' evidence was counted at
+a twentieth to a fifth of face value. The chain from several cameras' frames to the engine's answer
+has been run on rendered scenes only (`docs/site-simulation.md`).
+
 ## 7. Stage D: prediction
 
 **Rise rate.** Fit a robust slope (Theil–Sen) to the last 3 to 6 smoothed readings:
