@@ -13,9 +13,9 @@ CLAIMS = (ROOT / "docs" / "claims.md").read_text("utf-8")
 ROWS = [line for line in CLAIMS.splitlines() if re.match(r"^\| \d+ \|", line)]
 
 
-def test_there_are_thirty_seven_numbered_claims_each_with_support():
+def test_there_are_forty_numbered_claims_each_with_support():
     numbers = [int(re.match(r"^\| (\d+) \|", row).group(1)) for row in ROWS]
-    assert numbers == list(range(1, 38))
+    assert numbers == list(range(1, 41))
     for row in ROWS:
         assert re.search(r"`(tests/|smoke: |template: |file: |design: )", row), row[:60]
 

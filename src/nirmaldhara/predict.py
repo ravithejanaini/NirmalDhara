@@ -20,6 +20,21 @@ def rise_rate(readings):
     return median(slopes) if slopes else None
 
 
+def clear_rise(ranges):
+    """Whether the water has risen by more than the doubt in the readings: the newest range lies wholly
+    above the oldest. ranges: (low, high) of each reading the slope is taken through, oldest first.
+
+    A slope through readings that overlap is mostly their noise. On a real flood, carried forward, it
+    was further out than saying the level would stay where it was (docs/forecast-river.md).
+    """
+    return len(ranges) >= 2 and ranges[-1][0] > ranges[0][1]
+
+
+def clear_fall(ranges):
+    """The same for water going down: the newest range lies wholly below the oldest."""
+    return len(ranges) >= 2 and ranges[-1][1] < ranges[0][0]
+
+
 def rain_factor(next60_mm, last60_mm):
     """How the coming rain compares with the recent rain, clipped to 0.25..3."""
     return max(0.25, min(3.0, next60_mm / max(last60_mm, 1.0)))

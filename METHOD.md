@@ -405,6 +405,23 @@ Reported as a range using the low and high ends of the current depth range.
 **Receding.** Declared from a negative slope over 3 readings. No clearing time is predicted,
 because that depends on pumps and drains the system cannot see.
 
+**A rise must stand clear of the readings' doubt.** Added 10 October 2026. Minutes are attached only
+when the newest of the readings the slope was taken through has a range lying wholly above the
+oldest's (`predict.clear_rise`). Otherwise the output is as with fewer than 3 readings: no minutes.
+A rise smaller than the doubt in the readings may be no rise at all. This is a design choice. A
+radar tracker weighs a target's speed against the radar's noise in the same way before it leans on
+it; the designs this method shares with defence and with forecasting offices, and those tried and
+not kept, are in `docs/borrowed-designs.md`.
+
+**Status.** The slope was tried on real water for the first time on 10 October 2026: two river
+cameras with measured levels, three days in a row left unseen, each forecast set against saying the
+level would stay where it was (`docs/forecast-river.md`). From readings a camera can give, the slope
+told the level ahead no better: a coin at one camera and worse at the other, with its largest
+misses across a night a third to a half larger. From the measured levels themselves it was closer across
+a night and no closer within a day. The guard did not pick the moments when the slope was right. It
+keeps minutes off most slopes, and that is all it has been shown to do. A river read hourly over
+days is not a street read every few minutes, and nothing here has been measured on a street.
+
 ## 8. Stage E: the agent
 
 Built with the Strands Agents SDK. The agent is invoked on every state change and every new
@@ -1070,6 +1087,7 @@ camera counting of river plastic
 | Bus and truck limits | No public manufacturer figure | Settled by rule: no "passable" answer is given |
 | Moving-water cut-off (30% of water area) | None | Design choice, tuned in evaluation |
 | 20 mm rain threshold | None | Design choice, calibrated per site |
+| Minutes only for a rise clear of the readings' ranges | None | Design choice. Not confirmed by its one trial on real water (`docs/forecast-river.md`) |
 
 Sources:
 - Australian Rainfall and Runoff, people and vehicle stability: https://arr.ga.gov.au/__data/assets/pdf_file/0006/40488/ARR_People_and_Vehicles_stability.pdf

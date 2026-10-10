@@ -78,7 +78,7 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 | **Built and tested, never run on real input** | Photo reader (a Claude model on Amazon Bedrock) | Request shape only. Model access is blocked pending AWS account verification |
 | | Photo checks: distance, age, duplicate, dark, blurred; crop; face and plate blur boxes | Functions with tests; no deployed handler |
 | | Signed capture and acknowledgement links | Tests only |
-| | Camera change gate; rise-rate prediction; storage-volume curve for pump sizing | Tests only |
+| | Camera change gate; storage-volume curve for pump sizing | Tests only |
 | | Evaluation table and photo-to-reading script | **Simulated only.** Run on 22 drawn scenes with a stand-in reader ([docs/evaluation-simulated.md](docs/evaluation-simulated.md)). Shows the tools work and that a dangerous miss would be counted; it is not evidence of how a model reads real floods |
 | | A camera fixed from several known heights, lengths and widths; two cameras placing something floating, for the speed of the water | Tests and a simulation only. No place has two cameras on one water, and none has its marks surveyed |
 | | The chain from several cameras' frames to the site engine's answer | Run on rendered scenes only, with three made cameras on one water |
@@ -86,7 +86,8 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 | **Measured on a real flood, but a river in England and not a street** | Waterline detector for a fixed camera, with no model | [docs/waterline-river.md](docs/waterline-river.md). At one river lock it was 13 cm out, typically, with one reading in ten more than 54 cm out. At a second camera it was of no use |
 | | A gauge that a camera learns from its own pictures and their measured levels | [docs/gauge-river.md](docs/gauge-river.md). At the same lock it gave a level for 4 pictures in 10, 8 cm out typically; together with the detector, 8 cm for nearly every picture. Learning only from earlier days, as it would be used, 31 cm. No use at two cameras with little water to learn from. It needs measured levels, and no place here has any |
 | | Several reference surfaces in one view, read together | [docs/multi-reference-river.md](docs/multi-reference-river.md). At the same lock, four surfaces joined were 10 cm out, typically, against 13 cm for one, with one reading in ten still more than 46 cm out. At a second camera, where the surfaces were all one grass bank, joining gained nothing |
-| | One level from every reference surface in a view, followed through time | [docs/depth-model-river.md](docs/depth-model-river.md). At the same lock, seven surfaces and the learnt gauge in one model gave every picture a level, 11 to 12 cm out, typically, with one in ten more than 41 to 47 cm out, against 13 cm and 54 cm for one surface. A small gain: surfaces in one view fail in the same light, and nothing learnt from levels can read past the levels it learnt from |
+| | One level from every reference surface in a view, followed through time | [docs/depth-model-river.md](docs/depth-model-river.md). At the same lock, seven surfaces and the learnt gauge in one model gave every picture a level, 11 to 12 cm out, typically, with one in ten more than 41 to 47 cm out, against 13 cm and 54 cm for one surface. A small gain: surfaces in one view fail in the same light, and nothing learnt from levels can read past the levels it learnt from. Those figures are from reading between days it had learnt from: with three days in a row unseen it was 23 and 32 cm out ([docs/forecast-river.md](docs/forecast-river.md)) |
+| | The prediction stage: the slope of the last readings, carried forward | [docs/forecast-river.md](docs/forecast-river.md). Its first trial on real water. From readings a camera can give it told the level ahead no better than saying "no change", and its largest misses across a night were a third to a half larger. From the measured levels it was closer across a night and no closer within a day. The engine now gives minutes only for a rise that stands clear of the doubt in the readings: a rule to say less, which this trial did not confirm |
 | **Designed only** | Photo upload from phones; camera network with emergency activation; waste and drain-inlet tracking; scenario engine; fix sheet; alert channels to people (SMS, chat); acknowledgement endpoint; official console | [ARCHITECTURE.md](ARCHITECTURE.md), [METHOD.md](METHOD.md) |
 
 ## Limits
@@ -100,7 +101,12 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
   a measured water level. The better figure is 8 cm out, typically, with one reading in ten more than
   half a metre out. The depth bands here are 8 to 20 cm wide, so that cannot decide whether a road is
   passable, and neither is connected to the warnings. None of the nine places has a camera or a
-  measured level.
+  measured level. Those figures come from reading between days the camera had been taught on. With
+  three days in a row unseen, the fullest model was 23 and 32 cm out.
+- **"Cars are likely to lose passage in N minutes" has nothing real behind it.** The engine can write
+  that line from the slope of its last readings. It has never been in a delivered alert. On its one
+  trial on real water, a river, the slope told the level ahead no better than saying "no change"
+  ([docs/forecast-river.md](docs/forecast-river.md)).
 - **Nine places, from published reports.** Each has a source and date in
   [data/SOURCES.md](data/SOURCES.md). Their map positions are approximate (a few hundred metres),
   which matters for the 150 m photo-distance check and is not yet corrected.
@@ -163,7 +169,7 @@ writes `docs/smoke-test.md`.
 | `tests/` | The automated tests |
 | `scripts/` | Seeding, sending, replay, reset, smoke test and file generators |
 | `data/` | Site list and sources, scenarios, sample files |
-| `docs/` | Smoke-test record, architecture picture, video script, submission writeup, the list of claims with their support, and the reports of what was measured on a real flood |
+| `docs/` | Smoke-test record, architecture picture, video script, submission writeup, the list of claims with their support, the reports of what was measured on a real flood, and the designs shared with defence and forecasting offices ([docs/borrowed-designs.md](docs/borrowed-designs.md)) |
 | `layers/vision/` | Requirements for the photo functions, built as a layer |
 | `METHOD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `TASKS.md` | Method, high-level design, low-level design, task plan |
 

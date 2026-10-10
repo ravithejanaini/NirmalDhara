@@ -1,6 +1,6 @@
 from nirmaldhara.bands import (NO_ANSWER, NOT_SAFE, PASSABLE, UNKNOWN, answer_for,
                                band_for, passability)
-from nirmaldhara.predict import depth_at, minutes_to_no_go, rain_factor, rise_rate
+from nirmaldhara.predict import clear_fall, clear_rise, depth_at, minutes_to_no_go, rain_factor, rise_rate
 
 
 def test_bands():
@@ -33,6 +33,15 @@ def test_buses_get_no_answer_until_everyone_is_unsafe():
 def test_moving_water_lowers_every_limit():
     assert answer_for("suv", 10, 14, 0.9) == PASSABLE
     assert answer_for("suv", 10, 14, 0.9, moving=True) == NOT_SAFE
+
+
+def test_a_rise_is_clear_only_when_the_newest_range_lies_wholly_above_the_oldest():
+    assert clear_rise([(3, 8), (6, 11), (9, 14)])                 # 9 is above 8
+    assert not clear_rise([(2, 12), (5, 15), (8, 18)])            # 8 is not above 12: the rise is inside the doubt
+    assert not clear_rise([(9, 14), (6, 11), (3, 8)]) and clear_fall([(9, 14), (6, 11), (3, 8)])
+    assert not clear_fall([(3, 8), (6, 11), (9, 14)])
+    assert not clear_rise([(3, 8)]) and not clear_rise([]) and not clear_fall([(3, 8)])
+    assert not clear_rise([(3, 8), (8, 12)])                      # touching is not clear
 
 
 def test_rise_rate_ignores_one_outlier():

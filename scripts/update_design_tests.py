@@ -55,6 +55,7 @@ DESCRIPTIONS = {
     "test_learn_river_cameras.py": "How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once",
     "test_river_camera.py": "How the real-flood test is scored: a one-way curve from row to level, errors only on days it did not see, and the pictures credited and kept out of the repository",
     "test_river_depth_model.py": "How the depth model is judged on the real flood: strips become witnesses' reports, moments run on one clock, every way is read on days not learnt from, and the report says what was gained and what was taken out",
+    "test_river_forecast.py": "How the prediction stage's slope is judged on the real flood: three days in a row left out, forecasts within a day and across a night, the slope carried forward only when the readings stand clear, and the report says what was found and what was not kept",
     "test_rules_match.py": "The browser's passability rules equal bands.py on 400 cases",
     "test_scenario.py": "The evening scenario against the real state and workflow code",
     "test_section.py": "The cross-section drawing: scale, limits, colour, run with Node",

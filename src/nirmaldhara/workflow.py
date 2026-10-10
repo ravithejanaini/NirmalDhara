@@ -11,7 +11,7 @@ from dataclasses import dataclass, field, replace
 
 from . import alerts
 from .bands import NO_GO_CM
-from .predict import minutes_to_no_go, rise_rate
+from .predict import clear_rise, minutes_to_no_go, rise_rate
 from .state import CLEAR, CRITICAL, SMOOTH_N, WARNING_DEPTH_CM, WATCH
 
 ASK_EVERY_S = {WATCH: 600}       # photo re-ask interval; 5 minutes in any other state
@@ -172,10 +172,14 @@ def confidence(site):
 
 
 def cars_lose_passage_min(site):
-    """(sooner, later) minutes until cars lose passage, or None if not rising."""
-    points = [(r.ts / 60, r.high) for r in site.readings[-6:]]
-    rate = rise_rate(points)
-    if rate is None or rate <= 0:
+    """(sooner, later) minutes until cars lose passage, or None if not rising.
+
+    Also None when the rise is no larger than the doubt in the readings it is measured from: minutes
+    are not put on a slope that may be noise (METHOD.md section 7).
+    """
+    recent = site.readings[-6:]
+    rate = rise_rate([(r.ts / 60, r.high) for r in recent])
+    if rate is None or rate <= 0 or not clear_rise([(r.low, r.high) for r in recent]):
         return None
     sooner = minutes_to_no_go(site.high, rate)["car"]
     later = minutes_to_no_go(site.low, rate)["car"]

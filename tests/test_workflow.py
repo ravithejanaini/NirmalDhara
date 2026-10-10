@@ -135,6 +135,16 @@ def test_time_until_cars_lose_passage():
     assert wf.cars_lose_passage_min(Site("s")) is None
 
 
+def test_no_minutes_are_put_on_a_rise_smaller_than_the_doubt_in_the_readings():
+    site = Site("s", state=WATCH)
+    for minute, low, high in ((0, 2, 12), (5, 5, 15), (10, 8, 18)):          # the same 0.6 cm a minute, read to ten centimetres
+        site = apply_reading(site, Reading(minute * MIN, low, high, 0.8, "guardian", "g1"))
+    assert [(r.low, r.high) for r in site.readings] == [(2, 12), (5, 15), (8, 18)]
+    assert wf.cars_lose_passage_min(site) is None                            # 8 is not above 12
+    site = apply_reading(site, Reading(15 * MIN, 13, 23, 0.8, "guardian", "g1"))
+    assert wf.cars_lose_passage_min(site) is not None or site.high >= 20     # 13 is above 12: clear, unless cars have lost it already
+
+
 def test_alert_ids_never_repeat_within_an_event():
     rng = random.Random(4)
     for _ in range(100):

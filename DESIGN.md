@@ -36,7 +36,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | Flood history file | `nirmaldhara/history.py`, `handlers/history.py` | running |
 | Version-checked file writes | `nirmaldhara/snapshot.py` | running; used by both file writers |
 | Site host (stand-in for CloudFront) | `handlers/site.py` | running |
-| Prediction (METHOD 7) | `nirmaldhara/predict.py` | built; feeds the "cars lose passage" line, not yet seen in a delivered alert |
+| Prediction (METHOD 7) | `nirmaldhara/predict.py` | built; feeds the "cars lose passage" line, not yet seen in a delivered alert. Minutes are given only for a rise that stands clear of the doubt in the readings. The slope was tried on a real flood on 10 October 2026 (`docs/forecast-river.md`): from readings a camera can give it told the level ahead no better than "no change" |
 | Depth from a photo | `nirmaldhara/reader.py` | built; **never run against the real model** |
 | Intake checks, crop, blur | `nirmaldhara/intake.py` | built as functions; no handler |
 | Signed links (8) | `nirmaldhara/tokens.py` | built |
@@ -307,7 +307,7 @@ flat bottom.
 | Site transition | Function of (state, smoothed depth, trust, trend) | O(n) | Section 6 |
 | Rise rate | Theil–Sen: median of the slopes of all pairs | O(n²), at most 66 pairs | Unmoved by outliers in up to 29% of points; least squares is moved by one |
 | Time to no-go | (limit − depth) / rate per class | O(classes) | |
-| Time until cars lose passage | Time to no-go from the top of the range (sooner) and the bottom (later), rate from the last 6 readings | 15 pairs | A range in gives a range out |
+| Time until cars lose passage | Time to no-go from the top of the range (sooner) and the bottom (later), rate from the last 6 readings; none unless the newest of those readings has a range wholly above the oldest's | 15 pairs | A range in gives a range out. A slope through readings that overlap is mostly their noise |
 | Passability | Top of the range against the class limit; confidence at least 0.6; moving water unsafe from 12 cm | O(1) | The cautious end decides |
 | Confidence of the current depth | Lowest confidence among the 3 readings smoothed | O(1) | An alert should not claim more than its weakest input |
 | What is due | For each audience the state allows: never alerted, or the state's rank has risen, or 20 minutes have passed | O(audiences) | `alerts.due` |
@@ -887,6 +887,7 @@ rain.fetch(sites) -> {site_id: (past1, past3, next1)}
 rain.indexes(sites) -> {site_id: mm}
 
 predict.rise_rate([(minute, depth)]) -> cm per minute | None
+predict.clear_rise([(low, high)]) -> bool
 predict.minutes_to_no_go(depth, rate) -> {vehicle: minutes | None}
 
 intake.check(image, hash, photo_pos, site_pos, requested_at, received_at, seen) -> reason
@@ -1102,7 +1103,7 @@ after adding a test.
 | `test_change.py` | 5 | Camera frame gate |
 | `test_claims.py` | 7 | Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists |
 | `test_contrast.py` | 20 | Every colour pairing in use meets its contrast minimum |
-| `test_core.py` | 8 | Bands, passability, prediction |
+| `test_core.py` | 9 | Bands, passability, prediction |
 | `test_data_js.py` | 8 | The page's file reading, diffing, stale notice and polling, run with Node |
 | `test_deploy_web.py` | 10 | Which files are uploaded and with what headers; the map file can never be overwritten |
 | `test_depthmodel.py` | 14 | The depth model on made witnesses: a blind one says nothing, a sharp one outweighs a blunt one, a wild one is outvoted, a quiet one is heard, the level is followed through time, and the answer becomes a reading for the engine |
@@ -1131,6 +1132,7 @@ after adding a test.
 | `test_replay.py` | 12 | Replay schedule and what reset clears and leaves |
 | `test_river_camera.py` | 9 | How the real-flood test is scored: a one-way curve from row to level, errors only on days it did not see, and the pictures credited and kept out of the repository |
 | `test_river_depth_model.py` | 6 | How the depth model is judged on the real flood: strips become witnesses' reports, moments run on one clock, every way is read on days not learnt from, and the report says what was gained and what was taken out |
+| `test_river_forecast.py` | 8 | How the prediction stage's slope is judged on the real flood: three days in a row left out, forecasts within a day and across a night, the slope carried forward only when the readings stand clear, and the report says what was found and what was not kept |
 | `test_rules_match.py` | 3 | The browser's passability rules equal bands.py on 400 cases |
 | `test_scenario.py` | 5 | The evening scenario against the real state and workflow code |
 | `test_section.py` | 6 | The cross-section drawing: scale, limits, colour, run with Node |
@@ -1142,8 +1144,8 @@ after adding a test.
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
-| `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **566** | Collected by `pytest --collect-only` |
+| `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
+| **Total** | **576** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1204,6 +1206,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `river_multi_reference.py` | **Real flood, measured levels.** Reads each of two river cameras through several strips, each on a different surface the water climbs, gives each strip a curve and a record on half of the days, and joins them on the other half with `nirmaldhara.multiview`; writes `docs/multi-reference-river.md`. One camera's new strips were fixed beforehand and it was run once. The pictures are not in the repository (`samples/tewkesbury/CREDITS.md`) |
 | `river_depth_model.py` | **Real flood, measured levels.** Reads each of two river cameras through five and seven strips and sets four ways of making a level of them side by side: one strip, the strips joined, `nirmaldhara/depthmodel.py` at each moment, and the same through time, with and without the learnt gauge as a witness; writes `docs/depth-model-river.md`. One camera's strips and the model were fixed beforehand and it was run once. The pictures are not in the repository (`samples/tewkesbury/CREDITS.md`) |
 | `simulate_site.py` | **Simulated.** Three rendered cameras on one water, each with its own conditions: rendered frames, the real detector, `nirmaldhara/depthmodel.py`, then the site engine's answer for a car set beside the answer the true depth would give; writes `docs/site-simulation.md`. A check that the chain holds together, not evidence of accuracy |
+| `river_forecast.py` | **Real flood, measured levels.** The first trial of the prediction stage on anything real. Three days in a row are left out, `nirmaldhara/depthmodel.py` follows the level through them, and the level one, three and six hours ahead, the next morning and a day ahead is told three ways: no change, the slope `predict.rise_rate` takes carried forward, and that slope only when `predict.clear_rise` or `predict.clear_fall` says it stands clear of the readings' doubt. The same from the measured levels themselves. One camera was used to choose the guard; the other was run once. Writes `docs/forecast-river.md`, with `docs/forecast-river-notes.md` under it |
 | `simulate_multiview.py` | **Simulated.** Tries the geometry of `nirmaldhara/multiview.py` with the errors a real camera would add: one height against every known dimension, three posts or three cameras against one, and the water's speed from two cameras against one; writes `docs/multiview-simulation.md`. Not evidence of how a waterline is found in a real picture |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
