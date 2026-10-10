@@ -42,6 +42,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | Signed links (8) | `nirmaldhara/tokens.py` | built |
 | Camera change gate (6.6) | `nirmaldhara/change.py` | built |
 | Waterline on a fixed camera's strip, without a model (METHOD C2, estimator 1) | `nirmaldhara/waterline.py` | built: two hidden Markov chains down the strip (the surface in a slowly varying light, then whatever replaced it), a water-or-object test, and a filter through time. Measured on rendered scenes (`docs/waterline-simulation.md`), on real video with a made line (`docs/waterline-real.md`), and on a real flood with measured levels (`docs/waterline-river.md`): 13 cm out, typically, at one river lock and of no use at another camera. Never on a street; no caller yet |
+| Level on a fixed camera, learnt from its own pictures and their measured levels | `nirmaldhara/gauge.py` | built: for each patch of the view, the level at which it goes under and what it looks like dry and wet, learnt from pictures with a measured level; a new picture is read from which patches look wet, and past what it has seen it gives only a floor or a ceiling. `with_fallback` joins it to the waterline detector. Measured on a real flood (`docs/gauge-river.md`): at one river lock a level for 4 pictures in 10, 8 cm out typically, and with the detector 8 cm against the detector's own 13 cm; of no use at two cameras with little water to learn from; 31 cm when learning only from earlier days. Needs measured levels, which no site has; no caller yet |
 | Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
 | Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; no caller yet |
 | Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
@@ -1108,10 +1109,12 @@ after adding a test.
 | `test_evaluation.py` | 32 | The evaluation and photo scripts on drawn scenes with a stand-in reader; a dangerous miss is counted |
 | `test_flood.py` | 13 | Reactor, tick and notifier together against in-memory services: every row of 8.5, failed send |
 | `test_gate_demo.py` | 6 | The change gate demonstration counts what is sent, and no footage, frame or strip is tracked by git |
+| `test_gauge.py` | 23 | The learnt gauge on a made wall: a day it never saw read to within the gap between the days it did, a floor or ceiling past what it learnt, unmoved by brighter or dimmer light, no step inside a day, and unreadable when no level explains the picture |
 | `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
 | `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
 | `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
+| `test_learn_river_cameras.py` | 12 | How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once |
 | `test_map_style.py` | 2 | The map style uses only token colours and none of the flood palette |
 | `test_offenders.py` | 37 | The repeat-floods page ranks as the Python does, on random cities, run with Node |
 | `test_offline.py` | 11 | The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen |
@@ -1132,7 +1135,7 @@ after adding a test.
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **479** | Collected by `pytest --collect-only` |
+| **Total** | **514** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1189,6 +1192,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `simulate_waterline.py` | **Simulated.** Renders strips of a gauge, pillar or wall with a known waterline under eleven conditions the detector was designed on and nine held out, measures `nirmaldhara/waterline.py` on them in four modes, and fits the interval widths (`--calibrate`); writes `docs/waterline-simulation.md` |
 | `real_strip_test.py` | **Real video, no depth.** Runs the detector on steady stretches of a licensed news clip: strips where nothing changed, a real fence and gate with real water put over them at a known row, and a real waterline marked by eye; writes `docs/waterline-real.md`. The frames are not in the repository |
 | `river_camera_test.py` | **Real flood, measured levels.** Runs the detector on the hourly pictures of two fixed river cameras through the November 2012 flood at Tewkesbury, turns its rows into levels with a curve fitted on half of the days, and scores it on the other half against the levels the dataset's authors read (`data/tewkesbury-levels.json`); writes `docs/waterline-river.md`. One camera's strip was fixed beforehand and run once. The pictures are not in the repository (`samples/tewkesbury/CREDITS.md`) |
+| `learn_river_cameras.py` | **Real flood, measured levels.** Gives `nirmaldhara/gauge.py` each of the four river cameras' pictures with their measured levels (`data/tewkesbury-levels.json`) and judges it on days it did not learn from, three ways: each day left out, half the days, and earlier days only. Sets it beside the waterline detector on the same pictures; writes `docs/gauge-river.md`. One camera was used to build the gauge; the other three were run once. The pictures are not in the repository (`samples/tewkesbury/CREDITS.md`) |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |

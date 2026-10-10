@@ -84,3 +84,6 @@ Where the camera looks decides whether this can work at all.
 - **Two of the four cameras were not used.** Diglis Lock and Evesham have levels for about 50 pictures each,
   over 0.6 m and 1.0 m, too narrow a range to say much at this size of error.
 - No tracking through time was used, and no picture was taken at night.
+
+A second way to read these cameras, learnt from the pictures and their measured levels, was tried
+afterwards: [gauge-river.md](gauge-river.md).

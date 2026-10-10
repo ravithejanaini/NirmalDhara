@@ -63,6 +63,9 @@ Measured on rendered scenes (scripts/simulate_waterline.py), on real video with 
 (scripts/river_camera_test.py). On the real flood it was 13 cm out, typically, at one river lock,
 and of no use at another camera: tens of centimetres, where the renders had said fractions of one.
 It has not been measured on a street.
+
+gauge.py reads the same kind of camera another way, by learning from pictures whose level was
+measured. Where both have an answer the gauge's is used (gauge.with_fallback).
 """
 
 from dataclasses import dataclass
