@@ -66,6 +66,8 @@ def estimate(wheel, mark, profile=None, near=None, far=None):
     low, high = depth(wheel, mark)
     if profile is None:
         return float(low), float(high), SOMEWHERE
+    if near is None or far is None:
+        raise ValueError("with a profile, say between which distances along the road the vehicle stands")
     low, high = ramp.at_lowest(profile, near, far, low, high)
     return low, high, PLACED
 

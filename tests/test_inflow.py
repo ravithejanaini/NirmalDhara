@@ -7,6 +7,8 @@ for the figures that went in. Nothing here is a measurement of a real place.
 
 from math import sqrt
 
+import pytest
+
 from nirmaldhara import inflow
 from nirmaldhara.bands import NO_GO_CM
 from nirmaldhara.predict import minutes_to_no_go, rise_rate
@@ -94,6 +96,14 @@ def test_the_rain_that_would_close_the_road_is_the_rain_that_does():
     table = inflow.guidance(found, DIP)
     assert table["two_wheeler"][0] < table["car"][0] < table["suv"][0]
     assert all(least <= most for least, most in table.values())
+
+
+def test_nothing_is_said_ahead_without_both_figures():
+    half = inflow.Revealed(inflow.Range(7000, 8000, 9000), None)
+    for call in (lambda: inflow.ahead(half, DIP, 0, 0, QUARTERS), lambda: inflow.rain_to_reach(half, DIP, 0, 0, 20),
+                 lambda: inflow.ahead(None, DIP, 0, 0, QUARTERS)):
+        with pytest.raises(ValueError):
+            call()
 
 
 def test_several_floods_are_joined_by_their_widest_range():

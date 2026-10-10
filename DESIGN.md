@@ -1138,7 +1138,7 @@ after adding a test.
 | `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
 | `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
-| `test_inflow.py` | 12 | The storage equation on a made dip: a flood gives back the ground it came from and its drain rate, a widening dip fills more slowly than a straight line says, depths ahead hold the truth, and a forecast from a fifth of the rain fails |
+| `test_inflow.py` | 13 | The storage equation on a made dip: a flood gives back the ground it came from and its drain rate, a widening dip fills more slowly than a straight line says, depths ahead hold the truth, and a forecast from a fifth of the rain fails |
 | `test_inflow_simulation.py` | 5 | The made storms: the figures come back, each flood is foretold from the ones before it when the rain is right, and the report is labelled simulated |
 | `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
 | `test_learn_river_cameras.py` | 13 | How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once |
@@ -1167,12 +1167,12 @@ after adding a test.
 | `test_site_simulation.py` | 5 | Three rendered cameras on one water: the chain holds from frames to the engine's answer, and the report is labelled simulated |
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
-| `test_watch_history.py` | 10 | The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository |
+| `test_watch_history.py` | 11 | The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_wheel.py` | 10 | A person's reading of a wheel: the table is METHOD C2's and the photo reader's figure for figure, an answer alone rules a class out and never lets one in, a placed vehicle carries the depth to the lowest point, and an answer reaches the engine as a reading |
 | `test_wheel_page.py` | 7 | The wheel page: its figures and words are the Python's, Node gives the same answer for every wheel and mark, it cannot show a road as passable, sends nothing, and is kept offline |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **633** | Collected by `pytest --collect-only` |
+| **Total** | **635** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:

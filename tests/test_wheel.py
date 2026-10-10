@@ -82,6 +82,8 @@ def test_where_the_vehicle_stands_is_known_the_depth_is_carried_to_the_lowest_po
     assert at_the_bottom == (0.0, 12.0, wheel.PLACED)
     assert all(bands.passability(*at_the_bottom)[v] == bands.PASSABLE for v in bands.NO_GO_CM)
     assert wheel.estimate("car", "tyre") == (0.0, 12.0, wheel.SOMEWHERE)
+    with pytest.raises(ValueError):
+        wheel.estimate("car", "tyre", ROAD)                         # a profile, and no word of where the car stands
 
 
 def test_several_answers_are_joined_by_the_engines_own_rule():

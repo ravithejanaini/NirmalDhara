@@ -119,6 +119,16 @@ def test_the_models_rain_is_set_beside_what_gauges_recorded(found):
     assert len(below) == 6 and len(found["gauges"]) == 7                         # six of seven far below the gauge
 
 
+def test_the_model_rains_often_and_never_hard(found):
+    holds = found["holds"]
+    assert max(top for _, _, top, _, _ in holds.values()) == 18.7              # no hour of 20 mm in seven seasons, at any cell
+    full = [row for row in holds.values() if row[4] == 245]
+    assert len(full) == 6 and all(770 < total < 1320 and 1200 < wet < 1550 for total, wet, _, _, _ in full)
+    assert all(heavy < 6 for _, _, _, heavy, _ in holds.values())              # hours of 10 mm or more: a handful a season
+    flat = " ".join((ROOT / "docs" / "watch-history.md").read_text("utf-8").split())
+    assert "The model rains often and never hard" in flat and "the wettest held 18.7 mm" in flat
+
+
 def test_fetching_is_asked_for_and_nothing_else_reaches_out():
     source = (ROOT / "scripts" / "watch_history.py").read_text("utf-8")
     assert source.count("urlopen(") == 1 and "def fetch():" in source and 'if args.fetch:' in source

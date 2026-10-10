@@ -173,6 +173,11 @@ def together(floods):
                     max(f.peak_cm for f in full), max(f.rain_mm for f in full))
 
 
+def _both(found):
+    if found is None or found.area_m2 is None or found.drain_m3s is None:
+        raise ValueError("nothing can be said ahead without both the ground the water comes from and the rate it drains at")
+
+
 def _run(curve, depth_cm, area_m2, drain_m3s, rain_ahead, seconds):
     """The depth at each step from now, for one area and one drain rate: [(seconds, cm)]."""
     volume, out, t = stored(curve, depth_cm), [], 0
@@ -191,6 +196,7 @@ def ahead(found, curve, low_cm, high_cm, rain_ahead, seconds=3600):
     it)]. The low end starts from the low depth with the smallest area and the fastest drain, the high
     end from the high depth with the largest area and the slowest drain.
     """
+    _both(found)
     low = _run(curve, low_cm, found.area_m2.low, found.drain_m3s.high, rain_ahead, seconds)
     high = _run(curve, high_cm, found.area_m2.high, found.drain_m3s.low, rain_ahead, seconds)
     return [(t, a, b) for (t, a), (_, b) in zip(low, high)]
@@ -211,6 +217,8 @@ def rain_to_reach(found, curve, low_cm, high_cm, limit_cm, minutes=60):
     """The rain, in millimetres over the next `minutes`, that would bring the water to `limit_cm`:
     (least, most). The least is from the high depth with the largest area and the slowest drain. 0 where
     the water is there already."""
+    _both(found)
+
     def needed(depth, area, drain):
         short = stored(curve, limit_cm) - stored(curve, depth)
         return 0.0 if short <= 0 else 1000.0 * (short + drain * 60.0 * minutes) / area

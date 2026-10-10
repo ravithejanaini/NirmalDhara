@@ -25,6 +25,10 @@ figures from its hourly ones, so nothing is lost by that.
   quarter of what a gauge near the place recorded: 13 mm against 148, 6 against 117, 4 against 60, 23 against
   102, 18 against 74. A storm that drops 100 mm on one neighbourhood in an evening is smaller than the
   model's grid.
+- **The model rains often and never hard.** A season's rain adds up to 780 to 1310 mm in the six full seasons,
+  spread over 1200 to 1500 hours. In seven seasons no hour at any of these places held 20 mm: the wettest
+  held 18.7 mm. A cloudburst that a gauge records as 100 mm in an evening arrives in the model as a long
+  light rain.
 - **No other model does better.** The provider's own choice and six models asked for by name each caught none
   or one of the fourteen reports of 2024 to 2026. The highest of the seven in each hour caught one, with a
   watch standing on 13 days of a season.
@@ -34,9 +38,9 @@ figures from its hourly ones, so nothing is lost by that.
 
 ## What it means
 
-- **The first step of the system does not work as built.** The arithmetic of the rule is sound and the rain
-  is wrong for it. On this evidence the live rain check would have sat silent through the floods it exists to
-  announce.
+- **The first step of the system does not work as built.** On this evidence the live rain check would have
+  sat silent through the floods it exists to announce. Whether the rule itself is right cannot be told: the
+  rain it is fed is too far short for any rule to work on.
 - **The 20 mm was never the question.** No threshold on this rain separates the reported days from the rest
   at a cost anyone would accept.
 - **What would mend it is rain measured on the ground.** The figures these reports quote come from the

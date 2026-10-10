@@ -246,7 +246,12 @@ def study(rain, reports):
         each = {m: on_days(rain, m, cell[g["site"]], g["from"], g["to"]) for m in MODELS}
         wettest = max((e["mm"] for e in each.values() if e is not None), default=None) if year in full else None
         gauges.append(dict(g, name=names[g["site"]], own=None if each[OWN] is None else each[OWN]["mm"], wettest=wettest))
-    return {"rows": rows, "recent": recent, "undated": undated, "models": models, "cost": cost, "sweep": sweep, "gauges": gauges,
+    holds = {}
+    for year in years:
+        each = [hourly(rain, OWN, c, year)[1] for c in sorted(set(cell.values()))]
+        holds[year] = (sum(sum(v) for v in each) / len(each), sum(sum(x > 0 for x in v) for v in each) / len(each),
+                       max(max(v) for v in each), sum(sum(x >= 10 for x in v) for v in each) / len(each), len(each[0]) // 24)
+    return {"rows": rows, "recent": recent, "undated": undated, "models": models, "cost": cost, "sweep": sweep, "gauges": gauges, "holds": holds,
             "advisory": advisory, "years": years, "full": full,
             "blind": (caught(rain, rows, OWN, coming=False), caught(rain, recent, HIGHEST, coming=False))}
 
@@ -321,6 +326,11 @@ def report(found, rain):
         own, own_days, high, high_days = found["sweep"][threshold]
         mark = "**" if threshold == 20 else ""
         lines.append(f"| {mark}{threshold} mm{mark} | {of(own)} | {own_days:.0f} | {of(high)} | {high_days:.0f} |")
+    lines += ["", "## What the rain history holds", "",
+              "The provider's own choice, at one forecast cell on average. A watch needs an index of 20 mm, which one hour of 20 mm gives by itself.", "",
+              "| Year | Days | Rain in all | Hours with rain | Hours of 10 mm or more | The wettest hour at any of the cells |", "|---|---|---|---|---|---|"]
+    for year, (total, wet, top, heavy, days) in found["holds"].items():
+        lines.append(f"| {year} | {days} | {total:.0f} mm | {wet:.0f} | {heavy:.0f} | {top:.1f} mm |")
     lines += ["", "## The rain history against gauges", "",
               "Where a report gives what a rain gauge near the place recorded, beside what the rain history holds for the same days.", "",
               "| Place | Days | Gauge | The provider's own choice | The wettest of the seven models |", "|---|---|---|---|---|"]
