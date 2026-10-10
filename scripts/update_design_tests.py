@@ -47,6 +47,7 @@ DESCRIPTIONS = {
     "test_reader.py": "Request shape, refusal, throttling, server error, no connection, configuration error",
     "test_rehearsal.py": "The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads",
     "test_replay.py": "Replay schedule and what reset clears and leaves",
+    "test_river_camera.py": "How the real-flood test is scored: a one-way curve from row to level, errors only on days it did not see, and the pictures credited and kept out of the repository",
     "test_rules_match.py": "The browser's passability rules equal bands.py on 400 cases",
     "test_scenario.py": "The evening scenario against the real state and workflow code",
     "test_section.py": "The cross-section drawing: scale, limits, colour, run with Node",

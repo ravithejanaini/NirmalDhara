@@ -130,19 +130,19 @@ readings out of three; of the lines given in the rest, one in twenty is off by 3
   in these renders. On real video with the camera nearly still, the same detector found a made line to a
   tenth of a row, typically, and reported a line where nothing had changed in 3% of readings.
 - It does not help the phone-photo path, which is the path the deployed system and the demo rest on.
-- It is not an accuracy figure. These are my own renderings of what makes a flood image hard, and the real
-  video had a made line and no known depth. The detector has not been run on one image of a real waterline
-  with a dry view of the same spot, because none was available. None of the nine sites has a gauge or a
-  reference view recorded.
+- It is not an accuracy figure. These are my own renderings of what makes a flood image hard. On a real
+  flood with measured levels ([waterline-river.md](waterline-river.md)) the same detector was 13 cm out,
+  typically, at one river lock and of no use at another camera: tens of centimetres, where these tables
+  say fractions of one. Believe that file over this one. None of the nine sites has a gauge or a reference
+  view recorded.
 - The first run on real video failed in ways no rendered scene had shown. There is no reason to think that
   was the last such lesson.
 - Nothing calls this module yet. It is built and tested; it is not part of the deployed pipeline.
 
 ## What would make it real
 
-1. Footage from one fixed camera that shows the same spot dry and flooded, with something of known height in
-   view. A published set exists: four river cameras through the 2012 Tewkesbury flood, hourly, with water
-   levels read against surveyed points (doi:10.17632/769cyvdznp.1, CC BY 4.0). It has not been used.
+1. Footage from one fixed camera on a street, showing the same spot dry and flooded, several frames a second
+   apart, with something of known height in view. The river cameras now tried have one frame an hour.
 2. The interval widths fitted on real readings, not rendered ones.
 3. For a parked vehicle at night: an object detector, or the rule that water cannot rise a metre between two
    readings, applied before a reading is trusted.

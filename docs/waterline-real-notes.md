@@ -64,7 +64,6 @@ Every one of these is an assumption that held in every rendered scene and does n
   one afternoon. It is one piece of evidence.
 - **No night, no heavy rain on the lens, no pole camera.**
 
-A dataset that would answer most of this exists: four fixed river cameras through the November 2012 flood
-at Tewkesbury, hourly, with water levels read by an analyst against surveyed points
-(Vetra-Carvalho et al., Mendeley Data, doi:10.17632/769cyvdznp.1, CC BY 4.0, 237 MB). It has not been
-downloaded or used.
+Some of this has since been answered on a real flood with measured levels: four fixed river cameras at
+Tewkesbury, November 2012. See [waterline-river.md](waterline-river.md). The answer there is tens of
+centimetres at best.

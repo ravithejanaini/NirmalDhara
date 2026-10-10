@@ -41,7 +41,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | Intake checks, crop, blur | `nirmaldhara/intake.py` | built as functions; no handler |
 | Signed links (8) | `nirmaldhara/tokens.py` | built |
 | Camera change gate (6.6) | `nirmaldhara/change.py` | built |
-| Waterline on a fixed camera's strip, without a model (METHOD C2, estimator 1) | `nirmaldhara/waterline.py` | built: two hidden Markov chains down the strip (the surface in a slowly varying light, then whatever replaced it), a water-or-object test, and a filter through time. Measured on rendered scenes (`docs/waterline-simulation.md`) and on real video with a made line (`docs/waterline-real.md`); never against a real flood of known depth; no caller yet |
+| Waterline on a fixed camera's strip, without a model (METHOD C2, estimator 1) | `nirmaldhara/waterline.py` | built: two hidden Markov chains down the strip (the surface in a slowly varying light, then whatever replaced it), a water-or-object test, and a filter through time. Measured on rendered scenes (`docs/waterline-simulation.md`), on real video with a made line (`docs/waterline-real.md`), and on a real flood with measured levels (`docs/waterline-river.md`): 13 cm out, typically, at one river lock and of no use at another camera. Never on a street; no caller yet |
 | Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
 | Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; no caller yet |
 | Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
@@ -1120,6 +1120,7 @@ after adding a test.
 | `test_reader.py` | 6 | Request shape, refusal, throttling, server error, no connection, configuration error |
 | `test_rehearsal.py` | 7 | The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads |
 | `test_replay.py` | 12 | Replay schedule and what reset clears and leaves |
+| `test_river_camera.py` | 9 | How the real-flood test is scored: a one-way curve from row to level, errors only on days it did not see, and the pictures credited and kept out of the repository |
 | `test_rules_match.py` | 3 | The browser's passability rules equal bands.py on 400 cases |
 | `test_scenario.py` | 5 | The evening scenario against the real state and workflow code |
 | `test_section.py` | 6 | The cross-section drawing: scale, limits, colour, run with Node |
@@ -1131,7 +1132,7 @@ after adding a test.
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **470** | Collected by `pytest --collect-only` |
+| **Total** | **479** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1187,6 +1188,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `gate_demo.py` | Runs the camera change gate over a folder of frames cut from a clip and prints "of N frames, M were sent"; results on three licensed news clips are in `docs/gate-demo.md`, credits in `samples/footage/CREDITS.md`. The footage itself is not in the repository |
 | `simulate_waterline.py` | **Simulated.** Renders strips of a gauge, pillar or wall with a known waterline under eleven conditions the detector was designed on and nine held out, measures `nirmaldhara/waterline.py` on them in four modes, and fits the interval widths (`--calibrate`); writes `docs/waterline-simulation.md` |
 | `real_strip_test.py` | **Real video, no depth.** Runs the detector on steady stretches of a licensed news clip: strips where nothing changed, a real fence and gate with real water put over them at a known row, and a real waterline marked by eye; writes `docs/waterline-real.md`. The frames are not in the repository |
+| `river_camera_test.py` | **Real flood, measured levels.** Runs the detector on the hourly pictures of two fixed river cameras through the November 2012 flood at Tewkesbury, turns its rows into levels with a curve fitted on half of the days, and scores it on the other half against the levels the dataset's authors read (`data/tewkesbury-levels.json`); writes `docs/waterline-river.md`. One camera's strip was fixed beforehand and run once. The pictures are not in the repository (`samples/tewkesbury/CREDITS.md`) |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |
 | `evaluate.py` | Scores a depth reader against labelled photos: band agreement, declining the unreadable, dangerous misses. A real run writes `EVALUATION.md`; a simulated one writes `docs/evaluation-simulated.md` and can never write the real file |

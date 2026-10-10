@@ -58,9 +58,11 @@ Without a dry view there are two weaker modes. A short clip can still use flicke
 has only its own appearance and cannot tell a waterline from a painted line; it is here to show
 the limit.
 
-Measured on rendered scenes and on real video with a synthetic waterline
-(scripts/simulate_waterline.py, scripts/real_strip_test.py). It has not been measured against a
-real flood with a known depth.
+Measured on rendered scenes (scripts/simulate_waterline.py), on real video with a made line
+(scripts/real_strip_test.py), and on a real flood with measured levels
+(scripts/river_camera_test.py). On the real flood it was 13 cm out, typically, at one river lock,
+and of no use at another camera: tens of centimetres, where the renders had said fractions of one.
+It has not been measured on a street.
 """
 
 from dataclasses import dataclass
@@ -92,6 +94,7 @@ BAD_COLUMN = 4.0           # a column this many times worse than typical in the 
 MIN_COLUMNS = 0.5          # with fewer columns than this left, the view is blocked
 TOP_MATCH = 0.1            # the dry rows must show at least this share of their enrolled pattern
 TOP_LIKENESS = 0.5         # and be at least this share as like the dry view as their texture and noise allow
+SINGLE_LIKENESS = 0.1      # with one frame there is no measure of noise: the dry rows' texture must be this like the dry view's
 BLUR = ((1, 2, 3, 4, 5, 6), (1, 2, 3))   # box blurs tried on the dry view: rows, then columns
 TREMBLE = 2                # pixels each way searched when the frames of a reading are lined up with each other
 KNOWN_MARGIN = -0.5        # on the rows known to be dry, anything else may not beat the surface by this much a row, in log
@@ -472,6 +475,15 @@ def _with_reference(frames, still, reference, ref_noise, tremble=0.0, trace=None
         does = float(np.corrcoef(r[top].ravel(), s[top].ravel())[0, 1]) if r[top].std() > 0 and s[top].std() > 0 else 0.0
         if should > 0.3 and does < TOP_LIKENESS * should:
             return _nothing(rows, "occluded", p_blocked=1.0)
+    else:
+        # One frame gives no measure of noise to hold the likeness against. What can still be asked is that
+        # the texture of the dry rows, with each row's own brightness taken out, is at least faintly the dry
+        # view's. Where the dry view has no texture to speak of there is nothing to ask.
+        was, now = r[top] - r[top].mean(axis=1, keepdims=True), s[top] - s[top].mean(axis=1, keepdims=True)
+        if was.std() > 1.5 * np.sqrt(ref_noise):
+            alike = float((was * now).sum() / np.sqrt((was * was).sum() * (now * now).sum() + 1e-12))
+            if alike < SINGLE_LIKENESS:
+                return _nothing(rows, "occluded", p_blocked=1.0)
     # Noise is not the same everywhere. A fraction of a pixel out of line, or a codec, misses by more
     # where the picture changes faster. So the miss is a constant plus a share of the dry view's own
     # gradients, fitted on the rows known to be dry; from here on each row has its own noise.

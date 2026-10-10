@@ -154,14 +154,14 @@ def test_the_interval_widths_are_the_calibrated_ones_and_the_module_says_where_t
     source = (ROOT / "src" / "nirmaldhara" / "waterline.py").read_text("utf-8")
     assert set(waterline.QUANTILE) == {"normal", "soft", "low light", "tracked"}
     assert "--calibrate" in source and "On real pictures these have to be fitted again" in source
-    assert "It has not been measured against a\nreal flood with a known depth" in waterline.__doc__
+    assert "tens of centimetres" in waterline.__doc__ and "It has not been measured on a street" in waterline.__doc__
 
 
 def test_the_reports_say_what_they_are_and_are_kept_out_of_the_submission():
     rendered, real = sim.OUT.read_text("utf-8"), (ROOT / "docs" / "waterline-real.md").read_text("utf-8")
     assert rendered.splitlines()[2].startswith("**SIMULATED.")
     assert real.splitlines()[2].startswith("**Real video, but not a real measurement of depth.**")
-    for must_say in ("held out", "parked at night", "One photo", "first look", "has not been"):
+    for must_say in ("held out", "parked at night", "One photo", "first look", "tens of centimetres"):
         assert must_say in rendered, must_say
     for must_say in ("hand-held", "marked by eye", "not a clean test", "No depth"):
         assert must_say in real, must_say

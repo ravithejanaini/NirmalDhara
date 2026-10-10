@@ -11,3 +11,4 @@ web/config.local.js
 samples/footage/*.mp4
 samples/footage/frames/
 docs/gate-demo/
+samples/tewkesbury/data/
