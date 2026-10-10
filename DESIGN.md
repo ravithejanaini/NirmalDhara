@@ -26,7 +26,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 
 | Component | Module | Status |
 |---|---|---|
-| Rain check (6.1) | `nirmaldhara/rain.py`, `handlers/rain.py` | running; live forecast, nine sites |
+| Rain check (6.1) | `nirmaldhara/rain.py`, `handlers/rain.py` | running; live forecast, nine sites. Replayed over past rain, its rule opened no watch on the days these places were reported under water (`docs/watch-history.md`) |
 | State engine (6.2) | `nirmaldhara/state.py`, `nirmaldhara/store.py`, `handlers/engine.py` | running |
 | Depth bands and passability | `nirmaldhara/bands.py` | running (alerts, sheet); the browser copy is `web/rules.js` |
 | Flood workflow (6.3) | `nirmaldhara/workflow.py`, `handlers/flood.py`, `statemachine/flood.asl.json` | running |
@@ -1143,9 +1143,10 @@ after adding a test.
 | `test_site_simulation.py` | 5 | Three rendered cameras on one water: the chain holds from frames to the engine's answer, and the report is labelled simulated |
 | `test_state.py` | 17 | Transitions, trust, jump hold, fusion, a repeated reading |
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
+| `test_watch_history.py` | 10 | The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **576** | Collected by `pytest --collect-only` |
+| **Total** | **586** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1207,6 +1208,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `river_depth_model.py` | **Real flood, measured levels.** Reads each of two river cameras through five and seven strips and sets four ways of making a level of them side by side: one strip, the strips joined, `nirmaldhara/depthmodel.py` at each moment, and the same through time, with and without the learnt gauge as a witness; writes `docs/depth-model-river.md`. One camera's strips and the model were fixed beforehand and it was run once. The pictures are not in the repository (`samples/tewkesbury/CREDITS.md`) |
 | `simulate_site.py` | **Simulated.** Three rendered cameras on one water, each with its own conditions: rendered frames, the real detector, `nirmaldhara/depthmodel.py`, then the site engine's answer for a car set beside the answer the true depth would give; writes `docs/site-simulation.md`. A check that the chain holds together, not evidence of accuracy |
 | `river_forecast.py` | **Real flood, measured levels.** The first trial of the prediction stage on anything real. Three days in a row are left out, `nirmaldhara/depthmodel.py` follows the level through them, and the level one, three and six hours ahead, the next morning and a day ahead is told three ways: no change, the slope `predict.rise_rate` takes carried forward, and that slope only when `predict.clear_rise` or `predict.clear_fall` says it stands clear of the readings' doubt. The same from the measured levels themselves. One camera was used to choose the guard; the other was run once. Writes `docs/forecast-river.md`, with `docs/forecast-river-notes.md` under it |
+| `watch_history.py` | **Real rain history, real reports.** Replays the watch rule (`state.rain_index`, `state.apply_rain`) hour by hour over Open-Meteo's archive of the rain it served at the nine places, `data/rain-history.json.gz`, and sets it against `data/flood-reports.json`, sixteen dated news reports of water at them: whether a watch stood on each reported day, what the rule costs in watch days a season, the same for seven weather models by name and for other thresholds, and the model's rain beside what gauges recorded. `--fetch` asks the provider again. Writes `docs/watch-history.md`, with `docs/watch-history-notes.md` under it |
 | `simulate_multiview.py` | **Simulated.** Tries the geometry of `nirmaldhara/multiview.py` with the errors a real camera would add: one height against every known dimension, three posts or three cameras against one, and the water's speed from two cameras against one; writes `docs/multiview-simulation.md`. Not evidence of how a waterline is found in a real picture |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |
 | `make_rule_cases.py`, `make_sample_map.py`, `make_sample_history.py`, `make_architecture.py` | Write `data/rule-cases.json`, `data/sample-map.json`, `data/sample-floods.json` and `docs/architecture.svg`; each file has a test that fails if it is out of date or, for the samples, is not marked as a sample |

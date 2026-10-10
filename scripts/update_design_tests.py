@@ -66,6 +66,7 @@ DESCRIPTIONS = {
     "test_site_simulation.py": "Three rendered cameras on one water: the chain holds from frames to the engine's answer, and the report is labelled simulated",
     "test_state.py": "Transitions, trust, jump hold, fusion, a repeated reading",
     "test_video_script.py": "The video script: length, the spoken disclosures, cut points the replay really produces, real commands",
+    "test_watch_history.py": "The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository",
     "test_waterline.py": "The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading",
     "test_workflow.py": "Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids",
 }

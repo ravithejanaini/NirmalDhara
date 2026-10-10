@@ -57,3 +57,13 @@ place could be taken from it.
 
 Every site uses the default of 20 mm rain index, a design choice in METHOD.md, not a measured
 value for any site.
+
+On 11 October 2026 the rule was set against real days (`scripts/watch_history.py`,
+`docs/watch-history.md`). Two files hold what it used:
+
+- `flood-reports.json`: sixteen dated news reports of water at the nine places, each in this
+  project's own words with the page it came from, and six rain-gauge figures quoted in them. Found
+  by search in about an hour. Not every flood.
+- `rain-history.json.gz`: hourly rain at the five forecast cells the nine places fall in, 1 March to
+  31 October of 2019, 2020, 2025 and 2026, from Open-Meteo's archive of the forecasts it served, by
+  its own choice of model and by six named models. Weather data by Open-Meteo.com, CC BY 4.0.
