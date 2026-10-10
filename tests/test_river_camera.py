@@ -101,7 +101,7 @@ def test_the_report_says_which_camera_is_the_test_and_how_far_out_it_was():
     for must_say in ("Strensham is the test", "13 cm", "tens of centimetres", "Not a street, and not Hyderabad",
                      "Not a surveyed scale", "hidden behind the wall", "cannot decide whether a road is passable"):
         assert must_say in report, must_say
-    for name in ("README.md", "docs/submission-writeup.md", "docs/video-script.md"):
+    for name in ("docs/submission-writeup.md", "docs/video-script.md"):
         assert "waterline-river" not in (ROOT / name).read_text("utf-8"), name
 
 

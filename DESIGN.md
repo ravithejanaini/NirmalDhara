@@ -1114,7 +1114,7 @@ after adding a test.
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
 | `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
 | `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
-| `test_learn_river_cameras.py` | 12 | How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once |
+| `test_learn_river_cameras.py` | 13 | How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once |
 | `test_map_style.py` | 2 | The map style uses only token colours and none of the flood palette |
 | `test_offenders.py` | 37 | The repeat-floods page ranks as the Python does, on random cities, run with Node |
 | `test_offline.py` | 11 | The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen |
@@ -1135,7 +1135,7 @@ after adding a test.
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_workflow.py` | 12 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **514** | Collected by `pytest --collect-only` |
+| **Total** | **515** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:

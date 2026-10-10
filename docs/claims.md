@@ -56,12 +56,23 @@ These are claims too: that something has *not* been done. Each is true as of 9 O
 | # | Claim | Support |
 |---|---|---|
 | 24 | The photo reader has never read a real photo, and there is no accuracy figure | `design: "never run against the real model"`, `tests/test_reader.py::test_request_carries_image_and_schema` (a stand-in client only) |
-| 25 | The only evaluation table is simulated, on drawn scenes | `file: docs/evaluation-simulated.md`, `tests/test_evaluation.py::test_a_simulated_run_never_touches_the_real_evaluation` |
+| 25 | The photo reader's only evaluation table is simulated, on drawn scenes | `file: docs/evaluation-simulated.md`, `tests/test_evaluation.py::test_a_simulated_run_never_touches_the_real_evaluation` |
 | 26 | No person is subscribed to the alerts, and there is no contact list | `design: "No person is wired in."` |
 | 27 | Waste and drain-inlet tracking and the camera network are designed, not built | `design: "planned, section 16"` |
 | 28 | CloudFront is written and switched off | `tests/test_architecture.py::test_the_cloudfront_resources_are_drawn_dashed_because_they_are_off` |
 | 29 | Site positions are approximate | `file: data/SOURCES.md` |
 | 30 | The pages were checked in a browser at phone size, not on a phone or with a screen reader | `tests/test_accessibility.py::test_the_controls_come_before_the_map_in_the_page_so_the_keyboard_reaches_them_first` (static guards only) |
+
+## What was measured on a real flood
+
+Added 10 October 2026. A published set of river-camera pictures from England, each with a measured water
+level ([credits](../samples/tewkesbury/CREDITS.md)). A river, not a street, and not Hyderabad.
+
+| # | Claim | Support | Qualification |
+|---|---|---|---|
+| 31 | A waterline detector for a fixed camera, with no model, was 13 cm out, typically, at one river lock, and of no use at a second camera | `file: docs/waterline-river.md`, `tests/test_river_camera.py::test_the_report_says_which_camera_is_the_test_and_how_far_out_it_was` | One reading in ten was more than 54 cm out. One picture an hour; the strip was fixed beforehand and run once |
+| 32 | A gauge learnt from a camera's own measured pictures gave a level for 4 pictures in 10 at that lock, 8 cm out typically; with the detector, 8 cm for nearly every picture; 31 cm when learning only from earlier days; no use at two other cameras | `file: docs/gauge-river.md`, `tests/test_learn_river_cameras.py::test_the_report_says_which_cameras_were_run_once_and_what_was_changed_after` | The levels were read by the dataset's authors from the same pictures. One correction was made after the first run and is recorded in the report |
+| 33 | Neither is connected to the warnings, and no place has a camera or a measured level | `design: "Never on a street; no caller yet"`, `design: "Needs measured levels, which no site has; no caller yet"` | |
 
 ## Reworded or removed in this check
 

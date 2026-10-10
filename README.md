@@ -81,14 +81,22 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 | | Camera change gate; rise-rate prediction; storage-volume curve for pump sizing | Tests only |
 | | Evaluation table and photo-to-reading script | **Simulated only.** Run on 22 drawn scenes with a stand-in reader ([docs/evaluation-simulated.md](docs/evaluation-simulated.md)). Shows the tools work and that a dangerous miss would be counted; it is not evidence of how a model reads real floods |
 | | CloudFront in front of the site | In `template.yaml`, switched off: AWS has not verified the account |
+| **Measured on a real flood, but a river in England and not a street** | Waterline detector for a fixed camera, with no model | [docs/waterline-river.md](docs/waterline-river.md). At one river lock it was 13 cm out, typically, with one reading in ten more than 54 cm out. At a second camera it was of no use |
+| | A gauge that a camera learns from its own pictures and their measured levels | [docs/gauge-river.md](docs/gauge-river.md). At the same lock it gave a level for 4 pictures in 10, 8 cm out typically; together with the detector, 8 cm for nearly every picture. Learning only from earlier days, as it would be used, 31 cm. No use at two cameras with little water to learn from. It needs measured levels, and no place here has any |
 | **Designed only** | Photo upload from phones; camera network with emergency activation; waste and drain-inlet tracking; scenario engine; fix sheet; alert channels to people (SMS, chat); acknowledgement endpoint; official console | [ARCHITECTURE.md](ARCHITECTURE.md), [METHOD.md](METHOD.md) |
 
 ## Limits
 
-- **Depth reading has never been measured.** The photo reader has not run against a real photo, so
-  there is no accuracy figure. The only table in the repository is a simulated one, on drawn scenes,
-  and is labelled as such. The thresholds come from published vehicle and wheel sizes
+- **Depth from a photo has never been measured.** The photo reader has not run against a real photo, so
+  there is no accuracy figure for it. Its only table is a simulated one, on drawn scenes, and is
+  labelled as such. The thresholds come from published vehicle and wheel sizes
   (METHOD.md section 17), not from a test.
+- **Depth from a fixed camera has been measured, on a river and not on a street.** Two ways of reading
+  a fixed camera without a model were run on published pictures of a 2012 flood in England, each with
+  a measured water level. The better figure is 8 cm out, typically, with one reading in ten more than
+  half a metre out. The depth bands here are 8 to 20 cm wide, so that cannot decide whether a road is
+  passable, and neither is connected to the warnings. None of the nine places has a camera or a
+  measured level.
 - **Nine places, from published reports.** Each has a source and date in
   [data/SOURCES.md](data/SOURCES.md). Their map positions are approximate (a few hundred metres),
   which matters for the 150 m photo-distance check and is not yet corrected.
@@ -151,7 +159,7 @@ writes `docs/smoke-test.md`.
 | `tests/` | The automated tests |
 | `scripts/` | Seeding, sending, replay, reset, smoke test and file generators |
 | `data/` | Site list and sources, scenarios, sample files |
-| `docs/` | Smoke-test record, architecture picture, video script, submission writeup, and the list of claims with their support |
+| `docs/` | Smoke-test record, architecture picture, video script, submission writeup, the list of claims with their support, and the reports of what was measured on a real flood |
 | `layers/vision/` | Requirements for the photo functions, built as a layer |
 | `METHOD.md`, `ARCHITECTURE.md`, `DESIGN.md`, `TASKS.md` | Method, high-level design, low-level design, task plan |
 
@@ -174,5 +182,10 @@ writes `docs/smoke-test.md`.
 - Map data, rain forecast and type: [web/CREDITS.md](web/CREDITS.md). Map data © OpenStreetMap
   contributors; tiles from OpenFreeMap; weather data by Open-Meteo.com (CC BY 4.0).
 - What was tested on AWS: [docs/smoke-test.md](docs/smoke-test.md).
+- River camera pictures and water levels used to measure the camera reading: Vetra-Carvalho, Dance,
+  Mason and Garcia-Pintado (2020), Mendeley Data, doi:10.17632/769cyvdznp.1, copyright University of
+  Reading, pictures by Farson Digital Ltd. Its page says CC BY 4.0 and its own README links to
+  CC BY-NC 4.0; it is treated here as the stricter. The pictures are not in this repository:
+  [samples/tewkesbury/CREDITS.md](samples/tewkesbury/CREDITS.md).
 
 MIT licence, see [LICENSE](LICENSE).

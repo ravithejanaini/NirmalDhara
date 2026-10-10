@@ -104,3 +104,17 @@ def test_the_report_says_which_cameras_were_run_once_and_what_was_changed_after(
         assert f"## Learning from {way}" in report
     for name in ("docs/submission-writeup.md", "docs/video-script.md"):
         assert "gauge-river" not in (ROOT / name).read_text("utf-8"), name
+
+
+def test_where_the_readme_names_the_real_flood_it_says_it_was_a_river_and_that_nothing_uses_it():
+    readme = (ROOT / "README.md").read_text("utf-8")
+    flat = " ".join(readme.split())
+    assert "docs/waterline-river.md" in readme and "docs/gauge-river.md" in readme
+    for must_say in ("a river in England and not a street", "on a river and not on a street", "13 cm out, typically",
+                     "8 cm out typically", "Learning only from earlier days, as it would be used, 31 cm",
+                     "that cannot decide whether a road is passable", "neither is connected to the warnings",
+                     "None of the nine places has a camera or a measured level", "10.17632/769cyvdznp.1",
+                     "The pictures are not in this repository"):
+        assert must_say in flat, must_say
+    for rendered in ("waterline-simulation", "waterline-real.md", "camera-simulation"):
+        assert rendered not in readme, rendered                                  # made scenes are never quoted as accuracy
