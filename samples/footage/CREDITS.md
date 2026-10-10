@@ -1,7 +1,9 @@
 # Footage: credits and licences
 
-Three clips of flooding in Hyderabad, used only to exercise the camera change gate
-(`scripts/gate_demo.py`, results in [docs/gate-demo.md](../../docs/gate-demo.md)).
+Three clips of flooding in Hyderabad, used to exercise the camera change gate
+(`scripts/gate_demo.py`, results in [docs/gate-demo.md](../../docs/gate-demo.md)) and, for two steady
+stretches of the Sakshi TV clip, the waterline detector (`scripts/real_strip_test.py`, results in
+[docs/waterline-real.md](../../docs/waterline-real.md)).
 
 **The video files and the frames cut from them are not in this repository.** They are kept out by
 `.gitignore`: the frames show people's faces, and this project's own rule is that faces are blurred

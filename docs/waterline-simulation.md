@@ -3,82 +3,146 @@
 **SIMULATED. Every scene here was rendered by the script, so no real camera, photo or flood is behind
 any number.** Written by `scripts/simulate_waterline.py` (seed 2026, 150 scenes per condition).
 
-The detector is `src/nirmaldhara/waterline.py`: a Bayesian change-point model over several cues (the
-difference from a dry view of the same spot, frame-to-frame flicker, brightness, texture and colour),
-combined into one distribution over rows, then filtered through time with a hidden Markov model.
-One row is 0.6 cm, as for a 150 cm gauge about 250 pixels tall.
+The detector is `src/nirmaldhara/waterline.py`: a hidden Markov model down the rows of a strip, with four
+states (dry, dry but re-lit, water, blocked), likelihoods calibrated on the rows known to be dry, a second
+filter through time, and intervals set by conformal calibration. One row is 0.6 cm, as for a 150 cm
+gauge about 250 pixels tall.
 
-## Result
+Each cell: typical error and the error 95% of readings stay under; how often a waterline was reported;
+how often the true line was inside the 90% interval; and how often the view was reported blocked.
 
-Each cell: typical error, the error 95% of readings stay under, how often a waterline was reported,
-and how often the true line was inside the 90% interval the detector gave.
+## Conditions the detector was designed on
 
-| Condition | Fixed camera, tracked over 8 readings | Fixed camera, one reading | One photo, nothing else |
+| Condition | Tracked over 8 readings | One reading | Clip, no dry view | One photo |
+|---|---|---|---|---|
+| clear | 0.2 cm, 95% under 0.7; line 100%, in range 100% | 0.2 cm, 95% under 0.7; line 100%, in range 99% | 0.0 cm, 95% under 0.6; line 100%, in range 100% | 0.6 cm, 95% under 19.6; line 100%, in range 65% |
+| murky | 0.3 cm, 95% under 0.7; line 100%, in range 100% | 0.3 cm, 95% under 0.7; line 100%, in range 100% | 0.0 cm, 95% under 0.6; line 100%, in range 100% | 0.6 cm, 95% under 0.8; line 100%, in range 63% |
+| mirror | 0.0 cm, 95% under 12.0; line 96%, in range 92%; blocked 2% | 0.0 cm, 95% under 8.1; line 93%, in range 89%; blocked 3% | no line reported | 4.8 cm, 95% under 58.4; line 99%, in range 66% |
+| night | 0.3 cm, 95% under 2.4; line 100%, in range 96% | 0.4 cm, 95% under 3.7; line 100%, in range 96% | 15.5 cm, 95% under 38.8; line 50%, in range 3% | 13.9 cm, 95% under 53.6; line 98%, in range 41% |
+| rain | 0.9 cm, 95% under 1.3; line 100%, in range 85% | 0.8 cm, 95% under 1.3; line 100%, in range 100% | 0.6 cm, 95% under 1.3; line 100%, in range 77% | 0.7 cm, 95% under 18.1; line 100%, in range 57% |
+| shadow | 0.3 cm, 95% under 1.1; line 100%, in range 97% | 0.3 cm, 95% under 1.1; line 100%, in range 95% | 0.0 cm, 95% under 0.6; line 100%, in range 100% | 0.7 cm, 95% under 53.7; line 100%, in range 44% |
+| tide mark | 0.3 cm, 95% under 0.7; line 100%, in range 99% | 0.3 cm, 95% under 0.7; line 100%, in range 100% | 0.0 cm, 95% under 0.6; line 100%, in range 100% | 0.6 cm, 95% under 8.6; line 100%, in range 66% |
+| vehicle passing | 0.6 cm, 95% under 0.8; line 100%, in range 99% | 0.6 cm, 95% under 0.9; line 100%, in range 97% | 0.6 cm, 95% under 1.2; line 100%, in range 95% | 0.6 cm, 95% under 39.4; line 100%, in range 61% |
+| vehicle parked | 0.6 cm, 95% under 53.9; line 13%, in range 80%; blocked 91% | 0.2 cm, 95% under 14.3; line 11%, in range 94%; blocked 89% | no line reported | 22.0 cm, 95% under 63.5; line 100%, in range 3% |
+| shake and light | 1.1 cm, 95% under 2.2; line 100%, in range 50%; blocked 3% | 1.2 cm, 95% under 2.4; line 96%, in range 68%; blocked 4% | 1.2 cm, 95% under 2.4; line 95%, in range 42% | 1.3 cm, 95% under 5.8; line 100%, in range 28% |
+| storm at night | 0.7 cm, 95% under 10.0; line 100%, in range 81%; blocked 3% | 0.7 cm, 95% under 16.0; line 97%, in range 85%; blocked 3% | 19.9 cm, 95% under 40.7; line 35%, in range 0% | 15.3 cm, 95% under 48.1; line 100%, in range 35% |
+
+## Conditions held out
+
+Written before the detector was finished and not used to adjust it.
+
+| Condition | Tracked over 8 readings | One reading | Clip, no dry view | One photo |
+|---|---|---|---|---|
+| fog | 0.3 cm, 95% under 0.7; line 100%, in range 99% | 0.3 cm, 95% under 0.9; line 100%, in range 99% | 0.0 cm, 95% under 0.6; line 100%, in range 99% | 0.6 cm, 95% under 10.6; line 100%, in range 72% |
+| foam line | 1.4 cm, 95% under 2.8; line 100%, in range 3% | 1.4 cm, 95% under 2.7; line 100%, in range 4% | 1.8 cm, 95% under 2.4; line 100%, in range 16% | 2.2 cm, 95% under 19.0; line 100%, in range 10% |
+| sun glint | 0.3 cm, 95% under 0.7; line 100%, in range 99% | 0.3 cm, 95% under 0.7; line 100%, in range 100% | 0.0 cm, 95% under 0.6; line 100%, in range 100% | 0.6 cm, 95% under 1.0; line 100%, in range 65% |
+| pole in front | 0.4 cm, 95% under 31.2; line 37%, in range 88%; blocked 63% | 0.5 cm, 95% under 31.6; line 35%, in range 91%; blocked 65% | 0.0 cm, 95% under 0.6; line 100%, in range 100% | 0.6 cm, 95% under 23.2; line 100%, in range 61% |
+| compressed | 0.9 cm, 95% under 3.7; line 100%, in range 57% | 0.9 cm, 95% under 4.0; line 100%, in range 61% | 0.6 cm, 95% under 3.5; line 100%, in range 60% | 1.2 cm, 95% under 22.6; line 100%, in range 43% |
+| night shadow | 0.5 cm, 95% under 2.9; line 100%, in range 91% | 0.6 cm, 95% under 7.0; line 100%, in range 93% | 16.8 cm, 95% under 41.2; line 50%, in range 0% | 18.4 cm, 95% under 50.6; line 99%, in range 24% |
+| parked at night | 20.9 cm, 95% under 61.3; line 99%, in range 23%; blocked 1% | 20.9 cm, 95% under 60.9; line 99%, in range 34% | no line reported | 24.9 cm, 95% under 62.4; line 100%, in range 4% |
+| dusk flat water | 0.4 cm, 95% under 0.9; line 100%, in range 97% | 0.4 cm, 95% under 1.2; line 100%, in range 94% | no line reported | 0.6 cm, 95% under 11.7; line 100%, in range 72% |
+| rising | 0.2 cm, 95% under 0.4; line 100%, in range 100% | 0.2 cm, 95% under 0.7; line 100%, in range 100% | 0.0 cm, 95% under 0.6; line 100%, in range 99% | 0.6 cm, 95% under 42.8; line 100%, in range 57% |
+
+## Dry scenes
+
+How often a waterline was reported on a strip with no water in it:
+
+| Kind of dry scene | One reading | Clip, no dry view | One photo |
 |---|---|---|---|
-| clear | 0.9 cm, 95% under 1.5 cm; found 100%, interval right 96% | 0.9 cm, 95% under 2.0 cm; found 100%, interval right 93% | 0.6 cm, 95% under 26.9 cm; found 100%, interval right 93% |
-| murky | 0.9 cm, 95% under 1.7 cm; found 100%, interval right 95% | 0.9 cm, 95% under 1.8 cm; found 100%, interval right 94% | 0.6 cm, 95% under 0.9 cm; found 100%, interval right 100% |
-| mirror | 0.3 cm, 95% under 24.5 cm; found 99%, interval right 89% | 0.3 cm, 95% under 27.5 cm; found 98%, interval right 88% | 7.2 cm, 95% under 61.8 cm; found 97%, interval right 69% |
-| night | 3.6 cm, 95% under 27.3 cm; found 100%, interval right 41% | 3.3 cm, 95% under 24.4 cm; found 97%, interval right 49% | 20.4 cm, 95% under 55.8 cm; found 99%, interval right 47% |
-| rain | 0.9 cm, 95% under 2.9 cm; found 100%, interval right 89% | 1.1 cm, 95% under 11.7 cm; found 100%, interval right 79% | 0.9 cm, 95% under 32.5 cm; found 100%, interval right 86% |
-| shadow | 1.0 cm, 95% under 2.0 cm; found 100%, interval right 95% | 1.0 cm, 95% under 2.4 cm; found 100%, interval right 95% | 0.6 cm, 95% under 49.1 cm; found 100%, interval right 86% |
-| tide mark | 1.2 cm, 95% under 3.9 cm; found 100%, interval right 85% | 1.2 cm, 95% under 3.8 cm; found 100%, interval right 89% | 0.6 cm, 95% under 23.8 cm; found 100%, interval right 91% |
-| vehicle passing | 1.5 cm, 95% under 2.7 cm; found 100%, interval right 57% | 1.4 cm, 95% under 3.4 cm; found 100%, interval right 65% | 0.6 cm, 95% under 32.1 cm; found 100%, interval right 93% |
-| vehicle parked | 20.6 cm, 95% under 58.8 cm; found 100%, interval right 25% | 18.8 cm, 95% under 60.3 cm; found 100%, interval right 27% | 25.7 cm, 95% under 58.9 cm; found 100%, interval right 3% |
-| shake and light | 1.1 cm, 95% under 2.7 cm; found 100%, interval right 63% | 1.4 cm, 95% under 3.0 cm; found 100%, interval right 58% | 1.4 cm, 95% under 30.2 cm; found 100%, interval right 51% |
-| storm at night | 8.1 cm, 95% under 34.7 cm; found 100%, interval right 13% | 8.8 cm, 95% under 35.3 cm; found 89%, interval right 22% | 17.0 cm, 95% under 58.1 cm; found 100%, interval right 47% |
+| clear | 0% | 0% | 57% |
+| night | 0% | 0% | 18% |
+| rain | 0% | 0% | 97% |
+| shadow | 3% | 0% | 100% |
+| shake and light | 0% | 0% | 53% |
+| fog | 0% | 0% | 53% |
+| pole in front | 5% | 0% | 48% |
+| compressed | 2% | 0% | 100% |
+| night shadow | 0% | 0% | 100% |
 
-On dry scenes, a waterline was wrongly reported in 1% of fixed-camera readings and
-63% of single photos.
+With a dry view, the worst kind gave a false waterline 5% of the time.
 
-The detector's settings were chosen on scenes from one random seed; the table above is from a
-different seed, so it was not tuned on the scenes it reports.
+## How these numbers were made, in order
+
+1. The detector was designed and adjusted on the eleven design conditions, many times, with one random seed.
+2. Its design was frozen and the nine held-out conditions were run for the first time, on another seed.
+   That first look is the table below.
+3. It was then run on real video for the first time and failed (see [waterline-real.md](waterline-real.md)).
+4. It was changed, for reasons found on the real video.
+5. The interval widths were fitted again, and everything above was run again.
+
+So the tables above are a second look. The design conditions were tuned on; the held-out conditions were
+seen once before the last changes. Nothing in the last changes was aimed at a held-out condition, but they
+are no longer untouched.
+
+## First look at the held-out conditions, before real video changed anything
+
+One reading, 150 scenes each.
+
+| Condition | Typical error | 95% under | Line reported | In range | Blocked | False line on a dry scene |
+|---|---|---|---|---|---|---|
+| fog | 0.1 cm | 0.6 cm | 100% | 100% | | 0% |
+| foam line | 1.2 cm | 3.7 cm | 100% | 1% | | |
+| sun glint | 0.1 cm | 0.6 cm | 100% | 100% | | |
+| pole in front | 0.6 cm | 65.3 cm | 83% | 59% | 16% | 20% |
+| compressed | 0.7 cm | 6.4 cm | 100% | 57% | | 2% |
+| night shadow | 0.4 cm | 6.0 cm | 100% | 88% | | 5% |
+| parked at night | 23.1 cm | 62.7 cm | 100% | 23% | 0% | |
+| dusk flat water | 0.4 cm | 0.7 cm | 100% | 99% | | |
+| rising | 0.0 cm | 0.6 cm | 100% | 100% | | |
+
+Five of nine were fine. Compression widened the errors past the interval. A pole in front gave gross errors
+and a false waterline on one dry scene in five. A vehicle parked at night was read as water every time.
 
 ## What it means
 
-**Works, in these scenes.** In daylight on a fixed camera with a dry view to compare against, the
-line is found to about 1 cm, and 95% of readings are within 2 to 4 cm, in clear and murky water,
-under a shadow edge, with a wet tide mark above the water, with a vehicle driving through, and with
-a shaken camera in changed light. Rain is as good once readings are tracked over time (95% within
-3 cm) and worse on a single reading (12 cm). A dry strip was given a waterline in 1% of readings.
+**Works, in these scenes.** With a dry view to compare against and six frames per reading, the line is
+found to within about a centimetre, typically, in clear and murky water, rain, fog, sun glint, flat water
+at dusk, under a shadow, with a wet tide mark above the water, with a vehicle driving through, and while
+the water rises. Night is at 0.4 cm typical, with one reading in twenty out by 4 cm or more. A dry strip
+was given a waterline in at most 5% of readings, in the worst kind of scene.
+
+**Mostly withheld rather than wrong.** A vehicle parked in front in daylight is reported as blocking the view
+in nine readings out of ten. Most of the rest are scenes where the water stands above the vehicle's roof and
+the line given is right; a few are wrong. A pole in front of a third of the strip is reported blocked in two
+readings out of three; of the lines given in the rest, one in twenty is off by 30 cm or more.
 
 **Does not work.**
 
-- **Night.** Typical error 3 to 4 cm, but one reading in twenty is out by 25 cm or more, and the
-  interval the detector gives is right less than half the time, so it is too sure of itself. Glare
-  lying on dark water is read as the start of the water. With rain as well it is worse: 8 cm
-  typical.
-- **Mirror-calm water.** Usually excellent (0.3 cm), but about one reading in ten fails badly:
-  still water that reflects the object above it looks like more of the object.
-- **A vehicle parked in front.** It is read as water starting at the vehicle's roof: 20 cm typical
-  error, on the side of too deep. Nothing in these cues separates a still vehicle from still water.
-  The state engine's rule that holds back a sudden jump of two bands until a second source confirms
-  it is the only protection, and it was not written for this.
-- **One photo, nothing else.** The typical error looks small, but one in twenty is out by 25 to
-  60 cm, and a waterline is reported on 63% of dry scenes. Without a dry view to compare against
-  there is no way to tell a waterline from a painted line or a shadow. This is not usable, and it
-  is the case a resident's phone photo is in. That case still needs a vision model.
-- **Intervals.** Where the table says "interval right" well under 90% (a vehicle passing, shake and
-  light, night), the detector is over-confident, and its ranges should be widened before use.
+- **A vehicle parked at night** is read as water: 21 cm typical error. In the dark, a still vehicle and still
+  water give the same cues, and nothing here tells them apart.
+- **One photo, nothing else.** A waterline is reported on 18% to 100% of dry scenes, depending on the kind.
+  Without a dry view there is no way to tell a waterline from a painted line. This is the case a resident's
+  phone photo is in, and it still needs a vision model.
+- **A clip with no dry view** finds the line by flicker alone. In these renders that works by day in moving
+  water and fails at night, in still water, and behind a vehicle. On the one real waterline tried, it failed.
+- **Mirror-calm water on an evenly marked gauge.** The mirror image keeps the gauge's pattern, and once colour
+  has to be allowed to wander, as real video requires, little separates it from a gauge in other light. About
+  one reading in ten is withheld or off by 8 cm or more.
+- **The intervals are too narrow in four conditions.** A foam line shifts the estimate by about two rows and
+  the interval misses it nearly always, though the error is 1.4 cm. Under camera tremble the interval is right
+  two times in three; under compression, three in five; in a storm at night, 85%.
+- **Tracking over eight readings** helps in a storm at night and does harm behind a parked vehicle, where the
+  few readings that report a line are sometimes wrong and nothing contradicts them.
 
 ## What this changes, and what it does not
 
-- For a fixed camera with a dry reference view, in daylight, finding the waterline does not need a
-  vision model. That is a real result for the camera half of the design.
-- It does not help the phone-photo path at all, which is the path the deployed system and the demo
-  rest on.
-- It is not an accuracy figure. These are my own renderings of what makes a flood image hard. A real
-  street has difficulties nobody listed here: floating waste against the gauge, spray, a lens with
-  drops on it, headlights sweeping across, a gauge that is dirty or bent. The detector has not been
-  run on a single real image, because no fixed-camera footage of a flood with a dry view of the same
-  spot was available. None of the nine sites has a gauge or a reference view recorded.
+- For a fixed camera with a dry view, finding the waterline does not need a vision model, by day or by night,
+  in these renders. On real video with the camera nearly still, the same detector found a made line to a
+  tenth of a row, typically, and reported a line where nothing had changed in 3% of readings.
+- It does not help the phone-photo path, which is the path the deployed system and the demo rest on.
+- It is not an accuracy figure. These are my own renderings of what makes a flood image hard, and the real
+  video had a made line and no known depth. The detector has not been run on one image of a real waterline
+  with a dry view of the same spot, because none was available. None of the nine sites has a gauge or a
+  reference view recorded.
+- The first run on real video failed in ways no rendered scene had shown. There is no reason to think that
+  was the last such lesson.
 - Nothing calls this module yet. It is built and tested; it is not part of the deployed pipeline.
 
 ## What would make it real
 
-1. Footage from one fixed camera that shows the same spot dry and flooded, with something of known
-   height in view. Ten minutes of it would say more than this whole table.
-2. Night: use the camera's own infrared image if it has one, and take readings over a longer window
-   so passing headlights fall out of the median.
-3. A parked vehicle: an object detector, or the rule that water cannot rise a metre between two
-   readings, applied before the reading is trusted.
-4. Widen the intervals until "interval right" is 90% in every row that is to be used.
+1. Footage from one fixed camera that shows the same spot dry and flooded, with something of known height in
+   view. A published set exists: four river cameras through the 2012 Tewkesbury flood, hourly, with water
+   levels read against surveyed points (doi:10.17632/769cyvdznp.1, CC BY 4.0). It has not been used.
+2. The interval widths fitted on real readings, not rendered ones.
+3. For a parked vehicle at night: an object detector, or the rule that water cannot rise a metre between two
+   readings, applied before a reading is trusted.
