@@ -388,6 +388,53 @@ than 41 to 47 cm out, against 13 cm and 54 cm for one surface. The strips' evide
 a twentieth to a fifth of face value. The chain from several cameras' frames to the engine's answer
 has been run on rendered scenes only (`docs/site-simulation.md`).
 
+### C10. Depth from where the water's edge sits on the ramp
+
+Added 11 October 2026 (`nirmaldhara/ramp.py`). Every estimator above reads how far water has come
+up something. This one reads how far it has come along the road. Still water is level, so where
+its edge crosses a ramp the road is as high as the water is, and the road's height along the ramp
+is the profile of section 15.1. The level, less the height of the lowest point, is the depth there.
+
+```
+depth_cm = 100 * (profile_height_at(edge_distance_m) - lowest_height_m)
+```
+
+**What it rests on.** The edge has to be placed along the road, and the profile has to be right.
+An edge placed to within a stated distance gives the depth to within:
+
+| The edge is placed to within | On a ramp of 2% | Of 4% | Of 6% |
+|---|---|---|---|
+| 1 m | 2 cm | 4 cm | 6 cm |
+| 2 m | 4 cm | 8 cm | 12 cm |
+| 5 m | 10 cm | 20 cm | 30 cm |
+
+A profile taken from a map, with nothing known of a ramp but that it rises between 2% and 6%,
+turns an edge 10 m from the lowest point into anything from 20 to 60 cm. That is no reading. The
+edge needs a profile that was measured: a survey drawing or the phone level walk of 15.1.
+
+**Placing the edge.** By a strip of a fixed camera laid along the ramp, which the waterline
+detector reads as it reads any strip, with marks at known distances along the road placed on the
+dry view: lane markings, pillars, lamp posts. Two marks give one scale and three or more the map
+that perspective obeys, as in C8. Or by a person, who says which mark the water has reached.
+
+**Three things it has that a learnt reading has not.**
+- *It does not end where the levels learnt from end.* On a real river the depth model was 42 to
+  82 cm out on water higher than any it had learnt from (`docs/depth-model-river.md`). A profile
+  runs to the top of the ramp.
+- *It needs no flood to have been watched.* The profile and the marks are measured once, dry.
+  `ramp.witness` makes such a strip a witness for C9 whose curve comes from the road, and
+  `ramp.site_model` makes a model of such witnesses alone.
+- *It checks itself.* A dip has two ramps, and the edges on both must give one level. Where they
+  do not, the profile is wrong or an edge was misread, and the answer says so.
+
+**A depth read elsewhere on the ramp.** A wheel or a post some way up the ramp stands in shallower
+water than the lowest point by as much as the road is higher there. `ramp.at_lowest` adds that
+back, so a depth read at a known spot becomes the depth that decides passage.
+
+**Status.** Tested on made roads only. No place in the registry has a profile, and no edge on a
+real road has been read: whether the detector finds the edge of shallow water on tarmac, where
+the nearest thing tried, strips on a river's grass bank, read poorly, is not known.
+
 ## 7. Stage D: prediction
 
 **Rise rate.** Fit a robust slope (Theil–Sen) to the last 3 to 6 smoothed readings:

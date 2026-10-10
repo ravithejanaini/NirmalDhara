@@ -47,6 +47,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | One level from every witness, through time (METHOD C9) | `nirmaldhara/depthmodel.py` | built: each reference object learnt as a witness (its curve, its spread within and between days, its wild rate, what it says at each level); the witnesses' likelihoods multiplied at a share learnt from days left out; the level followed through time; a range stretched to hold nine in ten of those days; `to_reading` hands the answer to the site engine. Measured on a real flood (`docs/depth-model-river.md`): at one river lock every picture given a level, 11 to 12 cm out typically against 13 cm for one surface, one in ten more than 41 to 47 cm out. Cannot read past the levels it learnt from. The chain to the engine has been run on rendered scenes only (`docs/site-simulation.md`). Needs measured levels, which no site has; no caller yet |
 | Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
 | Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; used by `inflow.py`, which nothing calls |
+| Depth from the water's edge on the ramp (METHOD C10) | `nirmaldhara/ramp.py` | built: the depth at the lowest point from where the edge lies along a road of known profile; the edges on two ramps checked against each other; a depth read up the ramp carried to the lowest point; a strip along a ramp as a witness for `depthmodel.py` whose curve comes from the road, and a model of such witnesses that needs no measured level. Made roads only; no place has a profile; no caller yet |
 | The storage equation, backwards and forwards (METHOD 15.8) | `nirmaldhara/inflow.py` | built: what a flood reveals of the ground that drains to a place and the rate it empties at, as ranges; minutes until each class loses passage with the line drawn through the volume stored; the depth a given rain would bring; the rain that would close the road. Made floods only; needs a road profile and floods on record, which no place has; no caller yet |
 | Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
 | Agent wording, scenario engine, fix sheet, camera agent, activation, acknowledgement, channels, upload | | planned, section 16 |
@@ -890,6 +891,12 @@ rain.indexes(sites) -> {site_id: mm}
 predict.rise_rate([(minute, depth)]) -> cm per minute | None
 predict.clear_rise([(low, high)]) -> bool
 
+ramp.depth_from_edge(profile, near_m, far_m) -> (low, high) cm at the lowest point
+ramp.together([(low, high)]) -> (low, high, agreed)
+ramp.at_lowest(profile, near_m, far_m, low, high) -> (low, high)
+ramp.depth_from_rows(profile, [(row, distance_m)], row_low, row_high) -> (low, high)
+ramp.witness(name, grid, profile, marks, rows, spread) -> depthmodel.Witness
+
 inflow.reveal(curve, [(seconds, low, high)], [(seconds, mm)]) -> Revealed(area_m2, drain_m3s) | None
 inflow.together([Revealed]) -> Revealed | None
 inflow.at_this_inflow(curve, [(seconds, low, high)]) -> {vehicle: (sooner, later) minutes} | None
@@ -1137,6 +1144,7 @@ after adding a test.
 | `test_offline.py` | 11 | The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen |
 | `test_publisher.py` | 15 | Map file: every site, skipped when unchanged, losing a race, 500 sites |
 | `test_rain.py` | 5 | Request building, parsing, grid grouping |
+| `test_ramp.py` | 11 | Depth from the water's edge on a made ramp: a metre of ramp is as many centimetres as it is steep, two ramps must give one level, a depth read up the ramp is carried to the lowest point, and a witness made from the road reads depths no flood taught it |
 | `test_reader.py` | 6 | Request shape, refusal, throttling, server error, no connection, configuration error |
 | `test_rehearsal.py` | 7 | The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads |
 | `test_replay.py` | 12 | Replay schedule and what reset clears and leaves |
@@ -1156,7 +1164,7 @@ after adding a test.
 | `test_watch_history.py` | 10 | The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **603** | Collected by `pytest --collect-only` |
+| **Total** | **614** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:

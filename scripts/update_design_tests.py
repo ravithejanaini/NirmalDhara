@@ -50,6 +50,7 @@ DESCRIPTIONS = {
     "test_offline.py": "The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen",
     "test_offenders.py": "The repeat-floods page ranks as the Python does, on random cities, run with Node",
     "test_publisher.py": "Map file: every site, skipped when unchanged, losing a race, 500 sites",
+    "test_ramp.py": "Depth from the water's edge on a made ramp: a metre of ramp is as many centimetres as it is steep, two ramps must give one level, a depth read up the ramp is carried to the lowest point, and a witness made from the road reads depths no flood taught it",
     "test_rain.py": "Request building, parsing, grid grouping",
     "test_reader.py": "Request shape, refusal, throttling, server error, no connection, configuration error",
     "test_rehearsal.py": "The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads",
