@@ -435,6 +435,9 @@ back, so a depth read at a known spot becomes the depth that decides passage.
 **Status.** Tested on made roads only. No place in the registry has a profile, and no edge on a
 real road has been read: whether the detector finds the edge of shallow water on tarmac, where
 the nearest thing tried, strips on a river's grass bank, read poorly, is not known.
+The waterline detector has read rendered strips laid along a made ramp and given the depth to
+within a few centimetres, one ramp alone and two together. That shows the chain holds from the
+detector's rows to a depth. It shows nothing about tarmac.
 
 ### C11. A wheel read by a person
 
@@ -971,6 +974,17 @@ warning or a gauge reading against.
 **How it is to be judged.** `check` plays each recorded flood forward from the floods before it
 and says whether the deepest water foretold held the deepest read. That needs a place with floods
 on record and a road profile. No place has either.
+
+**A worked example, on the made road of 15.1.** Someone reports the water's edge between 1 and 3 m
+up the 4% ramp, five minutes later between 3 and 5 m, and five minutes after that between 6 and
+8 m. By C10 those are 4–12, 12–20 and 24–32 cm at the lowest point. A car stands 4 to 6 m up the
+same ramp with its rim wet, less than halfway to the hub: 12–20 cm where it stands by C11, which
+C10 carries to 28–44 cm at the lowest point. The edge and the wheel agree on 28–32 cm. With the
+line drawn through the volume, bikes, autos and cars have lost passage already, and people on foot
+and SUVs lose it within 6 minutes if the water keeps coming as it has. Had an earlier flood
+revealed 7,000 to 9,000 square metres of ground and a drain of 35 to 45 litres a second, another
+19 to 32 mm of rain in the next hour would bring the water to 50 cm, where nobody may enter. Every
+figure here is arithmetic on a made road; none is a reading.
 
 **Status.** Tested on a made dip whose true figures are known, and tried on made storms
 (`scripts/simulate_inflow.py`): the figures come back, and they come back because the made water

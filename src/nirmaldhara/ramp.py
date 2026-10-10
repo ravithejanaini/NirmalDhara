@@ -114,11 +114,30 @@ def distance_map(marks):
     """Distance along the road from a place in the picture, from marks at known distances.
 
     marks: [(row or pixel along the strip, distance along the road in metres)], two or more: lane dashes,
-    pillars, lamp posts. Two give one scale. Three or more give the map that perspective obeys
-    (multiview.height_map, which is the same arithmetic for marks up a post).
+    pillars, lamp posts. Two give one scale. Three or more give the map that perspective obeys, fitted to
+    all of them. A strip along a road runs towards the horizon, where a row is any distance at all, so
+    the map is fitted in the form that allows that anywhere in the picture.
     """
-    from .multiview import height_map
-    return height_map(marks)
+    import numpy as np
+    marks = np.asarray(sorted(marks), dtype=float)
+    if len(marks) < 2:
+        raise ValueError("two marks are the least that give a scale")
+    rows, distances = marks[:, 0], marks[:, 1]
+    if len(marks) == 2:
+        slope = (distances[1] - distances[0]) / (rows[1] - rows[0])
+        return lambda row: float(distances[0] + slope * (row - rows[0]))
+    # distance = (a r + c) / (b r + d) with r and distance first brought to a like size: the four numbers
+    # are found up to their scale, as the direction in which every mark's equation is nearest to nothing.
+    mid_r, size_r = rows.mean(), max(np.ptp(rows) / 2.0, 1e-9)
+    mid_d, size_d = distances.mean(), max(np.ptp(distances) / 2.0, 1e-9)
+    r, x = (rows - mid_r) / size_r, (distances - mid_d) / size_d
+    a, c, b, d = (float(v) for v in np.linalg.svd(np.column_stack([r, np.ones(len(r)), -x * r, -x]))[2][-1])
+
+    def along(row):
+        at = (row - mid_r) / size_r
+        below = b * at + d
+        return float("inf") if below == 0 else mid_d + size_d * (a * at + c) / below      # at the horizon a row is no distance
+    return along
 
 
 def depth_from_rows(profile, marks, row_low, row_high):
@@ -133,9 +152,11 @@ def witness(name, grid, profile, marks, rows, spread, camera="", wild=0.05, seen
 
     grid: the depths tried, in metres above the lowest point. marks: [(row, distance along the road)] on
     the strip's side of the lowest point. rows: how many rows the strip has. spread: how far the detector's
-    row usually lies from the true edge, in rows. Where the edge would fall inside the strip the witness
-    is taken to report a line `seen` of the time; where the water would cover the whole strip, or not
-    reach it, it is taken to report nothing that tells depths apart.
+    row usually lies from the true edge, in rows. Where the edge would fall between the first mark and the
+    last the witness is taken to report a line `seen` of the time; where the water would lie past them it
+    is taken to report nothing that tells depths apart. wild: the share of its lines taken to be nowhere
+    near the edge. With one witness alone that share shows as a long upper end to the range in shallow
+    water, where the strip's rows are few to the centimetre; a second ramp removes it.
     """
     import numpy as np
 
@@ -143,7 +164,10 @@ def witness(name, grid, profile, marks, rows, spread, camera="", wild=0.05, seen
     base_x, base = lowest(profile)
     along = distance_map(marks)
     side = 1.0 if sum(distance for _, distance in marks) / len(marks) >= base_x else -1.0
-    places = sorted((float(along(row)), float(row)) for row in range(int(rows)))       # distance along the road of every row
+    points = _points(profile)
+    first, last = min(row for row, _ in marks), max(row for row, _ in marks)
+    places = [(along(row), float(row)) for row in range(int(rows)) if first - 1 <= row <= last + 1]      # only between the marks: beyond
+    places = [(d, row) for d, row in places if points[0][0] <= d <= points[-1][0]]                         # them the map is a guess
     ordered = sorted((height_at(profile, d) - base, row) for d, row in places if (d - base_x) * side >= 0)
     heights, at_rows = [h for h, _ in ordered], [r for _, r in ordered]
     curve = np.interp(grid, heights, at_rows)

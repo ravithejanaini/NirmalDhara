@@ -1138,7 +1138,7 @@ after adding a test.
 | `test_glyph.py` | 5 | The depth glyph's rules: level, colour, rings, staleness, spoken label, run with Node |
 | `test_guide.py` | 8 | Summary line, welcome and the key's examples, run with Node |
 | `test_history.py` | 9 | What counts as a flood, ranking, and the history writer |
-| `test_inflow.py` | 13 | The storage equation on a made dip: a flood gives back the ground it came from and its drain rate, a widening dip fills more slowly than a straight line says, depths ahead hold the truth, and a forecast from a fifth of the rain fails |
+| `test_inflow.py` | 14 | The storage equation on a made dip: a flood gives back the ground it came from and its drain rate, a widening dip fills more slowly than a straight line says, depths ahead hold the truth, and a forecast from a fifth of the rain fails |
 | `test_inflow_simulation.py` | 5 | The made storms: the figures come back, each flood is foretold from the ones before it when the rain is right, and the report is labelled simulated |
 | `test_intake.py` | 11 | Photo checks, crop, blur, signed links |
 | `test_learn_river_cameras.py` | 13 | How the learnt gauge is judged on the real flood: never on a day it learnt from, levels, floors and no-answers counted apart, and the report says which cameras were run once |
@@ -1150,7 +1150,7 @@ after adding a test.
 | `test_offline.py` | 11 | The offline worker keeps and marks what it should, the manifest and icons are installable, a kept map file shows as a refresh that did not happen |
 | `test_publisher.py` | 15 | Map file: every site, skipped when unchanged, losing a race, 500 sites |
 | `test_rain.py` | 5 | Request building, parsing, grid grouping |
-| `test_ramp.py` | 11 | Depth from the water's edge on a made ramp: a metre of ramp is as many centimetres as it is steep, two ramps must give one level, a depth read up the ramp is carried to the lowest point, and a witness made from the road reads depths no flood taught it |
+| `test_ramp.py` | 13 | Depth from the water's edge on a made ramp: a metre of ramp is as many centimetres as it is steep, two ramps must give one level, a depth read up the ramp is carried to the lowest point, and a witness made from the road reads depths no flood taught it |
 | `test_reader.py` | 6 | Request shape, refusal, throttling, server error, no connection, configuration error |
 | `test_rehearsal.py` | 7 | The local video rehearsal shows the real replay's moments and reaches only this machine; the pre-flight only reads |
 | `test_replay.py` | 12 | Replay schedule and what reset clears and leaves |
@@ -1172,7 +1172,7 @@ after adding a test.
 | `test_wheel.py` | 10 | A person's reading of a wheel: the table is METHOD C2's and the photo reader's figure for figure, an answer alone rules a class out and never lets one in, a placed vehicle carries the depth to the lowest point, and an answer reaches the engine as a reading |
 | `test_wheel_page.py` | 7 | The wheel page: its figures and words are the Python's, Node gives the same answer for every wheel and mark, it cannot show a road as passable, sends nothing, and is kept offline |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **635** | Collected by `pytest --collect-only` |
+| **Total** | **638** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:

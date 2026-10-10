@@ -131,6 +131,29 @@ def test_a_forecast_from_rain_is_no_better_than_the_rain():
     assert inflow.check(DIP, [(flood(doubt=1.0), QUARTERS), (flood(storm, doubt=1.0), storm, storm)])[0]["held"]
 
 
+def test_the_methods_worked_example_is_what_the_code_gives():
+    from pathlib import Path
+
+    from nirmaldhara import ramp, wheel
+    road = [(-60, 2.4), (0, 0.0), (40, 2.0)]
+    edges = [ramp.depth_from_edge(road, -near, -far) for near, far in ((1, 3), (3, 5), (6, 8))]
+    assert [tuple(round(v) for v in e) for e in edges] == [(4, 12), (12, 20), (24, 32)]
+    by_wheel = wheel.estimate("car", "rim", road, -6, -4)
+    assert (round(by_wheel[0]), round(by_wheel[1])) == (28, 44)
+    low, high, agreed = ramp.together([edges[-1], by_wheel[:2]])
+    assert agreed and (round(low), round(high)) == (28, 32)
+    said = inflow.at_this_inflow(DIP, [(300 * i, *e) for i, e in enumerate(edges)])
+    assert said["two_wheeler"] == said["auto"] == said["car"] == (0.0, 0.0)          # lost already
+    assert said["pedestrian"][0] == 0.0 and 5.5 < said["pedestrian"][1] < 6.0 and said["suv"] == said["pedestrian"]
+    found = inflow.Revealed(inflow.Range(7000, 8000, 9000), inflow.Range(0.035, 0.04, 0.045))
+    least, most = inflow.rain_to_reach(found, DIP, *edges[-1], 50)
+    assert (round(least), round(most)) == (19, 32)
+    method = " ".join((Path(__file__).resolve().parents[1] / "METHOD.md").read_text("utf-8").split())
+    for must_say in ("4–12, 12–20 and 24–32 cm at the lowest point", "carries to 28–44 cm", "agree on 28–32 cm", "within 6 minutes",
+                     "another 19 to 32 mm of rain in the next hour", "none is a reading"):
+        assert must_say in method, must_say
+
+
 def test_the_module_says_it_has_met_no_real_flood():
     text = " ".join(inflow.__doc__.split())
     for must_say in ("Tried on made floods only", "Nothing calls this module", "A forecast from rain is no better than the rain", "None has."):

@@ -4,6 +4,7 @@ The road is METHOD 15.1's example: 4% down from the left, 5% up to the right. Ev
 edge whose true depth is known from the profile. No edge on a real road has been read.
 """
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -107,6 +108,47 @@ def test_two_ramps_are_two_witnesses_and_agree():
     both = depthmodel.believe(model, {"left ramp": ("line", row_at(-0.50 / 0.04)), "right ramp": ("line", right_row(0.50 / 0.05))})
     one = depthmodel.believe(model, {"left ramp": ("line", row_at(-0.50 / 0.04))})
     assert abs(both.level - 0.50) < 0.02 and both.high - both.low <= one.high - one.low
+
+
+def test_a_strip_that_runs_to_the_horizon_is_mapped_all_the_same():
+    row_at = lambda up: 239.0 * 20.0 / (up + 20.0)                 # noqa: E731   row 0 is the horizon: any distance at all
+    marks = [(row_at(up), -up) for up in (0.0, 5.0, 15.0, 30.0, 50.0)]
+    along = ramp.distance_map(marks)
+    for up in (0.0, 2.5, 12.5, 27.5, 45.0):
+        assert abs(along(row_at(up)) + up) < 1e-6
+    assert along(0.0) == float("inf") or abs(along(0.0)) > 1e6    # and the horizon itself is no distance, not a crash
+    made = ramp.witness("ramp", np.arange(0.0, 2.0, 0.01), ROAD, marks, 240, spread=2.0)
+    assert np.isfinite(made.row).all() and made.row[20] > made.row[110]      # deeper water, an edge further up the strip
+
+
+def test_the_real_detector_on_a_made_strip_gives_the_depth_through_the_road():
+    """The waterline detector itself, on rendered frames of a strip laid along the left ramp. A made strip:
+    it shows the chain holds, not that the detector finds the edge of water on a real road."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import simulate_waterline as sim
+    from nirmaldhara import waterline
+    row_at = lambda up: 239.0 * 20.0 / (up + 20.0)                 # noqa: E731
+    marks = [(row_at(up), -up) for up in (0.0, 5.0, 15.0, 30.0, 50.0)]
+    right_row = lambda up: 239.0 * 24.0 / (up + 24.0)              # noqa: E731   a second strip, up the 5% ramp
+    right_marks = [(right_row(up), up) for up in (0.0, 4.0, 12.0, 24.0, 38.0)]
+    rng = np.random.default_rng(7)
+    scene = sim.make_scene(rng, "clear")
+    one = ramp.site_model(ROAD, {"left": lambda grid: ramp.witness("left", grid, ROAD, marks, 240, spread=2.0, camera="a")})
+    two = ramp.site_model(ROAD, {"left": lambda grid: ramp.witness("left", grid, ROAD, marks, 240, spread=2.0, camera="a"),
+                                 "right": lambda grid: ramp.witness("right", grid, ROAD, right_marks, 240, spread=2.0, camera="b")})
+    for depth in (0.20, 0.50, 1.10):
+        left = waterline.locate(sim.render_frames(rng, scene, int(round(row_at(depth / 0.04)))), scene["reference"])
+        right = waterline.locate(sim.render_frames(rng, scene, int(round(right_row(depth / 0.05)))), scene["reference"])
+        assert left.found and right.found
+        low, high = ramp.depth_from_rows(ROAD, marks, left.low, left.high)
+        assert low - 2 <= 100 * depth <= high + 2 and high - low < 8, depth          # the detector's own range of rows, as a depth
+        both = ramp.together([(low, high), ramp.depth_from_rows(ROAD, right_marks, right.low, right.high)])
+        assert both[2] and both[0] - 2 <= 100 * depth <= both[1] + 2
+        alone = depthmodel.believe(one, {"left": ("line", left.row)})
+        pair = depthmodel.believe(two, {"left": ("line", left.row), "right": ("line", right.row)})
+        assert abs(alone.level - depth) < 0.03 and abs(pair.level - depth) < 0.03
+        assert pair.high - pair.low < 0.15 and pair.high - pair.low <= alone.high - alone.low + 1e-9
+    assert alone.high - alone.low < 0.2                            # deep water: one ramp is enough for a narrow range
 
 
 def test_the_methods_table_is_the_arithmetic():
