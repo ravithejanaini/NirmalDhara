@@ -72,7 +72,7 @@ def test_a_day_is_an_indian_day():
 
 def test_every_report_has_a_place_a_day_and_a_page_it_came_from():
     places = wh.sites()
-    assert len(REPORTS["reports"]) == 16 and sum(r["basis"] == "place" for r in REPORTS["reports"]) == 11
+    assert len(REPORTS["reports"]) == 27 and sum(r["basis"] == "place" for r in REPORTS["reports"]) == 20
     for r in REPORTS["reports"]:
         assert r["site"] in places and r["basis"] in ("place", "area")
         assert date.fromisoformat(r["from"]) <= date.fromisoformat(r["to"]) <= date.fromisoformat(r["published"])
@@ -96,19 +96,19 @@ def test_the_rain_history_is_the_providers_and_covers_every_report(rain):
 
 
 def test_the_figures_in_the_report_are_the_ones_the_data_gives(rain, found):
-    assert wh.caught(rain, found["rows"], wh.OWN) == (11, 0)                    # none of the eleven that name the place
-    assert wh.caught(rain, found["rows"], wh.OWN, "area") == (5, 0)
-    assert wh.caught(rain, found["recent"], wh.HIGHEST) == (7, 1)
-    assert found["blind"][0] == (11, 0)
-    assert found["full"] == [2025, 2026] and found["years"] == [2019, 2020, 2025, 2026]
-    assert max(days for (source, _), (_, days, _) in found["cost"].items() if source == wh.OWN) <= 1.5
+    assert wh.caught(rain, found["rows"], wh.OWN) == (20, 0)                    # none of the twenty that name the place
+    assert wh.caught(rain, found["rows"], wh.OWN, "area") == (7, 0)
+    assert wh.caught(rain, found["recent"], wh.HIGHEST) == (14, 1)
+    assert found["blind"][0] == (20, 0)
+    assert found["full"] == [2024, 2025, 2026] and found["years"] == [2019, 2020, 2021, 2022, 2024, 2025, 2026]
+    assert max(days for (source, _), (_, days, _) in found["cost"].items() if source == wh.OWN) <= 3.5
     own, _, high, high_days = found["sweep"][10]
-    assert own == (11, 3) and high == (7, 6) and 35 < high_days < 50
+    assert own == (20, 3) and high == (14, 9) and 45 < high_days < 58
     text = wh.report(found, rain)
     written = (ROOT / "docs" / "watch-history.md").read_text("utf-8")
     assert written.startswith(text)                                              # the notes follow the tables
-    assert "| That name the place | The provider's own choice | 0 of 11 |" in text
-    assert "| **20 mm** | 0 of 11 | 0 | 1 of 7 | 10 |" in text
+    assert "| That name the place | The provider's own choice | 0 of 20 |" in text
+    assert "| **20 mm** | 0 of 20 | 1 | 1 of 14 | 13 |" in text
 
 
 def test_the_models_rain_is_set_beside_what_gauges_recorded(found):
@@ -116,7 +116,7 @@ def test_the_models_rain_is_set_beside_what_gauges_recorded(found):
     lingampally = by_place[("hyd-001", "2025-06-11")]
     assert lingampally["mm"] == 148.5 and lingampally["own"] < 20 and lingampally["wettest"] < 100
     below = [g for g in found["gauges"] if g["own"] < 0.3 * g["mm"]]
-    assert len(below) == 5 and len(found["gauges"]) == 6                         # five of six far below the gauge
+    assert len(below) == 6 and len(found["gauges"]) == 7                         # six of seven far below the gauge
 
 
 def test_fetching_is_asked_for_and_nothing_else_reaches_out():
@@ -137,8 +137,8 @@ def test_the_report_says_what_was_tested_what_was_found_and_what_it_is_not():
                      "Not a tuned threshold", "It is not a recommendation"):
         assert must_say in flat, must_say
     readme = " ".join((ROOT / "README.md").read_text("utf-8").split())
-    assert "docs/watch-history.md" in readme and "would not have opened a watch on any of the 11" in readme
+    assert "docs/watch-history.md" in readme and "would not have opened a watch on any of the 20" in readme
     writeup = " ".join((ROOT / "docs" / "submission-writeup.md").read_text("utf-8").split())
-    assert "would not have opened on any of the 11" in writeup
+    assert "would not have opened on any of the 20" in writeup
     sources = (ROOT / "data" / "SOURCES.md").read_text("utf-8")
     assert "flood-reports.json" in sources and "rain-history.json.gz" in sources

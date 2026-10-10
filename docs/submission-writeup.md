@@ -37,7 +37,7 @@ on Amazon Bedrock is the intended photo reader.
 
 **What is not proven.** The photo reader has not read a real photo: AWS has not verified the
 account for model access, so it has no accuracy figure, and the demonstration's depths come from a
-scripted replay. Replayed over past rain, the watch would not have opened on any of the 11 dated
+scripted replay. Replayed over past rain, the watch would not have opened on any of the 20 dated
 flood reports found: the forecast held far less rain than gauges recorded.
 No person is subscribed to the alerts yet. Tracking the waste that blocks drain inlets, and the
 camera network, are designed and not built. See the README's limits.
@@ -48,5 +48,5 @@ NirmalDhara watches nine known waterlogging points in Hyderabad. It opens a watc
 forecast, turns depth readings into a per-vehicle "can I get through?" answer, sends each alert
 once, and records every flood so places can be ranked by how long they block the road. It runs
 serverless on AWS in Mumbai. Not yet proven: the photo reader has not read a real photo; replayed
-over past rain, the watch would not have opened on any of the 11 dated flood reports found; drain-waste
+over past rain, the watch would not have opened on any of the 20 dated flood reports found; drain-waste
 tracking is designed, not built. Built with Claude Code.

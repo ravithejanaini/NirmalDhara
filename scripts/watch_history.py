@@ -13,8 +13,8 @@ Two things are put side by side here:
                 neighbourhood, as under water on a stated day. Found on 11 October 2026.
     rain        hourly rain at each place from Open-Meteo, the provider the live system asks, out of
                 its archive of the forecasts it served. First as the live system asks for it, with the
-                provider choosing the weather model. Then from each of seven models by name, and from
-                the highest of the seven hour by hour.
+                provider choosing the weather model. Then from six models asked for by name, and from
+                the highest of all seven hour by hour.
 
 The engine's own rule is replayed over the rain, hour by hour (state.rain_index, state.apply_rain),
 with the two hours ahead taken as the archive holds them. For each report it says whether a watch
@@ -279,7 +279,7 @@ def report(found, rain):
         "step of the system, the watch, and nothing after it. It is not a measurement of depth.",
         "",
         "\"The provider's own choice\" is the rain as the live system asks for it, with the provider picking the weather",
-        "model. \"The highest of seven\" takes seven models by name, the provider's own choice among them, and uses the largest in each",
+        "model. \"The highest of seven\" takes that and six models asked for by name, and uses the largest of the seven in each",
         f"hour; all seven are held for {span}.",
         "A watch opens when the rain index reaches 20 mm.",
         "",

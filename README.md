@@ -68,7 +68,7 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 
 | | What | Evidence |
 |---|---|---|
-| **Built and running on AWS** | Rain check every 15 minutes at nine sites, from a live forecast | Run on the deployed stack. Replayed over past seasons, its rule would not have opened a watch on any of the 11 dated flood reports found for these places (see below) |
+| **Built and running on AWS** | Rain check every 15 minutes at nine sites, from a live forecast | Run on the deployed stack. Replayed over past seasons, its rule would not have opened a watch on any of the 20 dated flood reports found for these places (see below) |
 | | State engine: one queue group per site, version-checked writes, no lost events, a repeated message counted once | `docs/smoke-test.md` |
 | | Flood workflow and timer: alerts, repeat, escalation after 5 minutes, stand-down when it ends | `docs/smoke-test.md`, 21 checks passed |
 | | Notifier: each alert sent once to a topic | Captured by a test queue; **no person is subscribed yet** |
@@ -86,7 +86,7 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 | | A camera fixed from several known heights, lengths and widths; two cameras placing something floating, for the speed of the water | Tests and a simulation only. No place has two cameras on one water, and none has its marks surveyed |
 | | The chain from several cameras' frames to the site engine's answer | Run on rendered scenes only, with three made cameras on one water |
 | | CloudFront in front of the site | In `template.yaml`, switched off: AWS has not verified the account |
-| **Checked against real reports from these nine places** | The rain rule that opens a watch | [docs/watch-history.md](docs/watch-history.md). Sixteen dated news reports of water at these places were set against four seasons of the rain the live system is fed. A watch would have stood on none of the 11 days a report names the place, nor on the 5 that name its area. The forecast held a twentieth to a quarter of what rain gauges near the places recorded. Seven other weather models did no better |
+| **Checked against real reports from these nine places** | The rain rule that opens a watch | [docs/watch-history.md](docs/watch-history.md). Twenty-seven dated news reports of water at these places were set against seven seasons of the rain the live system is fed. A watch would have stood on none of the 20 days a report names the place, nor on the 7 that name its area. On six of seven occasions the forecast held a twentieth to a quarter of what a rain gauge near the place recorded. Six other weather models, asked for by name, did no better |
 | **Measured on a real flood, but a river in England and not a street** | Waterline detector for a fixed camera, with no model | [docs/waterline-river.md](docs/waterline-river.md). At one river lock it was 13 cm out, typically, with one reading in ten more than 54 cm out. At a second camera it was of no use |
 | | A gauge that a camera learns from its own pictures and their measured levels | [docs/gauge-river.md](docs/gauge-river.md). At the same lock it gave a level for 4 pictures in 10, 8 cm out typically; together with the detector, 8 cm for nearly every picture. Learning only from earlier days, as it would be used, 31 cm. No use at two cameras with little water to learn from. It needs measured levels, and no place here has any |
 | | Several reference surfaces in one view, read together | [docs/multi-reference-river.md](docs/multi-reference-river.md). At the same lock, four surfaces joined were 10 cm out, typically, against 13 cm for one, with one reading in ten still more than 46 cm out. At a second camera, where the surfaces were all one grass bank, joining gained nothing |
@@ -97,7 +97,7 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 ## Limits
 
 - **The rain watch would have missed the floods it was checked against.** The rule that opens a watch
-  was replayed over four seasons of the rain it is fed. It would not have opened a watch on any of the 11
+  was replayed over seven seasons of the rain it is fed. It would not have opened a watch on any of the 20
   days a news report names one of these places under water. The forecast comes from a weather model on
   a grid about 8 km across, and held a fraction of the rain that gauges on the ground recorded. No
   threshold on that rain mends it. Rain measured on the ground would, and none is connected

@@ -107,13 +107,14 @@ every known flood date. Report the false-watch count that threshold produces. If
 history, use the lowest calibrated threshold in the city.
 
 **Status.** Done for the first time on 11 October 2026 (`scripts/watch_history.py`,
-`docs/watch-history.md`), and the answer is not a threshold. Sixteen dated news reports of water at
-the nine places were set against four seasons of the provider's hourly rain, with this section's
-rule replayed by the engine's own functions. A watch would have stood on none of the 11 days a
+`docs/watch-history.md`), and the answer is not a threshold. Twenty-seven dated news reports of water
+at the nine places were set against seven seasons of the provider's hourly rain, with this section's
+rule replayed by the engine's own functions. A watch would have stood on none of the 20 days a
 report names the place. The provider's rain comes from a weather model on a grid about 8 km
-across, and on five of six occasions held a twentieth to a quarter of what a rain gauge near the
-place recorded. Seven other models, and the highest of them hour by hour, did no better at 20 mm.
-A threshold low enough to catch the reports keeps a watch standing on a day in three. The rule
+across, and on six of seven occasions held a twentieth to a quarter of what a rain gauge near the
+place recorded. Six other models asked for by name, and the highest of all seven hour by hour,
+caught one report of fourteen at most at 20 mm.
+A threshold low enough to catch them all keeps a watch standing on two days in five. The rule
 needs rain measured on the ground: the state's automatic rain gauges, which these reports quote,
 or weather radar. Neither is connected.
 
@@ -1221,7 +1222,7 @@ camera counting of river plastic
 | Motorcycle limit | Rider guidance only (front axle); no manufacturer figure exists publicly | Settled by rule: scooter limit applied |
 | Bus and truck limits | No public manufacturer figure | Settled by rule: no "passable" answer is given |
 | Moving-water cut-off (30% of water area) | None | Design choice, tuned in evaluation |
-| 20 mm rain threshold | None | Design choice. Set against 11 dated flood reports on 11 October 2026: no watch on any of them, because the rain it is fed is far too small (`docs/watch-history.md`) |
+| 20 mm rain threshold | None | Design choice. Set against 20 dated flood reports on 11 October 2026: no watch on any of them, because the rain it is fed is far too small (`docs/watch-history.md`) |
 | A person's wheel reading counts at 0.5 alone and 0.7 when placed on the ramp | None | Design choice. Not tried on a person |
 | Minutes only for a rise clear of the readings' ranges | None | Design choice. Not confirmed by its one trial on real water (`docs/forecast-river.md`) |
 
