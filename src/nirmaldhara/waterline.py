@@ -65,7 +65,8 @@ and of no use at another camera: tens of centimetres, where the renders had said
 It has not been measured on a street.
 
 gauge.py reads the same kind of camera another way, by learning from pictures whose level was
-measured. Where both have an answer the gauge's is used (gauge.with_fallback).
+measured. Where both have an answer the gauge's is used (gauge.with_fallback). multiview.py joins
+several strips in one view, and several cameras at one place.
 """
 
 from dataclasses import dataclass

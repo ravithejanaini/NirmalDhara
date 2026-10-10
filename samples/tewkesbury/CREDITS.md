@@ -1,7 +1,8 @@
 # River camera pictures and water levels: credits and licence
 
-Used by `scripts/river_camera_test.py` and `scripts/learn_river_cameras.py`; results in
-[docs/waterline-river.md](../../docs/waterline-river.md) and [docs/gauge-river.md](../../docs/gauge-river.md).
+Used by `scripts/river_camera_test.py`, `scripts/learn_river_cameras.py` and `scripts/river_multi_reference.py`; results in
+[docs/waterline-river.md](../../docs/waterline-river.md), [docs/gauge-river.md](../../docs/gauge-river.md) and
+[docs/multi-reference-river.md](../../docs/multi-reference-river.md).
 
 > Vetra-Carvalho, S., Dance, S. L., Mason, D., Garcia-Pintado, J. (2020). *River water level height
 > measurements obtained from river cameras near Tewkesbury.* Mendeley Data, version 1.

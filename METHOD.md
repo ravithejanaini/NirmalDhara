@@ -307,6 +307,40 @@ carries the moving-water caution without changing the answer.
 }
 ```
 
+### C8. Several reference objects, and several cameras
+
+Added 10 October 2026. C2 takes one scale from one object's height, C5 joins object-level ranges by
+a cautious rule, and C6 says only yes or no for moving water. Where a view has more to offer, three
+things are done instead (`nirmaldhara/multiview.py`).
+
+**Fixing the camera from every known dimension.** At enrolment, marks of known height (posts, gauge
+boards, courses of a wall), length and width (a length of kerb, the width of a lane) are placed on
+the dry view: six or more, not all in one plane. Heights alone cannot fix a camera and ground
+distances alone cannot; together they fix where it is, which way it points and how it magnifies.
+After that, where the water meets any upright thing at a known spot is a height, at any camera
+angle. With fewer marks the mapping along one object is used: one scale from two marks, which is C2
+as written, or the map that perspective obeys from three or more.
+
+**Joining readings.** Each reference surface in a view, and each camera at a site, gives its own
+range, weighted by its record. With three or more that agree, the range runs from the weighted
+middle of the low ends to the weighted middle of the high ends, so one reading that is far out
+cannot move it. With fewer, or with no agreement, the rule of C5 stands: the highest high end. Two
+readings cannot outvote a wrong one, so the single figure from two is their weighted mean.
+
+**The speed of the water.** Two cameras that both see something floating place it in space. Placed
+twice, a known time apart, it gives the water's speed and direction and the height of the surface
+it floats on. One camera can do the same only when the level is already known, and is wrong by as
+much as that level is. This is a measurement in metres a second where C6 has yes or no. The
+passability rule is unchanged: no speed threshold has a source in section 17.
+
+**Existing cameras only.** Nothing here asks for a camera to be installed. It applies where two or
+more cameras already see the same water, and no site in the registry has been checked for that.
+
+**Status.** Joining was measured on a real flood (`docs/multi-reference-river.md`): four surfaces at
+one river lock were 10 cm out, typically, against 13 cm for one, and there was no gain where the
+surfaces were all one grass bank. Fixing the camera, and the speed, are tested on made scenes and
+tried in a simulation (`docs/multiview-simulation.md`) only.
+
 ## 7. Stage D: prediction
 
 **Rise rate.** Fit a robust slope (Theil–Sen) to the last 3 to 6 smoothed readings:

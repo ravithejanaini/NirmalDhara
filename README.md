@@ -80,9 +80,11 @@ python -m nirmaldhara check --low 15 --high 25 --confidence 0.8
 | | Signed capture and acknowledgement links | Tests only |
 | | Camera change gate; rise-rate prediction; storage-volume curve for pump sizing | Tests only |
 | | Evaluation table and photo-to-reading script | **Simulated only.** Run on 22 drawn scenes with a stand-in reader ([docs/evaluation-simulated.md](docs/evaluation-simulated.md)). Shows the tools work and that a dangerous miss would be counted; it is not evidence of how a model reads real floods |
+| | A camera fixed from several known heights, lengths and widths; two cameras placing something floating, for the speed of the water | Tests and a simulation only. No place has two cameras on one water, and none has its marks surveyed |
 | | CloudFront in front of the site | In `template.yaml`, switched off: AWS has not verified the account |
 | **Measured on a real flood, but a river in England and not a street** | Waterline detector for a fixed camera, with no model | [docs/waterline-river.md](docs/waterline-river.md). At one river lock it was 13 cm out, typically, with one reading in ten more than 54 cm out. At a second camera it was of no use |
 | | A gauge that a camera learns from its own pictures and their measured levels | [docs/gauge-river.md](docs/gauge-river.md). At the same lock it gave a level for 4 pictures in 10, 8 cm out typically; together with the detector, 8 cm for nearly every picture. Learning only from earlier days, as it would be used, 31 cm. No use at two cameras with little water to learn from. It needs measured levels, and no place here has any |
+| | Several reference surfaces in one view, read together | [docs/multi-reference-river.md](docs/multi-reference-river.md). At the same lock, four surfaces joined were 10 cm out, typically, against 13 cm for one, with one reading in ten still more than 46 cm out. At a second camera, where the surfaces were all one grass bank, joining gained nothing |
 | **Designed only** | Photo upload from phones; camera network with emergency activation; waste and drain-inlet tracking; scenario engine; fix sheet; alert channels to people (SMS, chat); acknowledgement endpoint; official console | [ARCHITECTURE.md](ARCHITECTURE.md), [METHOD.md](METHOD.md) |
 
 ## Limits
