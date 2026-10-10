@@ -124,7 +124,8 @@ export class Guide {
           <span><strong>${escape(item.word)}</strong><br><span class="muted small">${escape(item.text)}</span></span></li>`).join("")}
       </ul>
       <p class="muted small">Inside a glyph, solid water reaches the lowest likely depth, the lighter band above it the highest,
-        and the dark line marks the cautious end. Colour is never the only sign: every state also has a shape.</p>`;
+        and the dark line marks the cautious end. Colour is never the only sign: every state also has a shape.</p>
+      <p class="small"><a href="wheel.html">No reading for the road in front of you? Read the water on a wheel →</a></p>`;
     legendItems(this.now()).forEach((item, i) => {
       const glyph = createGlyph(item.site, this.now());
       glyph.removeAttribute("role");

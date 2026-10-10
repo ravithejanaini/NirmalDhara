@@ -1,0 +1,118 @@
+/* The wheel page: two questions on a paper sheet, and what the answer rules out. It shares its
+   head, back link and closing notes with the repeat-floods page (offenders.css). */
+
+.wheel-form {
+  margin-top: var(--space-4);
+  border-radius: var(--radius-sheet);
+  padding: var(--space-4) var(--gutter);
+}
+
+.pick {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.pick + .pick {
+  margin-top: var(--space-4);
+}
+
+.pick-ask {
+  padding: 0;
+  font-weight: 500;
+  max-width: var(--measure);
+}
+
+.pick-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.pick-column {
+  margin-top: var(--space-3);
+}
+
+.pick-one {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch);
+  cursor: pointer;
+}
+
+.pick-one input {
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--water-ink);
+}
+
+.pick-mark {
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  border-top: var(--hairline) solid var(--rule-on-paper);
+}
+
+.pick-mark:last-child {
+  border-bottom: var(--hairline) solid var(--rule-on-paper);
+}
+
+.mark-art {
+  flex: none;
+}
+
+.art-tyre {
+  fill: var(--ink);
+}
+
+.art-rim {
+  fill: var(--paper);
+  stroke: var(--slate);
+  stroke-width: 1;
+}
+
+.art-hub {
+  fill: var(--ink);
+}
+
+.art-water {
+  fill: var(--water);
+  opacity: 0.55;
+}
+
+.art-level {
+  stroke: var(--water-ink);
+  stroke-width: 1.5;
+}
+
+.said {
+  margin-top: var(--space-4);
+  min-height: 12rem;
+}
+
+.said-depth {
+  color: var(--water-ink);
+}
+
+.verdicts {
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.verdicts li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-2);
+  border-top: var(--hairline) solid var(--rule-on-paper);
+}
+
+.verdicts strong {
+  font-weight: 600;
+  text-align: right;
+}

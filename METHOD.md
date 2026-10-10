@@ -435,6 +435,47 @@ back, so a depth read at a known spot becomes the depth that decides passage.
 real road has been read: whether the detector finds the edge of shallow water on tarmac, where
 the nearest thing tried, strips on a river's grass bank, read poorly, is not known.
 
+### C11. A wheel read by a person
+
+Added 11 October 2026 (`nirmaldhara/wheel.py`, `web/wheel.html`). Estimator 2 of C2 turns the
+water's place on a wheel into a depth, and waits for a model that has never looked at a photo.
+A person standing at the place can look at the wheel. They are asked one thing, with five
+answers and no typing: where the water has come to on the wheel of a vehicle standing in it.
+
+| The answer | On a car's wheel |
+|---|---|
+| Only the tyre is wet. The rim is dry. | 0–12 cm |
+| The rim is wet, less than halfway from its edge to the hub. | 12–20 cm |
+| More than halfway to the hub. The hub is still dry. | 20–31 cm |
+| The hub is under water. The top of the tyre still shows. | 31–62 cm |
+| The tyre is covered. | above 62 cm |
+
+These are C2's five levels in words a person can check by eye: one third of a wheel's height is
+about halfway from the edge of the rim to the hub. Motorcycles, scooters and autos use C2's other
+columns.
+
+**Why it matters more than its size.** Every way this method has of reading a fixed camera needs
+depths measured at the place (`docs/gauge-river.md`, `docs/depth-model-river.md`), and no place
+has any. An answer is a depth with the photo it came with, from the one person who can see the
+wheel, and nobody is sent anywhere to get it. `wheel.label` hands it to the learning as a
+measured depth with its doubt.
+
+**What an answer may decide.** It is the depth where the vehicle stands, and a road is usually
+deeper further in. So by itself an answer can rule a class of road user out and can never let
+one in: it enters C5 at a confidence of 0.5, under the 0.6 that C4 asks before it will say
+"passable". A car's wet rim rules out bikes, autos and cars. Water past halfway to its hub
+rules out everyone. Where the vehicle's place on the ramp is known, C10 carries the depth to the
+lowest point and the answer counts at 0.7.
+
+**The page.** `web/wheel.html` asks the two questions and shows the depth and who is ruled out,
+by the same rules as the map. It sends nothing: there is nowhere yet to send an answer to.
+
+**Status.** The table is C2's, and its figures come from tyre sizes (section 17). How well
+people read a wheel is not known. Volunteers reading a river's level against a picture of a gauge
+did it better than they estimated its flow (Strobl and others 2020), which is a river bank and
+not a wheel. Nothing here has been tried on a person. The page was checked in a browser on
+localhost and is not on the public site.
+
 ## 7. Stage D: prediction
 
 **Rise rate.** Fit a robust slope (Theil–Sen) to the last 3 to 6 smoothed readings:
@@ -1181,9 +1222,12 @@ camera counting of river plastic
 | Bus and truck limits | No public manufacturer figure | Settled by rule: no "passable" answer is given |
 | Moving-water cut-off (30% of water area) | None | Design choice, tuned in evaluation |
 | 20 mm rain threshold | None | Design choice. Set against 11 dated flood reports on 11 October 2026: no watch on any of them, because the rain it is fed is far too small (`docs/watch-history.md`) |
+| A person's wheel reading counts at 0.5 alone and 0.7 when placed on the ramp | None | Design choice. Not tried on a person |
 | Minutes only for a rise clear of the readings' ranges | None | Design choice. Not confirmed by its one trial on real water (`docs/forecast-river.md`) |
 
 Sources:
+- Strobl, Etter, van Meerveld and Seibert (2020), Accuracy of crowdsourced streamflow and stream level class estimates,
+  Hydrological Sciences Journal 65, 823–841: https://doi.org/10.1080/02626667.2019.1578966
 - Australian Rainfall and Runoff, people and vehicle stability: https://arr.ga.gov.au/__data/assets/pdf_file/0006/40488/ARR_People_and_Vehicles_stability.pdf
 - UNSW Water Research Laboratory, vehicle stability testing for flood flows: https://www.unsw.edu.au/content/dam/pdfs/engineering/civil-environmental/water-research-laboratory/publications/WRL-TR2017-07-Vehicle-Stability-Testing-for-Flood-Flows.pdf
 - The Quint, what to do if your car is stuck in floods: https://www.thequint.com/explainers/what-to-do-if-your-car-is-stuck-in-floods

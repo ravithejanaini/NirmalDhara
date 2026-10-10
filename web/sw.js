@@ -8,7 +8,7 @@
 // Not kept: map tiles and fonts from other hosts (their terms are not ours to extend), and
 // anything that is not a plain GET. Offline, the sites show on a blank ground.
 
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = `nirmaldhara-${VERSION}`;
 const OFFLINE_HEADER = "x-offline-copy";
 // Kept at install so the very first offline visit already works. Cross-origin files are
@@ -17,6 +17,7 @@ const SHELL = [
   "./", "index.html", "tokens.css", "base.css", "glyph.css", "map.css", "sheet.css", "guide.css",
   "map.js", "data.js", "sites.js", "sheet.js", "section.js", "guide.js", "glyph.js", "rules.js",
   "style.json", "manifest.json", "icon-192.png", "icon-512.png", "offenders.html", "offenders.css", "offenders.js",
+  "wheel.html", "wheel.css", "wheel.js",
 ];
 const LIBRARY = [
   "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js",

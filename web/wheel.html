@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E1A2B">
+<title>Read the water on a wheel · NirmalDhara</title>
+<meta name="description" content="A wheel standing in floodwater is a gauge. Pick where the water has come to, and see who must not go in.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="offenders.css">
+<link rel="stylesheet" href="wheel.css">
+</head>
+<body class="offenders-page wheel-page">
+<header class="page-head">
+  <a class="back label" href="./">← The map</a>
+  <h1 class="display hero">Read the water on a wheel</h1>
+  <p class="lede">No reading for the road in front of you? A wheel standing in the water is a gauge. This says who must not go in. It never says who may.</p>
+</header>
+
+<main>
+  <form class="paper sheet wheel-form" id="wheel-form">
+    <fieldset class="pick">
+      <legend class="label">Whose wheel?</legend>
+      <div class="pick-row" id="wheels"></div>
+    </fieldset>
+    <fieldset class="pick">
+      <legend class="pick-ask" id="ask"></legend>
+      <div class="pick-column" id="marks"></div>
+    </fieldset>
+    <section class="said" id="said" role="status" aria-live="polite"></section>
+  </form>
+
+  <section class="not-shown" aria-labelledby="mind-title">
+    <h2 class="label" id="mind-title">Mind</h2>
+    <ul class="plain muted small measure">
+      <li>Do not walk or ride into water to look. Read a wheel you can see from where you stand.</li>
+      <li>Do not enter moving water at any depth.</li>
+      <li>The depths come from standard wheel sizes. Nobody has yet tested how well people read a wheel this way.</li>
+      <li>Nothing you choose here is sent anywhere.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+// Keeps this page for when there is no signal (sw.js), as the map does. Needs HTTPS or localhost.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+}
+</script>
+<script type="module">
+import { startPage } from "./wheel.js";
+
+startPage(document);
+</script>
+</body>
+</html>

@@ -47,6 +47,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 | One level from every witness, through time (METHOD C9) | `nirmaldhara/depthmodel.py` | built: each reference object learnt as a witness (its curve, its spread within and between days, its wild rate, what it says at each level); the witnesses' likelihoods multiplied at a share learnt from days left out; the level followed through time; a range stretched to hold nine in ten of those days; `to_reading` hands the answer to the site engine. Measured on a real flood (`docs/depth-model-river.md`): at one river lock every picture given a level, 11 to 12 cm out typically against 13 cm for one surface, one in ten more than 41 to 47 cm out. Cannot read past the levels it learnt from. The chain to the engine has been run on rendered scenes only (`docs/site-simulation.md`). Needs measured levels, which no site has; no caller yet |
 | Nearby lookup | `nirmaldhara/geo.py` | built; no caller yet |
 | Volume curve (METHOD 15) | `nirmaldhara/volume.py` | built; used by `inflow.py`, which nothing calls |
+| A wheel read by a person (METHOD C11) | `nirmaldhara/wheel.py` | built: five answers to where the water stands on a wheel, as METHOD C2's depth ranges; an estimate for the engine that can rule a class out and never let one in, unless the vehicle's place on the ramp is known; a measured depth for the camera learning. Tried on nobody; nothing sends it an answer; no caller yet. The browser copy is `web/wheel.js` |
 | Depth from the water's edge on the ramp (METHOD C10) | `nirmaldhara/ramp.py` | built: the depth at the lowest point from where the edge lies along a road of known profile; the edges on two ramps checked against each other; a depth read up the ramp carried to the lowest point; a strip along a ramp as a witness for `depthmodel.py` whose curve comes from the road, and a model of such witnesses that needs no measured level. Made roads only; no place has a profile; no caller yet |
 | The storage equation, backwards and forwards (METHOD 15.8) | `nirmaldhara/inflow.py` | built: what a flood reveals of the ground that drains to a place and the rate it empties at, as ranges; minutes until each class loses passage with the line drawn through the volume stored; the depth a given rain would bring; the rain that would close the road. Made floods only; needs a road profile and floods on record, which no place has; no caller yet |
 | Command line | `nirmaldhara/__main__.py` | running locally: `check` and `read` |
@@ -54,7 +55,7 @@ Every file under `src/` is listed here, and `tests/test_design_doc.py` fails if 
 
 Outside `src/`: `template.yaml` (deployed, 51 resources), `web/` (the pages and their scripts:
 `rules.js`, `glyph.js`, `data.js`, `sites.js`, `sheet.js`, `section.js`, `guide.js`, `map.js`,
-`offenders.js`, and the offline worker `sw.js` with `manifest.json` and two icons) and the scripts in section 20.
+`offenders.js`, `wheel.js`, and the offline worker `sw.js` with `manifest.json` and two icons) and the scripts in section 20.
 
 ### 1.2 Layers
 
@@ -891,6 +892,11 @@ rain.indexes(sites) -> {site_id: mm}
 predict.rise_rate([(minute, depth)]) -> cm per minute | None
 predict.clear_rise([(low, high)]) -> bool
 
+wheel.depth(wheel, mark) -> (low, high) cm where the vehicle stands
+wheel.estimate(wheel, mark, profile=None, near=None, far=None) -> (low, high, confidence)
+wheel.answers(wheel, mark) -> {vehicle: answer}, never "passable"
+wheel.label(wheel, mark) -> (middle, either way) cm
+
 ramp.depth_from_edge(profile, near_m, far_m) -> (low, high) cm at the lowest point
 ramp.together([(low, high)]) -> (low, high, agreed)
 ramp.at_lowest(profile, near_m, far_m, low, high) -> (low, high)
@@ -1111,7 +1117,7 @@ after adding a test.
 <!-- tests:start -->
 | File | Tests | Covers |
 |---|---|---|
-| `test_accessibility.py` | 18 | Page order, type floor, touch targets, the pinned Close button, reduced motion, names on controls |
+| `test_accessibility.py` | 20 | Page order, type floor, touch targets, the pinned Close button, reduced motion, names on controls |
 | `test_alerts.py` | 21 | Who is alerted, the repeat rule, wording, the stand-down, no sentence with two "and"s |
 | `test_architecture.py` | 10 | The picture shows only what the template deploys and leaves out no function |
 | `test_camera_simulation.py` | 11 | The simulated cameras: both depth methods are exact on a level view, only three marks survive a steep one, and the result is labelled simulated |
@@ -1163,8 +1169,10 @@ after adding a test.
 | `test_video_script.py` | 8 | The video script: length, the spoken disclosures, cut points the replay really produces, real commands |
 | `test_watch_history.py` | 10 | The watch rule replayed over real rain history against dated flood reports: the engine's own rule, on Indian days, with every figure in the report worked out again from the data in the repository |
 | `test_waterline.py` | 37 | The waterline detector on rendered scenes: found within 3 cm by day and night, dry reported dry, a shadow and a parked vehicle not taken for water, a changed view refused, and the tracker holds through a blind reading |
+| `test_wheel.py` | 10 | A person's reading of a wheel: the table is METHOD C2's and the photo reader's figure for figure, an answer alone rules a class out and never lets one in, a placed vehicle carries the depth to the lowest point, and an answer reaches the engine as a reading |
+| `test_wheel_page.py` | 7 | The wheel page: its figures and words are the Python's, Node gives the same answer for every wheel and mark, it cannot show a road as passable, sends nothing, and is kept offline |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **614** | Collected by `pytest --collect-only` |
+| **Total** | **633** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1284,6 +1292,7 @@ use and `tests/test_contrast.py` checks each against its minimum.
 |---|---|---|
 | `index.html`, the map | `map.js`, `data.js`, `sites.js`, `glyph.js`, `sheet.js`, `section.js`, `guide.js`, `rules.js` | Polls `data/hyderabad.json` every 20 s and updates only the sites that changed. Each site is a button holding a glyph. Tapping one opens the sheet. |
 | `offenders.html`, repeat floods | `offenders.js` | Reads `data/hyderabad-floods.json`; ranks as `history.ranking` does |
+| `wheel.html`, read the water on a wheel | `wheel.js`, `rules.js` | Two questions, whose wheel and where the water has come to on it, and the depth where that vehicle stands with who is ruled out. `wheel.js` is a copy of `nirmaldhara/wheel.py`, checked figure for figure and run with Node by `tests/test_wheel_page.py`. It never shows a road as passable and sends nothing. Linked from the foot of the key. Not on the public site until `web/` is next uploaded |
 | `sw.js`, `manifest.json`, installable and offline | registered by `index.html` | Network first, so a deploy is seen at once. When the network or the host fails, the kept page and last map file are used, and the map file is marked `x-offline-copy` so `data.js` shows "Could not refresh. Last updated …". Map tiles and fonts from other hosts are not kept: offline, the sites show on a blank ground |
 | `styleguide.html`, `glyph-gallery.html`, `rules-check.html` | | Development pages: the tokens with their contrast ratios, every glyph state, and the browser-versus-Python rules check |
 

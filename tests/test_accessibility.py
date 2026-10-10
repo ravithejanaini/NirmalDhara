@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 WEB = Path(__file__).resolve().parents[1] / "web"
-PAGES = ["index.html", "offenders.html", "styleguide.html", "glyph-gallery.html"]
+PAGES = ["index.html", "offenders.html", "wheel.html", "styleguide.html", "glyph-gallery.html"]
 CSS = sorted(WEB.glob("*.css"))
 FLOOR_REM = 0.875                       # 14 px
 
@@ -28,7 +28,7 @@ def test_every_page_declares_its_language_scaling_and_title(page):
     assert "user-scalable=no" not in html and "maximum-scale=1" not in html     # never block pinch zoom
 
 
-@pytest.mark.parametrize("page", ["index.html", "offenders.html"])
+@pytest.mark.parametrize("page", ["index.html", "offenders.html", "wheel.html"])
 def test_the_public_pages_have_exactly_one_h1(page):
     assert len(re.findall(r"<h1[ >]", text(page))) == 1
 
