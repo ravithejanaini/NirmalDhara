@@ -91,7 +91,10 @@ them. Two things were settled there and then applied to Strensham unseen:
   simulation.
 - **Not marks of known size.** Each strip's curve from row to level was fitted from the measured levels of
   half the days. Fixing a camera from the surveyed height, length and width of things in view is written
-  (`nirmaldhara.multiview.camera_from_points`) and has only been checked on made scenes.
+  (`nirmaldhara.multiview.camera_from_points`) and has only been checked on made scenes. The dataset does
+  hold surveyed points in each camera's view, as positions and heights with no word of what each one is.
+  Matching them to the picture was tried for this camera and could not be done with any confidence, so the
+  one real test that was within reach was not made.
 - **Not a street, and not Hyderabad.** A river lock in England.
 - **Not independent levels.** The levels learnt from and the levels judged against were read by the same
   people from these same pictures.
