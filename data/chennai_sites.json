@@ -1,0 +1,15 @@
+{
+  "city": "Chennai",
+  "note": "Nine road subways under railway lines that Chennai's police have closed for water more than once. Collected on 11 October 2026 from news pages open to anyone. Positions are of the neighbourhood, by hand, good to about a kilometre: enough for the rain forecast, whose cells are about 5 km, and not enough to site a camera. None of these places is deployed, and none has been visited.",
+  "sites": [
+    {"id": "chn-001", "name": "Ganeshapuram subway, Vyasarpadi", "lat": 13.107, "lon": 80.257, "rain_threshold_mm": 20},
+    {"id": "chn-002", "name": "Gengu Reddy subway, Egmore", "lat": 13.078, "lon": 80.255, "rain_threshold_mm": 20},
+    {"id": "chn-003", "name": "Madley subway, T. Nagar", "lat": 13.040, "lon": 80.228, "rain_threshold_mm": 20},
+    {"id": "chn-004", "name": "Rangarajapuram subway, Kodambakkam", "lat": 13.048, "lon": 80.227, "rain_threshold_mm": 20},
+    {"id": "chn-005", "name": "Aranganathan subway, Saidapet", "lat": 13.028, "lon": 80.224, "rain_threshold_mm": 20},
+    {"id": "chn-006", "name": "Duraisamy subway, T. Nagar", "lat": 13.036, "lon": 80.227, "rain_threshold_mm": 20},
+    {"id": "chn-007", "name": "Villivakkam subway", "lat": 13.109, "lon": 80.208, "rain_threshold_mm": 20},
+    {"id": "chn-008", "name": "Sembium subway, Perambur", "lat": 13.117, "lon": 80.243, "rain_threshold_mm": 20},
+    {"id": "chn-009", "name": "RBI subway, Rajaji Salai", "lat": 13.087, "lon": 80.290, "rain_threshold_mm": 20}
+  ]
+}

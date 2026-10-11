@@ -1,0 +1,37 @@
+{
+  "note": "Dated reports that Chennai's police closed these subways for water, collected on 11 October 2026 from news pages open to anyone, in this project's own words. Every report names the place. 'from' and 'to' are days in Indian time. This is what one round of searching found, not a record of every flood.",
+  "events": [
+    {
+      "name": "Rain of 26 November 2021",
+      "from": "2021-11-26", "to": "2021-11-27",
+      "sites": ["chn-001", "chn-003", "chn-004"],
+      "says": "Rain from Friday night; 82.5 mm by 05:30 on Saturday. Police closed the Rangarajapuram and Ganeshapuram subways and restricted traffic at Madley subway.",
+      "publisher": "The News Minute", "published": "2021-11-27",
+      "url": "https://www.thenewsminute.com/article/traffic-diversions-announced-chennai-city-waterlogged-due-rains-158103"
+    },
+    {
+      "name": "Rain of 30 December 2021",
+      "from": "2021-12-30", "to": "2021-12-30",
+      "sites": ["chn-002", "chn-003", "chn-005", "chn-009"],
+      "says": "Rain from the morning into the evening. The Gengu Reddy, Madley, Aranganathan and RBI subways were closed.",
+      "publisher": "The News Minute", "published": "2021-12-30",
+      "url": "https://www.thenewsminute.com/tamil-nadu/subways-closed-chennai-due-water-logging-traffic-moving-slowly-159328"
+    },
+    {
+      "name": "Rain of 29 November 2023",
+      "from": "2023-11-29", "to": "2023-11-29",
+      "sites": ["chn-008"],
+      "says": "Rain on Wednesday night, 62 mm at Kolathur. The Perambur subway was waterlogged.",
+      "publisher": "DT Next", "published": "2023-11-29",
+      "url": "https://www.dtnext.in/news/chennai/heavy-downpour-throws-life-out-of-gear-in-chennai-751565"
+    },
+    {
+      "name": "Cyclone Michaung",
+      "from": "2023-12-03", "to": "2023-12-04",
+      "sites": ["chn-001", "chn-002", "chn-003", "chn-004", "chn-005", "chn-006", "chn-007", "chn-008", "chn-009"],
+      "says": "A list of closed subways published at 04:10 on 4 December names all nine.",
+      "publisher": "The News Minute", "published": "2023-12-04",
+      "url": "https://www.thenewsminute.com/tamil-nadu/chennai-rains-list-of-subways-closed-and-traffic-updates"
+    }
+  ]
+}

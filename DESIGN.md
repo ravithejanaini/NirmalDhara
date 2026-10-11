@@ -1122,6 +1122,7 @@ after adding a test.
 | `test_architecture.py` | 10 | The picture shows only what the template deploys and leaves out no function |
 | `test_camera_simulation.py` | 11 | The simulated cameras: both depth methods are exact on a level view, only three marks survive a steep one, and the result is labelled simulated |
 | `test_change.py` | 5 | Camera frame gate |
+| `test_chennai_watch.py` | 5 | The Hyderabad watch rule, unchanged, replayed over Chennai's rain against dated subway closures: opens on the cyclone, on none of the smaller rains, and not ahead of the published closures |
 | `test_claims.py` | 7 | Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists |
 | `test_contrast.py` | 20 | Every colour pairing in use meets its contrast minimum |
 | `test_core.py` | 9 | Bands, passability, prediction |
@@ -1172,7 +1173,7 @@ after adding a test.
 | `test_wheel.py` | 10 | A person's reading of a wheel: the table is METHOD C2's and the photo reader's figure for figure, an answer alone rules a class out and never lets one in, a placed vehicle carries the depth to the lowest point, and an answer reaches the engine as a reading |
 | `test_wheel_page.py` | 7 | The wheel page: its figures and words are the Python's, Node gives the same answer for every wheel and mark, it cannot show a road as passable, sends nothing, and is kept offline |
 | `test_workflow.py` | 13 | Plan rules, photo re-asks, escalation, blocked time, closing, stand-down, alert ids |
-| **Total** | **638** | Collected by `pytest --collect-only` |
+| **Total** | **643** | Collected by `pytest --collect-only` |
 <!-- tests:end -->
 
 Properties checked over generated inputs, not single examples:
@@ -1235,6 +1236,7 @@ ones that write anything are dry-run by default and need `--go` or `--apply`.
 | `simulate_site.py` | **Simulated.** Three rendered cameras on one water, each with its own conditions: rendered frames, the real detector, `nirmaldhara/depthmodel.py`, then the site engine's answer for a car set beside the answer the true depth would give; writes `docs/site-simulation.md`. A check that the chain holds together, not evidence of accuracy |
 | `river_forecast.py` | **Real flood, measured levels.** The first trial of the prediction stage on anything real. Three days in a row are left out, `nirmaldhara/depthmodel.py` follows the level through them, and the level one, three and six hours ahead, the next morning and a day ahead is told three ways: no change, the slope `predict.rise_rate` takes carried forward, and that slope only when `predict.clear_rise` or `predict.clear_fall` says it stands clear of the readings' doubt. The same from the measured levels themselves. One camera was used to choose the guard; the other was run once. Writes `docs/forecast-river.md`, with `docs/forecast-river-notes.md` under it |
 | `watch_history.py` | **Real rain history, real reports.** Replays the watch rule (`state.rain_index`, `state.apply_rain`) hour by hour over Open-Meteo's archive of the rain it served at the nine places, `data/rain-history.json.gz`, and sets it against `data/flood-reports.json`, twenty-seven dated news reports of water at them: whether a watch stood on each reported day, what the rule costs in watch days a season, the same for seven weather models by name and for other thresholds, and the model's rain beside what gauges recorded. `--fetch` asks the provider again. Writes `docs/watch-history.md`, with `docs/watch-history-notes.md` under it |
+| `chennai_watch.py` | **Real rain history, real reports, a second city.** The same rule and replay as `watch_history.py`, unchanged, over Open-Meteo's archive at nine Chennai subways (`data/chennai_sites.json`, `data/chennai-rain-history.json.gz`) against `data/chennai-flood-reports.json`, four dated events of police closures. Writes `docs/chennai-watch.md`. Nothing is deployed in Chennai. |
 | `simulate_inflow.py` | **Simulated.** Twenty-four made storms on the underpass of METHOD 15.1, the water moved by the equation `nirmaldhara/inflow.py` uses: whether the figures the floods were made with come back from readings 3 cm and 8 cm loose, each flood played forward from the ones before it with the rain exact, a tenth out and a fifth of what fell, minutes until cars lose passage by the straight line and through the volume, and the rain that closes the road. Writes `docs/inflow-simulation.md` |
 | `simulate_multiview.py` | **Simulated.** Tries the geometry of `nirmaldhara/multiview.py` with the errors a real camera would add: one height against every known dimension, three posts or three cameras against one, and the water's speed from two cameras against one; writes `docs/multiview-simulation.md`. Not evidence of how a waterline is found in a real picture |
 | `serve_web.py` | Development server for `web/` on localhost, with a stand-in for the map file that can be changed, aged or failed on demand |

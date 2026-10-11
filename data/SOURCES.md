@@ -67,3 +67,15 @@ On 11 October 2026 the rule was set against real days (`scripts/watch_history.py
 - `rain-history.json.gz`: hourly rain at the five forecast cells the nine places fall in, 1 March to
   31 October of 2019 to 2022 and 2024 to 2026, from Open-Meteo's archive of the forecasts it served, by
   its own choice of model and by six named models. Weather data by Open-Meteo.com, CC BY 4.0.
+
+## Chennai: the rain rule in a second city
+
+Used by `scripts/chennai_watch.py` (`docs/chennai-watch.md`). Nothing is deployed in Chennai.
+
+- `chennai_sites.json`: nine road subways the police have closed for water more than once, placed by
+  hand to about a kilometre.
+- `chennai-flood-reports.json`: four dated events of closures, 2021 and 2023, each in this project's
+  own words with the page it came from (The News Minute, DT Next).
+- `chennai-rain-history.json.gz`: hourly rain at the five forecast cells the nine fall in, 1 October
+  to 31 December of 2021 and 2023, from Open-Meteo's archive of served forecasts. Weather data by
+  Open-Meteo.com, CC BY 4.0. Fetched 11 October 2026.

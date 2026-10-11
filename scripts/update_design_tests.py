@@ -22,6 +22,7 @@ DESCRIPTIONS = {
     "test_accessibility.py": "Page order, type floor, touch targets, the pinned Close button, reduced motion, names on controls",
     "test_alerts.py": "Who is alerted, the repeat rule, wording, the stand-down, no sentence with two \"and\"s",
     "test_architecture.py": "The picture shows only what the template deploys and leaves out no function",
+    "test_chennai_watch.py": "The Hyderabad watch rule, unchanged, replayed over Chennai's rain against dated subway closures: opens on the cyclone, on none of the smaller rains, and not ahead of the published closures",
     "test_claims.py": "Every test, smoke-test row, resource, file and phrase cited in docs/claims.md exists",
     "test_camera_simulation.py": "The simulated cameras: both depth methods are exact on a level view, only three marks survive a steep one, and the result is labelled simulated",
     "test_change.py": "Camera frame gate",
