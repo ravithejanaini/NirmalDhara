@@ -478,7 +478,7 @@ by the same rules as the map. It sends nothing: there is nowhere yet to send an 
 people read a wheel is not known. Volunteers reading a river's level against a picture of a gauge
 did it better than they estimated its flow (Strobl and others 2020), which is a river bank and
 not a wheel. Nothing here has been tried on a person. The page was checked in a browser on
-localhost and is not on the public site.
+localhost. It has been on the public site since 11 October 2026.
 
 ## 7. Stage D: prediction
 
